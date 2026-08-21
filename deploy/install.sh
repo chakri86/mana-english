@@ -101,7 +101,6 @@ restorecon -RF "${WEB_ROOT}" "${CONF_DIR}" "${QUADLET_DIR}" /etc/nginx/default.d
 setsebool -P httpd_can_network_connect 1
 nginx -t
 systemctl daemon-reload
-systemctl enable mana-english-db.service mana-english-api.service
 systemctl restart mana-english-db.service
 
 for _ in $(seq 1 60); do
