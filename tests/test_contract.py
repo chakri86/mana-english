@@ -27,6 +27,7 @@ class PhaseTwoContractTests(unittest.TestCase):
             "/api/progress",
             "/api/teacher/dashboard",
             "/api/modules/3/weeks/1",
+            "/api/assignments",
         ):
             self.assertIn(endpoint, javascript)
         self.assertIn('headers.set("Authorization", `Bearer ${token()}`)', javascript)

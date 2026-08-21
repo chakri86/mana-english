@@ -26,6 +26,15 @@
   let questionIndex = 0;
   let selectedIndex = null;
   let testAnswers = {};
+  let assignmentRecords = [];
+  let teacherData = null;
+  let speakPhrases = [];
+  let speakIndex = 0;
+  let mediaRecorder = null;
+  let mediaStream = null;
+  let recordingChunks = [];
+  let practiceQuestions = [];
+  let practiceCurrent = null;
   let toastTimer;
 
   const token = () => sessionStorage.getItem(TOKEN_KEY);
@@ -52,7 +61,13 @@
   }
 
   function showHome() {
-    showScreen(currentUser && currentUser.role === "student" ? "student" : "teacher");
+    if (currentUser && currentUser.role === "student") {
+      showStudentView("learn");
+      showScreen("student");
+    } else {
+      showTeacherView("dashboard");
+      showScreen("teacher");
+    }
   }
 
   function showToast(message) {
@@ -77,6 +92,7 @@
     document.getElementById("role-label").textContent = role;
     document.getElementById("user-avatar").textContent = initials(user.display_name) || "ME";
     document.getElementById("header-xp").textContent = `${user.xp || 0} XP`;
+    document.getElementById("header-lessons").textContent = user.role === "student" ? "0 lessons" : "Class 3A";
   }
 
   function clearSession() {
@@ -85,6 +101,8 @@
     currentUser = null;
     moduleData = null;
     progressRecords = [];
+    assignmentRecords = [];
+    teacherData = null;
   }
 
   function speak(text) {
@@ -102,6 +120,118 @@
 
   function completedLessonCount(progress) {
     return progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed").length;
+  }
+
+  function showStudentView(name) {
+    document.querySelectorAll(".student-view").forEach((view) => view.classList.toggle("active", view.id === `student-${name}-view`));
+    document.querySelectorAll("[data-student-view]").forEach((button) => button.classList.toggle("nav-active", button.dataset.studentView === name));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function showTeacherView(name) {
+    document.querySelectorAll(".teacher-view").forEach((view) => view.classList.toggle("active", view.id === `teacher-${name}-view`));
+    document.querySelectorAll("[data-teacher-view]").forEach((button) => button.classList.toggle("nav-active", button.dataset.teacherView === name));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function spokenCountKey() {
+    return `mana_spoken_count_${currentUser ? currentUser.username : "guest"}`;
+  }
+
+  function spokenCount() {
+    return Number(localStorage.getItem(spokenCountKey()) || 0);
+  }
+
+  function updateSpokenCount() {
+    const count = spokenCount() + 1;
+    localStorage.setItem(spokenCountKey(), count);
+    document.getElementById("progress-spoken").textContent = count;
+    return count;
+  }
+
+  function renderSpeakPhrase() {
+    if (!speakPhrases.length) return;
+    const phrase = speakPhrases[speakIndex % speakPhrases.length];
+    document.getElementById("speak-step").textContent = `PHRASE ${speakIndex + 1} OF ${speakPhrases.length}`;
+    document.getElementById("speak-english").textContent = phrase.english;
+    document.getElementById("speak-pronunciation").textContent = phrase.pronunciation_telugu;
+    document.getElementById("speak-meaning").textContent = phrase.meaning_telugu;
+    if (!window.isSecureContext || !navigator.mediaDevices || !window.MediaRecorder) {
+      document.getElementById("speak-record").textContent = "✓ Mark as practised";
+    }
+  }
+
+  function simpleRow(primary, second, third, fourth, warning = false) {
+    const row = document.createElement("div");
+    row.className = "simple-row";
+    const name = Object.assign(document.createElement("b"), { textContent: primary });
+    const value2 = Object.assign(document.createElement("span"), { textContent: second });
+    const value3 = Object.assign(document.createElement("span"), { textContent: third });
+    const statusValue = document.createElement("em");
+    statusValue.textContent = fourth;
+    if (warning) statusValue.className = "warning";
+    row.append(name, value2, value3, statusValue);
+    return row;
+  }
+
+  function metricCard(icon, label, value, detail) {
+    const card = document.createElement("article");
+    card.append(document.createTextNode(icon));
+    const copy = document.createElement("div");
+    copy.append(
+      Object.assign(document.createElement("small"), { textContent: label }),
+      Object.assign(document.createElement("b"), { textContent: value }),
+      Object.assign(document.createElement("em"), { textContent: detail })
+    );
+    card.append(copy);
+    return card;
+  }
+
+  function renderStudentSecondary(user, progress, assignments) {
+    const records = new Map(progress.map((item) => [item.lesson_id, item]));
+    const completed = completedLessonCount(progress);
+    const testRecord = records.get(moduleData.weekend_test.id);
+    const lessonScores = progress.filter((item) => item.lesson_id.includes("-lesson") && item.score > 0);
+    const accuracy = lessonScores.length ? Math.round(lessonScores.reduce((sum, item) => sum + item.score, 0) / lessonScores.length) : 0;
+
+    speakPhrases = moduleData.lessons.flatMap((lesson) => lesson.key_phrases);
+    speakIndex = Math.min(speakIndex, Math.max(speakPhrases.length - 1, 0));
+    renderSpeakPhrase();
+    document.getElementById("progress-lessons").textContent = completed;
+    document.getElementById("progress-spoken").textContent = spokenCount();
+
+    practiceQuestions = moduleData.lessons
+      .filter((lesson, index) => records.has(lesson.id) || index === 0)
+      .flatMap((lesson) => lesson.questions);
+    practiceCurrent = null;
+    document.getElementById("practice-question").textContent = "Choose Start practice to begin.";
+    document.getElementById("practice-telugu").textContent = "";
+    document.getElementById("practice-answers").replaceChildren();
+    document.getElementById("practice-feedback").textContent = "";
+    document.getElementById("practice-button").textContent = "Start practice";
+
+    const testsButton = document.getElementById("tests-start-button");
+    testsButton.disabled = completed < moduleData.lessons.length;
+    testsButton.textContent = testRecord ? `Retake Week 1 test · ${testRecord.score}%` : completed >= moduleData.lessons.length ? "Start Week 1 test" : `Complete ${moduleData.lessons.length - completed} more lesson${moduleData.lessons.length - completed === 1 ? "" : "s"}`;
+    const history = document.getElementById("student-test-history");
+    history.replaceChildren(testRecord
+      ? simpleRow("Week 1 Challenge", `${testRecord.score}%`, `${testRecord.attempts} attempt${testRecord.attempts === 1 ? "" : "s"}`, testRecord.score >= 70 ? "Passed" : "Review", testRecord.score < 70)
+      : Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No completed tests yet." }));
+
+    document.getElementById("student-progress-metrics").replaceChildren(
+      metricCard("⚡", "Total XP", String(user.xp || 0), "All activities"),
+      metricCard("📚", "Lessons", `${completed}/5`, "Week 1"),
+      metricCard("🎯", "Accuracy", `${accuracy}%`, "Lesson practice")
+    );
+    document.getElementById("progress-completion-label").textContent = `${completed} of 5 complete`;
+    document.getElementById("student-progress-list").replaceChildren(...moduleData.lessons.map((lesson) => {
+      const record = records.get(lesson.id);
+      return simpleRow(lesson.title, lesson.day, record ? `+${record.xp} XP` : "0 XP", record ? "Completed" : "Not started", false);
+    }));
+    const assignmentList = document.getElementById("student-assignment-list");
+    assignmentList.replaceChildren(...(assignments.length
+      ? assignments.map((item) => simpleRow(item.title, `Due ${item.due_date}`, `Class ${item.grade}${item.section}`, records.has(item.lesson_id) ? "Completed" : "Assigned"))
+      : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No teacher assignments yet." })]));
   }
 
   function openLessonById(lessonId) {
@@ -125,7 +255,7 @@
     if (lesson) openLessonById(lesson.id);
   }
 
-  function renderStudent(user, progress) {
+  function renderStudent(user, progress, assignments = []) {
     progressRecords = progress;
     const records = new Map(progress.map((item) => [item.lesson_id, item]));
     const completed = completedLessonCount(progress);
@@ -137,6 +267,7 @@
     document.getElementById("progress-xp").textContent = user.xp || 0;
     document.getElementById("progress-accuracy").textContent = `${accuracy}%`;
     document.getElementById("header-xp").textContent = `${user.xp || 0} XP`;
+    document.getElementById("header-lessons").textContent = `${completed} lesson${completed === 1 ? "" : "s"}`;
 
     document.querySelectorAll(".path-item[data-lesson-id]").forEach((item, index) => {
       const lesson = moduleData.lessons[index];
@@ -174,6 +305,7 @@
     const testRecord = records.get(moduleData.weekend_test.id);
     testButton.disabled = completed < moduleData.lessons.length;
     testButton.textContent = testRecord ? `Retake · ${testRecord.score}%` : completed >= moduleData.lessons.length ? "Start test" : "Complete all lessons";
+    renderStudentSecondary(user, progress, assignments);
   }
 
   function createRosterRow(student) {
@@ -226,7 +358,69 @@
     return card;
   }
 
-  function renderTeacher(data) {
+  function createLessonLibraryCard(lesson, index) {
+    const card = document.createElement("article");
+    card.className = "lesson-library-card";
+    card.append(
+      Object.assign(document.createElement("span"), { textContent: `${lesson.day} · LESSON ${index + 1} · ${lesson.duration_minutes} MIN` }),
+      Object.assign(document.createElement("h3"), { textContent: lesson.title }),
+      Object.assign(document.createElement("p"), { textContent: `${lesson.objective} ${lesson.objective_telugu}` })
+    );
+    const footer = document.createElement("footer");
+    const preview = Object.assign(document.createElement("button"), { textContent: "Preview practice" });
+    preview.addEventListener("click", () => openLessonById(lesson.id));
+    const assign = Object.assign(document.createElement("button"), { textContent: "Assign lesson" });
+    assign.addEventListener("click", () => openAssignmentDialog(lesson.id));
+    footer.append(preview, assign);
+    card.append(footer);
+    return card;
+  }
+
+  function renderTeacherSecondary(data, assignments) {
+    const students = data.students;
+    document.getElementById("teacher-students-table").replaceChildren(...students.map(createRosterRow));
+    document.getElementById("student-search-count").textContent = `${students.length} students`;
+    document.getElementById("teacher-lesson-library").replaceChildren(...moduleData.lessons.map(createLessonLibraryCard));
+
+    const tested = students.filter((student) => student.test_score > 0);
+    const passed = students.filter((student) => student.test_score >= 70);
+    const needsHelp = students.filter((student) => student.status === "Needs help");
+    document.getElementById("assessment-metrics").replaceChildren(
+      metricCard("📝", "Tests completed", `${tested.length}/${students.length}`, "Week 1"),
+      metricCard("✅", "Passed", String(passed.length), "70% or higher"),
+      metricCard("🎯", "Class average", `${data.metrics.average_accuracy}%`, "All students"),
+      metricCard("🧭", "Needs support", String(needsHelp.length), "Follow-up group")
+    );
+    const assessmentList = document.getElementById("teacher-assessment-list");
+    assessmentList.replaceChildren(...(students.length
+      ? students.map((student) => simpleRow(student.name, student.username, student.test_score ? `${student.test_score}%` : "Not taken", student.test_score >= 70 ? "Passed" : student.test_score ? "Review" : "Pending", student.test_score > 0 && student.test_score < 70))
+      : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No students found." })]));
+
+    document.getElementById("report-metrics").replaceChildren(
+      metricCard("👥", "Students", String(data.metrics.total_students), "Class 3A"),
+      metricCard("📚", "Lessons completed", String(data.metrics.lessons_completed), "Weekly total"),
+      metricCard("🎯", "Average test", `${data.metrics.average_accuracy}%`, "Week 1"),
+      metricCard("⚡", "Total XP", String(students.reduce((sum, student) => sum + student.xp, 0)), "Class total")
+    );
+    const attention = document.getElementById("attention-list");
+    attention.replaceChildren(...(needsHelp.length
+      ? needsHelp.map((student) => simpleRow(student.name, `${student.lessons_completed}/5 lessons`, student.test_score ? `${student.test_score}% test` : "Test pending", "Needs help", true))
+      : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No students currently require attention." })]));
+
+    const lessonSelect = document.getElementById("assignment-lesson");
+    lessonSelect.replaceChildren(...moduleData.lessons.map((lesson, index) => {
+      const option = document.createElement("option");
+      option.value = lesson.id;
+      option.textContent = `Lesson ${index + 1} · ${lesson.title}`;
+      return option;
+    }));
+    const latest = assignments[0];
+    document.getElementById("latest-assignment-title").textContent = latest ? latest.title : "No assignment yet";
+    document.getElementById("latest-assignment-detail").textContent = latest ? `Due ${latest.due_date}` : "Assign a Week 1 lesson to Class 3A.";
+    document.getElementById("latest-assignment-meta").textContent = latest ? `👥 Class ${latest.grade}${latest.section} · ${latest.lesson_id}` : "👥 Class 3A";
+  }
+
+  function renderTeacher(data, assignments = []) {
     const metrics = data.metrics;
     document.getElementById("teacher-school").textContent = data.school;
     document.getElementById("teacher-name").textContent = firstName(currentUser.display_name);
@@ -236,25 +430,31 @@
     document.getElementById("metric-reviews").textContent = metrics.speaking_reviews;
     document.getElementById("student-roster").replaceChildren(...data.students.map(createRosterRow));
     document.getElementById("teacher-week-plan").replaceChildren(...moduleData.lessons.map(createTeacherDay));
+    renderTeacherSecondary(data, assignments);
   }
 
   async function loadStudent() {
-    const [user, progress, week] = await Promise.all([
-      api("/api/auth/me"), api("/api/progress"), api("/api/modules/3/weeks/1")
+    const [user, progress, week, assignments] = await Promise.all([
+      api("/api/auth/me"), api("/api/progress"), api("/api/modules/3/weeks/1"), api("/api/assignments")
     ]);
     setUser(user);
     moduleData = week;
-    renderStudent(user, progress);
+    assignmentRecords = assignments;
+    renderStudent(user, progress, assignments);
+    showStudentView("learn");
     showScreen("student");
   }
 
   async function loadTeacher() {
-    const [user, dashboard, week] = await Promise.all([
-      api("/api/auth/me"), api("/api/teacher/dashboard"), api("/api/modules/3/weeks/1")
+    const [user, dashboard, week, assignments] = await Promise.all([
+      api("/api/auth/me"), api("/api/teacher/dashboard"), api("/api/modules/3/weeks/1"), api("/api/assignments")
     ]);
     setUser(user);
     moduleData = week;
-    renderTeacher(dashboard);
+    teacherData = dashboard;
+    assignmentRecords = assignments;
+    renderTeacher(dashboard, assignments);
+    showTeacherView("dashboard");
     showScreen("teacher");
   }
 
@@ -348,6 +548,143 @@
     checkButton.disabled = false;
   }
 
+  function nextSpeakPhrase() {
+    if (!speakPhrases.length) return;
+    speakIndex = (speakIndex + 1) % speakPhrases.length;
+    renderSpeakPhrase();
+    document.getElementById("recording-result").className = "recording-result";
+    document.getElementById("recording-result").textContent = "Your recording will appear here.";
+  }
+
+  async function toggleRecording() {
+    const button = document.getElementById("speak-record");
+    const result = document.getElementById("recording-result");
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      button.textContent = "🎙️ Start recording";
+      return;
+    }
+    if (!window.isSecureContext || !navigator.mediaDevices || !window.MediaRecorder) {
+      const count = updateSpokenCount();
+      result.className = "recording-result success";
+      result.textContent = `Practice counted (${count}). Microphone recording becomes available when the site uses trusted HTTPS.`;
+      return;
+    }
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingChunks = [];
+      mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder.addEventListener("dataavailable", (event) => {
+        if (event.data.size) recordingChunks.push(event.data);
+      });
+      mediaRecorder.addEventListener("stop", () => {
+        const blob = new Blob(recordingChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        audio.src = URL.createObjectURL(blob);
+        result.className = "recording-result success";
+        result.replaceChildren(Object.assign(document.createElement("b"), { textContent: "Recording saved on this device · మీ రికార్డింగ్ సిద్ధంగా ఉంది" }), audio);
+        if (mediaStream) mediaStream.getTracks().forEach((track) => track.stop());
+        updateSpokenCount();
+        mediaRecorder = null;
+      });
+      mediaRecorder.start();
+      button.textContent = "■ Stop recording";
+      result.className = "recording-result success";
+      result.textContent = "Recording… Speak the phrase clearly.";
+    } catch (_) {
+      result.textContent = "Microphone access was not allowed. Enable microphone permission and try again.";
+    }
+  }
+
+  function renderPracticeQuestion() {
+    if (!practiceQuestions.length) {
+      document.getElementById("practice-feedback").textContent = "Complete a lesson to unlock mixed practice.";
+      return;
+    }
+    const choices = practiceQuestions.filter((question) => question !== practiceCurrent);
+    practiceCurrent = choices[Math.floor(Math.random() * choices.length)] || practiceQuestions[0];
+    document.getElementById("practice-question").textContent = practiceCurrent.prompt;
+    document.getElementById("practice-telugu").textContent = practiceCurrent.prompt_telugu;
+    document.getElementById("practice-feedback").textContent = "";
+    document.getElementById("practice-button").textContent = "Next question";
+    const buttons = practiceCurrent.choices.map((choice, index) => {
+      const button = document.createElement("button");
+      button.append(Object.assign(document.createElement("span"), { textContent: index + 1 }), document.createTextNode(choice));
+      button.addEventListener("click", () => checkPracticeAnswer(index, button));
+      return button;
+    });
+    document.getElementById("practice-answers").replaceChildren(...buttons);
+  }
+
+  async function checkPracticeAnswer(index, selectedButton) {
+    const buttons = [...document.getElementById("practice-answers").children];
+    buttons.forEach((button) => { button.disabled = true; });
+    selectedButton.classList.add("selected");
+    try {
+      const result = await api("/api/modules/3/weeks/1/check", {
+        method: "POST",
+        body: JSON.stringify({ question_id: practiceCurrent.id, selected_index: index })
+      });
+      const target = document.getElementById("practice-feedback");
+      target.textContent = result.correct ? `✓ ${result.feedback} ${result.feedback_telugu}` : `Try again next time. ${result.feedback_telugu}`;
+      target.className = `inline-feedback ${result.correct ? "success" : "warning"}`;
+    } catch (error) {
+      showToast(error.message);
+      buttons.forEach((button) => { button.disabled = false; });
+    }
+  }
+
+  function openAssignmentDialog(lessonId = null) {
+    if (lessonId) document.getElementById("assignment-lesson").value = lessonId;
+    if (!document.getElementById("assignment-due-date").value) {
+      const due = new Date();
+      due.setDate(due.getDate() + 7);
+      document.getElementById("assignment-due-date").value = due.toISOString().slice(0, 10);
+    }
+    document.getElementById("assignment-error").textContent = "";
+    document.getElementById("assignment-dialog").showModal();
+  }
+
+  async function submitAssignment(event) {
+    event.preventDefault();
+    const error = document.getElementById("assignment-error");
+    error.textContent = "";
+    try {
+      await api("/api/teacher/assignments", {
+        method: "POST",
+        body: JSON.stringify({
+          grade: 3,
+          section: document.getElementById("assignment-section").value,
+          lesson_id: document.getElementById("assignment-lesson").value,
+          due_date: document.getElementById("assignment-due-date").value
+        })
+      });
+      document.getElementById("assignment-dialog").close();
+      await loadTeacher();
+      showToast("Lesson assigned to Class 3A.");
+    } catch (requestError) {
+      error.textContent = requestError.message;
+    }
+  }
+
+  async function downloadReport() {
+    try {
+      const response = await fetch("/api/teacher/report.csv", { headers: { Authorization: `Bearer ${token()}` } });
+      if (!response.ok) throw new Error("Report download failed.");
+      const blob = await response.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "mana-english-class3a-week1.csv";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      showToast(error.message);
+    }
+  }
+
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     loginError.textContent = "";
@@ -387,6 +724,14 @@
   });
 
   document.querySelectorAll("[data-home]").forEach((button) => button.addEventListener("click", showHome));
+  document.querySelectorAll("[data-student-view]").forEach((button) => button.addEventListener("click", () => {
+    showStudentView(button.dataset.studentView);
+    showScreen("student");
+  }));
+  document.querySelectorAll("[data-teacher-view]").forEach((button) => button.addEventListener("click", () => {
+    showTeacherView(button.dataset.teacherView);
+    showScreen("teacher");
+  }));
   document.getElementById("logout-button").addEventListener("click", () => {
     clearSession();
     loginForm.reset();
@@ -396,15 +741,37 @@
   });
   document.getElementById("preview-student").addEventListener("click", () => {
     progressRecords = [];
-    renderStudent(currentUser, []);
+    renderStudent(currentUser, [], []);
+    showStudentView("learn");
     showScreen("student");
     showToast("Student preview · progress changes are disabled");
   });
   document.querySelector(".today-card .open-lesson").addEventListener("click", openNextLesson);
+  document.querySelector(".today-card .sound-button").addEventListener("click", () => speak("My name is Ananya."));
   document.getElementById("open-test").addEventListener("click", openTest);
+  document.getElementById("tests-start-button").addEventListener("click", () => {
+    if (document.getElementById("tests-start-button").disabled) showToast("Complete all five lessons to unlock the test.");
+    else openTest();
+  });
   document.getElementById("close-lesson").addEventListener("click", showHome);
   document.getElementById("exercise-audio").addEventListener("click", () => speak(activeQuestions()[questionIndex].audio));
   document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => speak("confident")));
+  document.getElementById("speak-listen").addEventListener("click", () => speak(speakPhrases[speakIndex].english));
+  document.getElementById("speak-record").addEventListener("click", toggleRecording);
+  document.getElementById("speak-next").addEventListener("click", nextSpeakPhrase);
+  document.getElementById("practice-button").addEventListener("click", renderPracticeQuestion);
+  document.getElementById("telugu-help-button").addEventListener("click", () => document.getElementById("telugu-help-dialog").showModal());
+  document.querySelectorAll("[data-close-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.closeDialog).close()));
+  document.querySelectorAll(".assign-lesson-button").forEach((button) => button.addEventListener("click", () => openAssignmentDialog()));
+  document.getElementById("assignment-form").addEventListener("submit", submitAssignment);
+  document.getElementById("download-report").addEventListener("click", downloadReport);
+  document.getElementById("student-search").addEventListener("input", (event) => {
+    if (!teacherData) return;
+    const query = event.target.value.trim().toLowerCase();
+    const filtered = teacherData.students.filter((student) => `${student.name} ${student.username}`.toLowerCase().includes(query));
+    document.getElementById("teacher-students-table").replaceChildren(...filtered.map(createRosterRow));
+    document.getElementById("student-search-count").textContent = `${filtered.length} student${filtered.length === 1 ? "" : "s"}`;
+  });
 
   checkButton.addEventListener("click", async () => {
     try {
@@ -457,11 +824,6 @@
       showToast(error.message);
       checkButton.disabled = false;
     }
-  });
-
-  document.querySelectorAll("button").forEach((button) => {
-    const wired = button.matches("[data-login-role],[data-home],.open-lesson,.sound-button,#exercise-audio,#close-lesson,#check-answer,#logout-button,#preview-student,#open-test") || button.type === "submit";
-    if (!wired) button.addEventListener("click", () => showToast("This feature is planned for a later build."));
   });
 
   (async function restoreSession() {

@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -61,3 +61,17 @@ class LessonProgress(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped[User] = relationship(back_populates="progress")
+
+
+class Assignment(Base):
+    __tablename__ = "assignments"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    school_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("schools.id", ondelete="CASCADE"), index=True)
+    assigned_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    grade: Mapped[int] = mapped_column(Integer, index=True)
+    section: Mapped[str] = mapped_column(String(10), default="A")
+    lesson_id: Mapped[str] = mapped_column(String(80), index=True)
+    title: Mapped[str] = mapped_column(String(160))
+    due_date: Mapped[date] = mapped_column(Date)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

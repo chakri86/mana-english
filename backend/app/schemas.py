@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
@@ -62,3 +63,15 @@ class TestSubmission(BaseModel):
         if any(index < 0 or index > 10 for index in answers.values()):
             raise ValueError("Answer indexes must be between 0 and 10")
         return answers
+
+
+class AssignmentCreate(BaseModel):
+    grade: int = Field(ge=3, le=5)
+    section: str = Field(default="A", min_length=1, max_length=10)
+    lesson_id: str = Field(min_length=5, max_length=80)
+    due_date: date
+
+    @field_validator("section")
+    @classmethod
+    def normalize_section(cls, value: str) -> str:
+        return value.strip().upper()

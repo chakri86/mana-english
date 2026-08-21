@@ -1,3 +1,5 @@
+import csv
+import io
 import time
 import uuid
 from collections import defaultdict, deque
@@ -7,14 +9,16 @@ from datetime import datetime, timezone
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .content import find_question, load_week, student_week
 from .db import Base, SessionLocal, engine, get_db, wait_for_database
-from .models import LessonProgress, School, User
+from .models import Assignment, LessonProgress, School, User
 from .schemas import (
     AnswerRequest,
+    AssignmentCreate,
     LoginRequest,
     LoginResponse,
     ProgressUpdate,
@@ -56,7 +60,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Mana English API",
-    version="0.3.0",
+    version="0.4.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -120,7 +124,7 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.3.0"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.4.0"}
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
@@ -287,6 +291,59 @@ def get_progress(current: User = Depends(get_current_user), db: Session = Depend
     ]
 
 
+def assignment_to_dict(assignment: Assignment) -> dict:
+    return {
+        "id": str(assignment.id),
+        "grade": assignment.grade,
+        "section": assignment.section,
+        "lesson_id": assignment.lesson_id,
+        "title": assignment.title,
+        "due_date": assignment.due_date.isoformat(),
+        "created_at": assignment.created_at.isoformat(),
+    }
+
+
+@app.get("/api/assignments")
+def list_assignments(
+    current: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    statement = select(Assignment).where(Assignment.school_id == current.school_id)
+    if current.role == "student":
+        statement = statement.where(
+            Assignment.grade == (current.grade or 3),
+            Assignment.section == (current.section or "A"),
+        )
+    assignments = db.scalars(statement.order_by(Assignment.due_date.desc())).all()
+    return [assignment_to_dict(assignment) for assignment in assignments]
+
+
+@app.post("/api/teacher/assignments", status_code=status.HTTP_201_CREATED)
+def create_assignment(
+    payload: AssignmentCreate,
+    current: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current.role not in {"teacher", "admin"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Teacher account required")
+    lesson = next((item for item in LESSONS if item["id"] == payload.lesson_id), None)
+    if lesson is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found")
+    assignment = Assignment(
+        school_id=current.school_id,
+        assigned_by=current.id,
+        grade=payload.grade,
+        section=payload.section,
+        lesson_id=payload.lesson_id,
+        title=lesson["title"],
+        due_date=payload.due_date,
+    )
+    db.add(assignment)
+    db.commit()
+    db.refresh(assignment)
+    return assignment_to_dict(assignment)
+
+
 @app.put("/api/progress/{lesson_id}", response_model=ProgressView)
 def save_progress(
     lesson_id: str,
@@ -366,7 +423,32 @@ def teacher_dashboard(
             "total_students": student_count,
             "lessons_completed": total_lessons,
             "average_accuracy": round(total_accuracy / student_count) if student_count else 0,
-            "speaking_reviews": 7,
+            "speaking_reviews": 0,
         },
         "students": student_rows,
     }
+
+
+@app.get("/api/teacher/report.csv")
+def download_teacher_report(
+    current: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    data = teacher_dashboard(current, db)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Student", "Student ID", "XP", "Lessons completed", "Lessons total", "Week 1 test", "Status"])
+    for student in data["students"]:
+        writer.writerow(
+            [
+                student["name"],
+                student["username"],
+                student["xp"],
+                student["lessons_completed"],
+                student["lessons_total"],
+                student["test_score"],
+                student["status"],
+            ]
+        )
+    headers = {"Content-Disposition": 'attachment; filename="mana-english-class3a-week1.csv"'}
+    return StreamingResponse(iter([output.getvalue()]), media_type="text/csv; charset=utf-8", headers=headers)
