@@ -1,29 +1,63 @@
-# Mana English MVP v0.1.0
+# Mana English Phase 2 v0.2.0
 
-First deployable interface for the spoken-English learning platform for Classes 3–5 in Andhra Pradesh and Telangana.
+Secure pilot web application for spoken-English learning in Classes 3–5 in Andhra Pradesh and Telangana. The interface combines English, Telugu pronunciation support, Telugu meaning, practice lessons, and a teacher progress view.
 
-## Included
+## What is included
 
-- Class 3 student learning path
-- English sentence, Telugu pronunciation guide and Telugu meaning
-- Interactive multiple-choice lesson
-- Browser-based English audio playback
-- XP, streak, weekly goal and progress indicators
-- Teacher dashboard with student progress and speaking-review queue
-- Responsive desktop and mobile layout
+- Student login with school code, student ID, and four-digit PIN
+- Teacher and administrator login with school code, username, and password
+- JWT-based eight-hour browser sessions
+- PostgreSQL-backed student accounts and lesson progress
+- Class 3 Week 1 learning path with English and Telugu support
+- Interactive multiple-choice practice with browser speech playback
+- XP, completion, weekly goal, and accuracy updates
+- Teacher dashboard populated from the PostgreSQL demo class
+- Login throttling after repeated failed attempts
+- Private API exposure: only Nginx is network-facing; the API listens on `127.0.0.1:8000`
+- RHEL 9 deployment with Podman Quadlet, SELinux, firewalld, and Nginx
 
-This release is an interface prototype. User accounts, PostgreSQL persistence, content administration, recorded speaking submissions and automated weekly-test scoring will be connected in later releases.
+This is a pilot build. A full three-year curriculum, content authoring, recorded-speaking submissions, password recovery, and production school administration remain future phases.
 
-## Deploy on the RHEL 9 server
+## Deploy on the RHEL 9 VM
 
-1. Copy and extract this package on the server.
-2. Change into the extracted directory.
-3. Run:
+On the server, run:
 
-   ```bash
-   sudo bash deploy/install.sh
-   ```
+```bash
+cd /home/chakravarthi/mana-english
+git switch mana-english-mvp-v0.1.0
+git pull origin mana-english-mvp-v0.1.0
+sudo bash deploy/install.sh
+```
 
-4. Open `http://192.168.247.200`.
+The first installation builds the FastAPI image, downloads PostgreSQL, creates root-only random demo credentials, starts both services, updates Nginx, and checks the web application.
 
-The installer backs up any replaced website files under `/var/backups/mana-english`, applies the correct SELinux labels, validates Nginx and reloads it.
+Open `http://192.168.247.200` and use the credentials printed at the end of installation. They are also stored locally on the VM at:
+
+```text
+/etc/mana-english/demo-credentials
+```
+
+Only root can read that file. Do not commit or share it.
+
+## Verify the services
+
+```bash
+systemctl --no-pager --full status mana-english-db.service mana-english-api.service
+curl -s http://localhost/api/health
+podman ps
+```
+
+Expected health response:
+
+```json
+{"status":"ok","service":"mana-english-api","version":"0.2.0"}
+```
+
+## Architecture
+
+- Nginx serves `public/` and proxies `/api/`.
+- FastAPI provides authentication, progress, lessons, and teacher dashboard endpoints.
+- PostgreSQL 16 stores schools, accounts, and lesson progress.
+- Podman Quadlet manages the API, database, network, and persistent database volume through systemd.
+
+The installer backs up replaced website files under `/var/backups/mana-english`, preserves existing demo credentials, applies SELinux labels, and validates Nginx before reload.

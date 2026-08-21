@@ -1,0 +1,7 @@
+*.py[cod]
+__pycache__/
+.pytest_cache/
+.env
+*.env
+demo-credentials
+dist/
