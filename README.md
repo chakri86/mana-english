@@ -43,6 +43,19 @@ Open `http://192.168.247.200` and use the credentials printed at the end of inst
 
 Only root can read that file. Do not commit or share it.
 
+## Rotate demo credentials
+
+If a demo PIN or password is displayed in a shared terminal output, rotate all
+demo credentials without deleting student progress:
+
+```bash
+sudo bash deploy/rotate-demo-credentials.sh
+```
+
+The script updates the password hashes in PostgreSQL, replaces the root-only
+credential and API environment files, and restarts the API. Existing schools,
+students, lesson completion, XP, and test scores are preserved.
+
 ## Verify the services
 
 ```bash

@@ -53,6 +53,13 @@ class PhaseTwoContractTests(unittest.TestCase):
         self.assertIn('chmod 0600 "${CONF_DIR}"/*.env "${CREDENTIAL_FILE}"', installer)
         self.assertNotIn("change-me", installer.lower())
 
+    def test_demo_credentials_can_be_rotated_without_resetting_progress(self):
+        rotation = (ROOT / "deploy/rotate-demo-credentials.sh").read_text(encoding="utf-8")
+        self.assertIn("hash_secret", rotation)
+        self.assertIn("db.commit()", rotation)
+        self.assertNotIn("DROP TABLE", rotation.upper())
+        self.assertNotIn("podman volume rm", rotation.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
