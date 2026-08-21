@@ -79,7 +79,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Mana English API",
-    version="0.5.2",
+    version="0.5.3",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -143,7 +143,7 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.5.2"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.5.3"}
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)

@@ -84,6 +84,22 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn('activeMode === "test" ? question.prompt : question.audio', javascript)
         self.assertIn('WEEKEND TEST · NO ANSWER HINTS', javascript)
 
+    def test_accessible_question_and_answer_audio_controls_are_present(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "public/index.html").read_text(encoding="utf-8")
+        styles = (ROOT / "public/styles.css").read_text(encoding="utf-8")
+        self.assertIn("function preferredFemaleVoice", javascript)
+        self.assertIn("function createAnswerOption", javascript)
+        self.assertIn('listenButton.className = "answer-listen"', javascript)
+        self.assertIn('speak(question.prompt_telugu, "te-IN")', javascript)
+        for element_id in (
+            "exercise-audio-telugu",
+            "practice-listen-english",
+            "practice-listen-telugu",
+        ):
+            self.assertIn(f'id="{element_id}"', html)
+        self.assertIn(".answers .answer-option", styles)
+
 
 if __name__ == "__main__":
     unittest.main()

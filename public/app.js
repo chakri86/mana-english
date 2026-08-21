@@ -110,17 +110,50 @@
     teacherData = null;
   }
 
-  function speak(text) {
+  function preferredFemaleVoice(language) {
+    const voices = window.speechSynthesis.getVoices();
+    const languagePrefix = language.toLowerCase().split("-")[0];
+    const matching = voices.filter((voice) => voice.lang.toLowerCase().startsWith(languagePrefix));
+    const femaleHints = ["female", "heera", "shruti", "priya", "swara", "veena", "zira", "aria", "samantha", "susan", "karen", "moira", "ava", "natasha", "neerja", "lekha"];
+    return matching.find((voice) => femaleHints.some((hint) => voice.name.toLowerCase().includes(hint)))
+      || matching.find((voice) => voice.lang.toLowerCase() === language.toLowerCase())
+      || matching[0]
+      || null;
+  }
+
+  function speak(text, language = "en-IN") {
     if (!("speechSynthesis" in window)) {
       showToast("Audio is not supported by this browser.");
       return;
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-IN";
+    utterance.lang = language;
+    const voice = preferredFemaleVoice(language);
+    if (voice) utterance.voice = voice;
     utterance.rate = 0.78;
-    utterance.pitch = 1.05;
+    utterance.pitch = 1.08;
     window.speechSynthesis.speak(utterance);
+  }
+
+  function createAnswerOption(choice, index, onSelect) {
+    const row = document.createElement("div");
+    row.className = "answer-option";
+    const choiceButton = document.createElement("button");
+    choiceButton.type = "button";
+    choiceButton.className = "answer-choice";
+    choiceButton.dataset.answerIndex = String(index);
+    const number = Object.assign(document.createElement("span"), { textContent: index + 1 });
+    choiceButton.append(number, document.createTextNode(choice));
+    choiceButton.addEventListener("click", () => onSelect(index, choiceButton));
+    const listenButton = document.createElement("button");
+    listenButton.type = "button";
+    listenButton.className = "answer-listen";
+    listenButton.textContent = "🔊";
+    listenButton.setAttribute("aria-label", `Listen to answer ${index + 1}: ${choice}`);
+    listenButton.addEventListener("click", () => speak(choice, "en-IN"));
+    row.append(choiceButton, listenButton);
+    return row;
   }
 
   function completedLessonCount(progress) {
@@ -244,6 +277,8 @@
     document.getElementById("practice-answers").replaceChildren();
     document.getElementById("practice-feedback").textContent = "";
     document.getElementById("practice-button").textContent = "Start practice";
+    document.getElementById("practice-listen-english").disabled = true;
+    document.getElementById("practice-listen-telugu").disabled = true;
 
     const testsButton = document.getElementById("tests-start-button");
     testsButton.disabled = completed < moduleData.lessons.length;
@@ -525,7 +560,7 @@
   function selectAnswer(index, button) {
     if (button.disabled) return;
     selectedIndex = index;
-    [...answerList.children].forEach((item) => item.classList.toggle("selected", item === button));
+    answerList.querySelectorAll(".answer-choice").forEach((item) => item.classList.toggle("selected", item === button));
     checkButton.disabled = false;
     if (activeMode !== "test" && questionAttemptNumber === 2) checkButton.textContent = "Check again";
     answerFooter.className = "";
@@ -544,15 +579,7 @@
     document.getElementById("exercise-pronunciation").textContent = isTest ? "ప్రశ్నను మాత్రమే వినండి. సమాధానం చూపించబడదు." : question.pronunciation_telugu;
     document.getElementById("lesson-counter").textContent = `${questionIndex + 1} / ${questions.length}`;
     document.getElementById("lesson-progress-bar").style.width = `${((questionIndex + 1) / questions.length) * 100}%`;
-    const buttons = question.choices.map((choice, index) => {
-      const button = document.createElement("button");
-      button.dataset.answerIndex = String(index);
-      const number = Object.assign(document.createElement("span"), { textContent: index + 1 });
-      button.append(number, document.createTextNode(choice));
-      button.addEventListener("click", () => selectAnswer(index, button));
-      return button;
-    });
-    answerList.replaceChildren(...buttons);
+    answerList.replaceChildren(...question.choices.map((choice, index) => createAnswerOption(choice, index, selectAnswer)));
   }
 
   function openTest() {
@@ -683,18 +710,13 @@
     document.getElementById("practice-telugu").textContent = practiceCurrent.prompt_telugu;
     document.getElementById("practice-feedback").textContent = "";
     document.getElementById("practice-button").textContent = "Next question";
-    const buttons = practiceCurrent.choices.map((choice, index) => {
-      const button = document.createElement("button");
-      button.dataset.answerIndex = String(index);
-      button.append(Object.assign(document.createElement("span"), { textContent: index + 1 }), document.createTextNode(choice));
-      button.addEventListener("click", () => checkPracticeAnswer(index, button));
-      return button;
-    });
-    document.getElementById("practice-answers").replaceChildren(...buttons);
+    document.getElementById("practice-listen-english").disabled = false;
+    document.getElementById("practice-listen-telugu").disabled = false;
+    document.getElementById("practice-answers").replaceChildren(...practiceCurrent.choices.map((choice, index) => createAnswerOption(choice, index, checkPracticeAnswer)));
   }
 
   async function checkPracticeAnswer(index, selectedButton) {
-    const buttons = [...document.getElementById("practice-answers").children];
+    const buttons = [...document.getElementById("practice-answers").querySelectorAll(".answer-choice")];
     buttons.forEach((button) => { button.disabled = true; });
     selectedButton.classList.add("selected");
     try {
@@ -709,16 +731,16 @@
         target.className = "inline-feedback success";
       } else if (!result.reveal_correct) {
         selectedButton.classList.remove("selected");
-        selectedButton.classList.add("eliminated");
+        selectedButton.closest(".answer-option").classList.add("eliminated");
         practiceAttemptNumber = 2;
-        buttons.forEach((button) => { if (!button.classList.contains("eliminated")) button.disabled = false; });
+        buttons.forEach((button) => { if (!button.closest(".answer-option").classList.contains("eliminated")) button.disabled = false; });
         target.textContent = "One wrong choice removed. Choose again from the two answers. · ఒక తప్పు ఎంపిక తొలగించబడింది. మిగిలిన రెండింటిలో మళ్లీ ఎంచుకోండి.";
         target.className = "inline-feedback warning";
       } else {
         selectedButton.classList.add("wrong-answer");
         const correctButton = buttons.find((button) => Number(button.dataset.answerIndex) === result.correct_index);
         if (correctButton) {
-          correctButton.classList.remove("eliminated");
+          correctButton.closest(".answer-option").classList.remove("eliminated");
           correctButton.classList.add("correct-answer");
         }
         target.textContent = `Correct answer: ${result.correct_answer}. ${result.feedback} ${result.feedback_telugu}`;
@@ -726,7 +748,7 @@
       }
     } catch (error) {
       showToast(error.message);
-      buttons.forEach((button) => { if (!button.classList.contains("eliminated")) button.disabled = false; });
+      buttons.forEach((button) => { if (!button.closest(".answer-option").classList.contains("eliminated")) button.disabled = false; });
     }
   }
 
@@ -854,13 +876,23 @@
   });
   document.getElementById("exercise-audio").addEventListener("click", () => {
     const question = activeQuestions()[questionIndex];
-    speak(activeMode === "test" ? question.prompt : question.audio);
+    speak(activeMode === "test" ? question.prompt : question.audio, "en-IN");
+  });
+  document.getElementById("exercise-audio-telugu").addEventListener("click", () => {
+    const question = activeQuestions()[questionIndex];
+    speak(question.prompt_telugu, "te-IN");
   });
   document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => speak("confident")));
   document.getElementById("speak-listen").addEventListener("click", () => speak(speakPhrases[speakIndex].english));
   document.getElementById("speak-record").addEventListener("click", toggleRecording);
   document.getElementById("speak-next").addEventListener("click", nextSpeakPhrase);
   document.getElementById("practice-button").addEventListener("click", renderPracticeQuestion);
+  document.getElementById("practice-listen-english").addEventListener("click", () => {
+    if (practiceCurrent) speak(practiceCurrent.prompt, "en-IN");
+  });
+  document.getElementById("practice-listen-telugu").addEventListener("click", () => {
+    if (practiceCurrent) speak(practiceCurrent.prompt_telugu, "te-IN");
+  });
   document.getElementById("telugu-help-button").addEventListener("click", () => document.getElementById("telugu-help-dialog").showModal());
   document.querySelectorAll("[data-close-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.closeDialog).close()));
   document.querySelectorAll(".assign-lesson-button").forEach((button) => button.addEventListener("click", () => openAssignmentDialog()));
@@ -915,7 +947,7 @@
       });
       const title = document.createElement("b");
       const detail = document.createElement("p");
-      const buttons = [...answerList.children];
+      const buttons = [...answerList.querySelectorAll(".answer-choice")];
       const selectedButton = buttons.find((button) => Number(button.dataset.answerIndex) === selectedIndex);
       if (result.correct) {
         lessonMasteredQuestions.add(question.id);
@@ -931,7 +963,7 @@
       } else if (!result.reveal_correct) {
         if (selectedButton) {
           selectedButton.classList.remove("selected");
-          selectedButton.classList.add("eliminated");
+          selectedButton.closest(".answer-option").classList.add("eliminated");
           selectedButton.disabled = true;
         }
         selectedIndex = null;
@@ -948,7 +980,8 @@
         if (selectedButton) selectedButton.classList.add("wrong-answer");
         const correctButton = buttons.find((button) => Number(button.dataset.answerIndex) === result.correct_index);
         if (correctButton) {
-          correctButton.classList.remove("eliminated", "selected");
+          correctButton.closest(".answer-option").classList.remove("eliminated");
+          correctButton.classList.remove("selected");
           correctButton.classList.add("correct-answer");
         }
         title.textContent = `Correct answer: ${result.correct_answer}`;
