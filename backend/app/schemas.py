@@ -46,3 +46,19 @@ class ProgressView(BaseModel):
     xp: int
     attempts: int
     completed_at: str | None
+
+
+class AnswerRequest(BaseModel):
+    question_id: str = Field(min_length=3, max_length=40)
+    selected_index: int = Field(ge=0, le=10)
+
+
+class TestSubmission(BaseModel):
+    answers: dict[str, int] = Field(min_length=1, max_length=20)
+
+    @field_validator("answers")
+    @classmethod
+    def validate_answer_indexes(cls, answers: dict[str, int]) -> dict[str, int]:
+        if any(index < 0 or index > 10 for index in answers.values()):
+            raise ValueError("Answer indexes must be between 0 and 10")
+        return answers

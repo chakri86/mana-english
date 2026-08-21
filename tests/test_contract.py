@@ -26,6 +26,7 @@ class PhaseTwoContractTests(unittest.TestCase):
             "/api/auth/me",
             "/api/progress",
             "/api/teacher/dashboard",
+            "/api/modules/3/weeks/1",
         ):
             self.assertIn(endpoint, javascript)
         self.assertIn('headers.set("Authorization", `Bearer ${token()}`)', javascript)
@@ -39,6 +40,9 @@ class PhaseTwoContractTests(unittest.TestCase):
             '@app.get("/api/progress"',
             '@app.put("/api/progress/{lesson_id}"',
             '@app.get("/api/teacher/dashboard")',
+            '@app.get("/api/modules/{grade}/weeks/{week}")',
+            '@app.post("/api/modules/{grade}/weeks/{week}/check")',
+            '@app.post("/api/modules/{grade}/weeks/{week}/test/submit")',
         ):
             self.assertIn(route, api)
 

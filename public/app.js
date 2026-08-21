@@ -13,13 +13,19 @@
   const loginForm = document.getElementById("login-form");
   const loginButton = document.getElementById("login-button");
   const loginError = document.getElementById("login-error");
-  const answerButtons = [...document.querySelectorAll(".answers button")];
   const checkButton = document.getElementById("check-answer");
   const answerFooter = document.getElementById("answer-footer");
   const feedback = document.getElementById("feedback");
+  const answerList = document.getElementById("exercise-answers");
   const toast = document.getElementById("toast");
   let currentUser = null;
-  let selectedAnswer = null;
+  let moduleData = null;
+  let progressRecords = [];
+  let activeMode = "lesson";
+  let activeLesson = null;
+  let questionIndex = 0;
+  let selectedIndex = null;
+  let testAnswers = {};
   let toastTimer;
 
   const token = () => sessionStorage.getItem(TOKEN_KEY);
@@ -30,7 +36,7 @@
     if (token()) headers.set("Authorization", `Bearer ${token()}`);
     const response = await fetch(path, { ...options, headers });
     let payload = {};
-    try { payload = await response.json(); } catch (_) { /* An empty error body is handled below. */ }
+    try { payload = await response.json(); } catch (_) { /* Empty error bodies use the fallback below. */ }
     if (!response.ok) {
       const error = new Error(payload.detail || "Something went wrong. Please try again.");
       error.status = response.status;
@@ -77,16 +83,8 @@
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(USER_KEY);
     currentUser = null;
-  }
-
-  function resetExercise() {
-    selectedAnswer = null;
-    answerButtons.forEach((button) => button.classList.remove("selected"));
-    checkButton.disabled = true;
-    checkButton.textContent = "Check answer";
-    checkButton.dataset.mode = "check";
-    answerFooter.className = "";
-    feedback.replaceChildren();
+    moduleData = null;
+    progressRecords = [];
   }
 
   function speak(text) {
@@ -102,9 +100,35 @@
     window.speechSynthesis.speak(utterance);
   }
 
+  function completedLessonCount(progress) {
+    return progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed").length;
+  }
+
+  function openLessonById(lessonId) {
+    if (!moduleData) return;
+    const lesson = moduleData.lessons.find((item) => item.id === lessonId);
+    if (!lesson) {
+      showToast("Lesson content is unavailable.");
+      return;
+    }
+    activeMode = "lesson";
+    activeLesson = lesson;
+    questionIndex = 0;
+    testAnswers = {};
+    renderQuestion();
+    showScreen("lesson");
+  }
+
+  function openNextLesson() {
+    const completed = completedLessonCount(progressRecords);
+    const lesson = moduleData && moduleData.lessons[Math.min(completed, moduleData.lessons.length - 1)];
+    if (lesson) openLessonById(lesson.id);
+  }
+
   function renderStudent(user, progress) {
+    progressRecords = progress;
     const records = new Map(progress.map((item) => [item.lesson_id, item]));
-    const completed = progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed").length;
+    const completed = completedLessonCount(progress);
     const scored = progress.filter((item) => item.score > 0);
     const accuracy = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
     document.getElementById("student-first-name").textContent = firstName(user.display_name);
@@ -115,9 +139,13 @@
     document.getElementById("header-xp").textContent = `${user.xp || 0} XP`;
 
     document.querySelectorAll(".path-item[data-lesson-id]").forEach((item, index) => {
+      const lesson = moduleData.lessons[index];
       const record = records.get(item.dataset.lessonId);
       const isDone = record && record.status === "completed";
       const canStart = isDone || index <= completed;
+      item.querySelector(".lesson-copy span").textContent = `${lesson.day} · LESSON ${index + 1}`;
+      item.querySelector(".lesson-copy b").textContent = lesson.title;
+      item.querySelector(".lesson-copy small").textContent = lesson.telugu_title;
       item.classList.toggle("done", Boolean(isDone));
       item.classList.toggle("current", !isDone && canStart);
       item.classList.toggle("locked", !canStart);
@@ -126,19 +154,26 @@
       const action = item.querySelector(".lesson-action");
       if (isDone) {
         node.textContent = "✓";
-        action.replaceChildren(Object.assign(document.createElement("span"), { className: "xp", textContent: `+${record.xp} XP` }));
+        const practise = document.createElement("button");
+        practise.textContent = "Practise";
+        practise.addEventListener("click", () => openLessonById(lesson.id));
+        action.replaceChildren(practise);
       } else if (canStart) {
-        node.textContent = index === 1 ? "🙂" : "💬";
+        node.textContent = index === completed ? "🙂" : "💬";
         const button = document.createElement("button");
-        button.className = "open-lesson";
-        button.textContent = index === completed ? "Continue" : "Practise";
-        button.addEventListener("click", openLesson);
+        button.textContent = index === completed ? "Continue" : "Start";
+        button.addEventListener("click", () => openLessonById(lesson.id));
         action.replaceChildren(button);
       } else {
         node.textContent = "🔒";
         action.replaceChildren(Object.assign(document.createElement("span"), { textContent: "Locked" }));
       }
     });
+
+    const testButton = document.getElementById("open-test");
+    const testRecord = records.get(moduleData.weekend_test.id);
+    testButton.disabled = completed < moduleData.lessons.length;
+    testButton.textContent = testRecord ? `Retake · ${testRecord.score}%` : completed >= moduleData.lessons.length ? "Start test" : "Complete all lessons";
   }
 
   function createRosterRow(student) {
@@ -151,17 +186,44 @@
     const label = document.createElement("span");
     label.textContent = student.name;
     name.append(avatar, label);
-    const xp = document.createElement("span");
-    xp.textContent = student.xp;
-    const lessons = document.createElement("span");
-    lessons.textContent = `${student.lessons_completed}/${student.lessons_total}`;
-    const test = document.createElement("span");
-    test.textContent = `${student.test_score}%`;
-    const status = document.createElement("em");
-    status.textContent = student.status;
-    if (student.status === "Needs help") status.className = "needs-help";
-    row.append(name, xp, lessons, test, status);
+    const xp = Object.assign(document.createElement("span"), { textContent: student.xp });
+    const lessons = Object.assign(document.createElement("span"), { textContent: `${student.lessons_completed}/${student.lessons_total}` });
+    const test = Object.assign(document.createElement("span"), { textContent: `${student.test_score}%` });
+    const studentStatus = document.createElement("em");
+    studentStatus.textContent = student.status;
+    if (student.status === "Needs help") studentStatus.className = "needs-help";
+    row.append(name, xp, lessons, test, studentStatus);
     return row;
+  }
+
+  function guidanceItem(term, text) {
+    const dt = Object.assign(document.createElement("dt"), { textContent: term });
+    const dd = Object.assign(document.createElement("dd"), { textContent: text });
+    return [dt, dd];
+  }
+
+  function createTeacherDay(lesson, index) {
+    const card = document.createElement("article");
+    card.className = "teacher-day";
+    const day = Object.assign(document.createElement("span"), { textContent: `${lesson.day} · ${lesson.duration_minutes} MIN` });
+    const title = Object.assign(document.createElement("h4"), { textContent: lesson.title });
+    const objective = Object.assign(document.createElement("p"), { textContent: lesson.objective });
+    const details = document.createElement("details");
+    if (index === 0) details.open = true;
+    details.append(Object.assign(document.createElement("summary"), { textContent: "Open lesson plan" }));
+    const list = document.createElement("dl");
+    const guidance = lesson.teacher_guidance;
+    list.append(
+      ...guidanceItem("Warm-up", guidance.warm_up),
+      ...guidanceItem("Model", guidance.model),
+      ...guidanceItem("Guided practice", guidance.guided_practice),
+      ...guidanceItem("Pair practice", guidance.pair_practice),
+      ...guidanceItem("Common errors", guidance.common_errors),
+      ...guidanceItem("Home practice", guidance.home_practice)
+    );
+    details.append(list);
+    card.append(day, title, objective, details);
+    return card;
   }
 
   function renderTeacher(data) {
@@ -173,18 +235,25 @@
     document.getElementById("metric-accuracy").textContent = `${metrics.average_accuracy}%`;
     document.getElementById("metric-reviews").textContent = metrics.speaking_reviews;
     document.getElementById("student-roster").replaceChildren(...data.students.map(createRosterRow));
+    document.getElementById("teacher-week-plan").replaceChildren(...moduleData.lessons.map(createTeacherDay));
   }
 
   async function loadStudent() {
-    const [user, progress] = await Promise.all([api("/api/auth/me"), api("/api/progress")]);
+    const [user, progress, week] = await Promise.all([
+      api("/api/auth/me"), api("/api/progress"), api("/api/modules/3/weeks/1")
+    ]);
     setUser(user);
+    moduleData = week;
     renderStudent(user, progress);
     showScreen("student");
   }
 
   async function loadTeacher() {
-    const [user, dashboard] = await Promise.all([api("/api/auth/me"), api("/api/teacher/dashboard")]);
+    const [user, dashboard, week] = await Promise.all([
+      api("/api/auth/me"), api("/api/teacher/dashboard"), api("/api/modules/3/weeks/1")
+    ]);
     setUser(user);
+    moduleData = week;
     renderTeacher(dashboard);
     showScreen("teacher");
   }
@@ -194,22 +263,90 @@
     else await loadTeacher();
   }
 
-  function openLesson() {
-    resetExercise();
+  function activeQuestions() {
+    return activeMode === "test" ? moduleData.weekend_test.questions : activeLesson.questions;
+  }
+
+  function resetAnswer() {
+    selectedIndex = null;
+    checkButton.disabled = true;
+    checkButton.dataset.mode = "check";
+    checkButton.textContent = activeMode === "test" ? "Save answer" : "Check answer";
+    answerFooter.className = "";
+    feedback.replaceChildren();
+  }
+
+  function selectAnswer(index, button) {
+    selectedIndex = index;
+    [...answerList.children].forEach((item) => item.classList.toggle("selected", item === button));
+    checkButton.disabled = false;
+    answerFooter.className = "";
+    feedback.replaceChildren();
+  }
+
+  function renderQuestion() {
+    const questions = activeQuestions();
+    const question = questions[questionIndex];
+    resetAnswer();
+    document.getElementById("exercise-eyebrow").textContent = activeMode === "test" ? "WEEKEND TEST" : `${activeLesson.day} · SPEAKING PRACTICE`;
+    document.getElementById("exercise-title").textContent = question.prompt;
+    document.getElementById("exercise-telugu").textContent = question.prompt_telugu;
+    document.getElementById("exercise-phrase").textContent = `“${question.audio}”`;
+    document.getElementById("exercise-pronunciation").textContent = question.pronunciation_telugu;
+    document.getElementById("lesson-counter").textContent = `${questionIndex + 1} / ${questions.length}`;
+    document.getElementById("lesson-progress-bar").style.width = `${((questionIndex + 1) / questions.length) * 100}%`;
+    const buttons = question.choices.map((choice, index) => {
+      const button = document.createElement("button");
+      const number = Object.assign(document.createElement("span"), { textContent: index + 1 });
+      button.append(number, document.createTextNode(choice));
+      button.addEventListener("click", () => selectAnswer(index, button));
+      return button;
+    });
+    answerList.replaceChildren(...buttons);
+  }
+
+  function openTest() {
+    if (document.getElementById("open-test").disabled) return;
+    activeMode = "test";
+    activeLesson = null;
+    questionIndex = 0;
+    testAnswers = {};
+    renderQuestion();
     showScreen("lesson");
   }
 
-  document.querySelectorAll("[data-login-role]").forEach((button) => {
-    button.addEventListener("click", () => {
-      document.querySelectorAll("[data-login-role]").forEach((item) => item.classList.toggle("active", item === button));
-      const isStudent = button.dataset.loginRole === "student";
-      document.getElementById("username-label").textContent = isStudent ? "Student ID" : "Username";
-      document.getElementById("username").placeholder = isStudent ? "Example: ANANYA03" : "Example: LAKSHMI";
-      document.getElementById("secret-label").textContent = isStudent ? "4-digit PIN" : "Password";
-      document.getElementById("secret").inputMode = isStudent ? "numeric" : "text";
-      loginError.textContent = "";
+  async function finishLesson() {
+    if (currentUser.role !== "student") {
+      showHome();
+      showToast("Teacher preview completed. No student progress changed.");
+      return;
+    }
+    checkButton.disabled = true;
+    await api(`/api/progress/${activeLesson.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: "completed", score: 100, xp: activeLesson.xp })
     });
-  });
+    await loadStudent();
+    showToast(`+${activeLesson.xp} XP saved. చాలా బాగుంది!`);
+  }
+
+  async function submitTest() {
+    checkButton.disabled = true;
+    const result = await api("/api/modules/3/weeks/1/test/submit", {
+      method: "POST",
+      body: JSON.stringify({ answers: testAnswers })
+    });
+    const resultBox = document.createElement("div");
+    resultBox.className = "test-result";
+    const score = Object.assign(document.createElement("strong"), { textContent: `${result.score}%` });
+    const message = Object.assign(document.createElement("span"), { textContent: `${result.message} ${result.message_telugu}` });
+    resultBox.append(score, message);
+    feedback.replaceChildren(resultBox);
+    answerFooter.className = result.passed ? "correct" : "wrong";
+    checkButton.textContent = "Finish";
+    checkButton.dataset.mode = "finish-test";
+    checkButton.disabled = false;
+  }
 
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -237,6 +374,18 @@
     }
   });
 
+  document.querySelectorAll("[data-login-role]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-login-role]").forEach((item) => item.classList.toggle("active", item === button));
+      const isStudent = button.dataset.loginRole === "student";
+      document.getElementById("username-label").textContent = isStudent ? "Student ID" : "Username";
+      document.getElementById("username").placeholder = isStudent ? "Example: ANANYA03" : "Example: LAKSHMI";
+      document.getElementById("secret-label").textContent = isStudent ? "4-digit PIN" : "Password";
+      document.getElementById("secret").inputMode = isStudent ? "numeric" : "text";
+      loginError.textContent = "";
+    });
+  });
+
   document.querySelectorAll("[data-home]").forEach((button) => button.addEventListener("click", showHome));
   document.getElementById("logout-button").addEventListener("click", () => {
     clearSession();
@@ -246,67 +395,72 @@
     showToast("You have signed out.");
   });
   document.getElementById("preview-student").addEventListener("click", () => {
+    progressRecords = [];
+    renderStudent(currentUser, []);
     showScreen("student");
     showToast("Student preview · progress changes are disabled");
   });
-  document.querySelectorAll(".open-lesson").forEach((button) => button.addEventListener("click", openLesson));
+  document.querySelector(".today-card .open-lesson").addEventListener("click", openNextLesson);
+  document.getElementById("open-test").addEventListener("click", openTest);
   document.getElementById("close-lesson").addEventListener("click", showHome);
-
-  answerButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      selectedAnswer = button;
-      answerButtons.forEach((item) => item.classList.toggle("selected", item === button));
-      checkButton.disabled = false;
-      answerFooter.className = "";
-      feedback.replaceChildren();
-      checkButton.textContent = "Check answer";
-      checkButton.dataset.mode = "check";
-    });
-  });
+  document.getElementById("exercise-audio").addEventListener("click", () => speak(activeQuestions()[questionIndex].audio));
+  document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => speak("confident")));
 
   checkButton.addEventListener("click", async () => {
-    if (checkButton.dataset.mode === "continue") {
-      if (currentUser && currentUser.role === "student") {
-        try {
-          checkButton.disabled = true;
-          await api("/api/progress/class3-unit1-lesson2", {
-            method: "PUT",
-            body: JSON.stringify({ status: "completed", score: 100, xp: 20 })
-          });
-          await loadStudent();
-          showToast("+20 XP saved. Great work!");
-        } catch (error) {
-          showToast(error.message);
-          checkButton.disabled = false;
-        }
-      } else {
-        showHome();
-        showToast("Preview completed. Student progress was not changed.");
+    try {
+      if (checkButton.dataset.mode === "finish-test") {
+        await loadStudent();
+        return;
       }
-      return;
-    }
-    if (checkButton.dataset.mode === "retry") {
-      resetExercise();
-      return;
-    }
-    if (!selectedAnswer) return;
-    const correct = selectedAnswer.dataset.correct === "true";
-    answerFooter.className = correct ? "correct" : "wrong";
-    const title = document.createElement("b");
-    const detail = document.createElement("p");
-    title.textContent = correct ? "Excellent! చాలా బాగుంది!" : "Let’s try again · మళ్ళీ ప్రయత్నిద్దాం";
-    detail.textContent = correct ? "+20 XP when you continue" : "Listen once more and choose the natural sentence.";
-    feedback.replaceChildren(title, detail);
-    checkButton.textContent = correct ? "Continue" : "Try again";
-    checkButton.dataset.mode = correct ? "continue" : "retry";
-  });
+      if (checkButton.dataset.mode === "continue") {
+        if (questionIndex + 1 < activeQuestions().length) {
+          questionIndex += 1;
+          renderQuestion();
+        } else {
+          await finishLesson();
+        }
+        return;
+      }
+      if (checkButton.dataset.mode === "retry") {
+        renderQuestion();
+        return;
+      }
+      if (selectedIndex === null) return;
 
-  document.querySelectorAll(".sound-button").forEach((button) => {
-    button.addEventListener("click", () => speak(button.closest(".word") ? "confident" : "My name is Ananya."));
+      const question = activeQuestions()[questionIndex];
+      if (activeMode === "test") {
+        testAnswers[question.id] = selectedIndex;
+        if (questionIndex + 1 < activeQuestions().length) {
+          questionIndex += 1;
+          renderQuestion();
+        } else {
+          await submitTest();
+        }
+        return;
+      }
+
+      checkButton.disabled = true;
+      const result = await api("/api/modules/3/weeks/1/check", {
+        method: "POST",
+        body: JSON.stringify({ question_id: question.id, selected_index: selectedIndex })
+      });
+      const title = document.createElement("b");
+      const detail = document.createElement("p");
+      title.textContent = result.correct ? "Excellent! చాలా బాగుంది!" : "Let’s try again · మళ్ళీ ప్రయత్నిద్దాం";
+      detail.textContent = `${result.feedback} ${result.feedback_telugu}`;
+      feedback.replaceChildren(title, detail);
+      answerFooter.className = result.correct ? "correct" : "wrong";
+      checkButton.textContent = result.correct ? (questionIndex + 1 === activeQuestions().length ? "Complete lesson" : "Continue") : "Try again";
+      checkButton.dataset.mode = result.correct ? "continue" : "retry";
+      checkButton.disabled = false;
+    } catch (error) {
+      showToast(error.message);
+      checkButton.disabled = false;
+    }
   });
 
   document.querySelectorAll("button").forEach((button) => {
-    const wired = button.matches("[data-login-role],[data-home],.open-lesson,.sound-button,#close-lesson,#check-answer,.answers button,#logout-button,#preview-student") || button.type === "submit";
+    const wired = button.matches("[data-login-role],[data-home],.open-lesson,.sound-button,#exercise-audio,#close-lesson,#check-answer,#logout-button,#preview-student,#open-test") || button.type === "submit";
     if (!wired) button.addEventListener("click", () => showToast("This feature is planned for a later build."));
   });
 

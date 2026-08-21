@@ -56,12 +56,12 @@
       </article>
       <div class="section-heading"><div><p class="eyebrow">YOUR LEARNING PATH</p><h2>Greetings and introductions</h2></div><span>Unit 1 of 10</span></div>
       <div class="path">
-        <article class="path-item done" data-lesson-id="class3-unit1-lesson1"><div class="path-line"></div><div class="node">✓</div><div class="lesson-copy"><span>MON · LESSON 1</span><b>Hello!</b><small>హలో!</small></div><div class="lesson-action"><span class="xp">+20 XP</span></div></article>
+        <article class="path-item done" data-lesson-id="class3-unit1-lesson1"><div class="path-line"></div><div class="node">✓</div><div class="lesson-copy"><span>MON · LESSON 1</span><b>Hello and good morning</b><small>హలో మరియు గుడ్ మార్నింగ్</small></div><div class="lesson-action"><span class="xp">+20 XP</span></div></article>
         <article class="path-item current" data-lesson-id="class3-unit1-lesson2"><div class="path-line"></div><div class="node">🙂</div><div class="lesson-copy"><span>TUE · LESSON 2</span><b>My name is…</b><small>నా పేరు…</small></div><div class="lesson-action"><button class="open-lesson">Continue</button></div></article>
         <article class="path-item open" data-lesson-id="class3-unit1-lesson3"><div class="path-line"></div><div class="node">💬</div><div class="lesson-copy"><span>WED · LESSON 3</span><b>How are you?</b><small>మీరు ఎలా ఉన్నారు?</small></div><div class="lesson-action"><span>12 min</span></div></article>
-        <article class="path-item locked" data-lesson-id="class3-unit1-lesson4"><div class="path-line"></div><div class="node">🔒</div><div class="lesson-copy"><span>THU · LESSON 4</span><b>I am fine</b><small>నేను బాగున్నాను</small></div><div class="lesson-action"><span>Locked</span></div></article>
-        <article class="path-item locked" data-lesson-id="class3-unit1-lesson5"><div class="node">🔒</div><div class="lesson-copy"><span>FRI · LESSON 5</span><b>Let’s practise</b><small>అభ్యాసం చేద్దాం</small></div><div class="lesson-action"><span>Locked</span></div></article>
-        <article class="test-card"><div>🏆</div><section><span>WEEKEND CHALLENGE</span><b>Week 1 Test</b><p>15 questions · Listening + MCQ</p></section><small>Complete all five lessons</small></article>
+        <article class="path-item locked" data-lesson-id="class3-unit1-lesson4"><div class="path-line"></div><div class="node">🔒</div><div class="lesson-copy"><span>THU · LESSON 4</span><b>Nice to meet you</b><small>మిమ్మల్ని కలవడం ఆనందంగా ఉంది</small></div><div class="lesson-action"><span>Locked</span></div></article>
+        <article class="path-item locked" data-lesson-id="class3-unit1-lesson5"><div class="node">🔒</div><div class="lesson-copy"><span>FRI · LESSON 5</span><b>Let’s have a conversation</b><small>మనము సంభాషిద్దాం</small></div><div class="lesson-action"><span>Locked</span></div></article>
+        <article class="test-card"><div>🏆</div><section><span>WEEKEND CHALLENGE</span><b>Week 1 Test</b><p>10 questions · Listening + MCQ</p></section><button id="open-test" disabled>Complete all lessons</button></article>
       </div>
     </section>
     <aside class="progress-panel">
@@ -73,8 +73,8 @@
   </main>
 
   <main id="lesson-screen" class="screen lesson-screen">
-    <div class="lesson-top"><button id="close-lesson" aria-label="Close lesson">✕</button><div><i></i></div><span>❤️ 5</span></div>
-    <article class="exercise"><p class="eyebrow">SPEAKING · QUESTION 2 OF 8</p><h1>How do you introduce yourself?</h1><p class="telugu-question">మీ గురించి మీరు ఎలా పరిచయం చేసుకుంటారు?</p><div class="audio-prompt"><button class="sound-button">🔊</button><div><strong>“My name is Ananya.”</strong><span>మై నేమ్ ఈజ్ అనన్య.</span></div></div><h2>Choose the correct sentence:</h2><div class="answers"><button data-correct="true"><span>1</span>My name is Ananya.</button><button><span>2</span>I name Ananya.</button><button><span>3</span>Name my Ananya.</button></div><footer id="answer-footer"><div id="feedback"></div><button id="check-answer" disabled>Check answer</button></footer></article>
+    <div class="lesson-top"><button id="close-lesson" aria-label="Close lesson">✕</button><div><i id="lesson-progress-bar"></i></div><span id="lesson-counter">1 / 3</span></div>
+    <article class="exercise"><p id="exercise-eyebrow" class="eyebrow">SPEAKING PRACTICE</p><h1 id="exercise-title">Loading lesson…</h1><p id="exercise-telugu" class="telugu-question"></p><div class="audio-prompt"><button id="exercise-audio" type="button">🔊</button><div><strong id="exercise-phrase"></strong><span id="exercise-pronunciation"></span></div></div><h2>Choose the correct answer:</h2><div id="exercise-answers" class="answers"></div><footer id="answer-footer"><div id="feedback"></div><button id="check-answer" disabled>Check answer</button></footer></article>
   </main>
 
   <main id="teacher-screen" class="screen teacher-shell">
@@ -86,6 +86,7 @@
         <article class="roster"><div class="card-title"><div><h3>Student progress</h3><p>Class 3A · Week 1</p></div><button>View report</button></div><div class="roster-head"><span>Student</span><span>XP</span><span>Lessons</span><span>Test</span><span>Status</span></div><div id="student-roster"></div></article>
         <aside><article class="assignment"><p class="eyebrow">TODAY’S ASSIGNMENT</p><h3>Lesson 4 · I am fine</h3><p>Listening, speaking and sentence building</p><div>👥 Class 3A &nbsp; ⏱ 12 min</div><button>Open lesson plan →</button></article><article class="review"><b>🎙️ &nbsp; Speaking recordings</b><p>Give students quick speaking feedback.</p><button>Start reviewing</button></article></aside>
       </div>
+      <section class="teacher-guide"><div class="card-title"><div><p class="eyebrow">TEACHER MODULE</p><h3>Week 1 teaching guide</h3><p>Five ready-to-teach daily lesson plans</p></div><span>Class 3 · 61 minutes</span></div><div id="teacher-week-plan" class="teacher-week-plan"></div></section>
     </section>
   </main>
 

@@ -1,0 +1,322 @@
+{
+  "grade": 3,
+  "week": 1,
+  "unit": 1,
+  "theme": "Greetings and introductions",
+  "theme_telugu": "అభివాదాలు మరియు పరిచయాలు",
+  "weekly_outcome": "Students can greet someone, say their name, ask how a person is, respond politely, and introduce a friend.",
+  "weekly_outcome_telugu": "విద్యార్థులు అభివాదం చేయడం, తమ పేరు చెప్పడం, యోగక్షేమాలు అడగడం, మర్యాదగా సమాధానం ఇవ్వడం మరియు స్నేహితుడిని పరిచయం చేయడం నేర్చుకుంటారు.",
+  "lessons": [
+    {
+      "id": "class3-unit1-lesson1",
+      "day": "MON",
+      "title": "Hello and good morning",
+      "telugu_title": "హలో మరియు గుడ్ మార్నింగ్",
+      "objective": "Greet a teacher or friend at the right time.",
+      "objective_telugu": "సరైన సమయంలో ఉపాధ్యాయుడిని లేదా స్నేహితుడిని అభివాదం చేయడం.",
+      "duration_minutes": 10,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "Hello!", "pronunciation_telugu": "హలో!", "meaning_telugu": "నమస్కారం!"},
+        {"english": "Good morning!", "pronunciation_telugu": "గుడ్ మార్నింగ్!", "meaning_telugu": "శుభోదయం!"},
+        {"english": "Good afternoon!", "pronunciation_telugu": "గుడ్ ఆఫ్టర్నూన్!", "meaning_telugu": "శుభ మధ్యాహ్నం!"}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Smile, wave, and say ‘Hello’ to three students. Ask the class to copy the gesture and words.",
+        "model": "Point to a morning picture and model ‘Good morning’. Contrast it with an afternoon picture.",
+        "guided_practice": "Show a time-of-day card. Students choose and say the matching greeting together.",
+        "pair_practice": "Pairs greet each other twice: once as school begins and once after lunch.",
+        "common_errors": "If students say only ‘Morning’, recast gently as ‘Good morning’. Keep the final /g/ in morning soft and clear.",
+        "home_practice": "Say ‘Good morning’ to a family member the next morning."
+      },
+      "questions": [
+        {
+          "id": "w1l1q1",
+          "prompt": "School begins in the morning. What do you say to your teacher?",
+          "prompt_telugu": "ఉదయం పాఠశాల మొదలైంది. ఉపాధ్యాయుడికి ఏమని చెబుతారు?",
+          "audio": "Good morning, teacher!",
+          "pronunciation_telugu": "గుడ్ మార్నింగ్, టీచర్!",
+          "choices": ["Good morning, teacher!", "Good night, teacher!", "Goodbye, teacher!"],
+          "correct_index": 0,
+          "feedback": "We say ‘Good morning’ at the beginning of the school day.",
+          "feedback_telugu": "పాఠశాల రోజు ప్రారంభంలో ‘గుడ్ మార్నింగ్’ అంటాము."
+        },
+        {
+          "id": "w1l1q2",
+          "prompt": "Choose the friendly greeting.",
+          "prompt_telugu": "స్నేహపూర్వక అభివాదాన్ని ఎంచుకోండి.",
+          "audio": "Hello, Sai!",
+          "pronunciation_telugu": "హలో, సాయి!",
+          "choices": ["Hello, Sai!", "Name Sai.", "Fine Sai."],
+          "correct_index": 0,
+          "feedback": "‘Hello’ is a friendly greeting.",
+          "feedback_telugu": "‘హలో’ అనేది స్నేహపూర్వక అభివాదం."
+        },
+        {
+          "id": "w1l1q3",
+          "prompt": "It is after lunch. Which greeting fits?",
+          "prompt_telugu": "మధ్యాహ్న భోజనం తర్వాత ఏ అభివాదం సరిపోతుంది?",
+          "audio": "Good afternoon!",
+          "pronunciation_telugu": "గుడ్ ఆఫ్టర్నూన్!",
+          "choices": ["Good night!", "Good afternoon!", "Good morning!"],
+          "correct_index": 1,
+          "feedback": "After midday, we say ‘Good afternoon’.",
+          "feedback_telugu": "మధ్యాహ్నం తర్వాత ‘గుడ్ ఆఫ్టర్నూన్’ అంటాము."
+        }
+      ]
+    },
+    {
+      "id": "class3-unit1-lesson2",
+      "day": "TUE",
+      "title": "My name is…",
+      "telugu_title": "నా పేరు…",
+      "objective": "Introduce yourself using a complete sentence.",
+      "objective_telugu": "పూర్తి వాక్యంతో మీ గురించి పరిచయం చేసుకోవడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "My name is Ananya.", "pronunciation_telugu": "మై నేమ్ ఈజ్ అనన్య.", "meaning_telugu": "నా పేరు అనన్య."},
+        {"english": "I am Sai.", "pronunciation_telugu": "ఐ యామ్ సాయి.", "meaning_telugu": "నేను సాయిని."},
+        {"english": "What is your name?", "pronunciation_telugu": "వాట్ ఈజ్ యువర్ నేమ్?", "meaning_telugu": "మీ పేరు ఏమిటి?"}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Hold a name card and say ‘My name is Lakshmi’. Students repeat with their own names.",
+        "model": "Tap your chest for ‘My’, point to the name card for ‘name’, and speak the full sentence slowly.",
+        "guided_practice": "Use four familiar student names. The class completes ‘My name is ___’ aloud.",
+        "pair_practice": "Student A asks ‘What is your name?’ Student B answers ‘My name is ___.’ Then swap.",
+        "common_errors": "Correct ‘I name…’ by recasting the full pattern ‘My name is…’. Do not over-explain grammar at this age.",
+        "home_practice": "Introduce yourself in English to one family member."
+      },
+      "questions": [
+        {
+          "id": "w1l2q1",
+          "prompt": "How do you introduce yourself?",
+          "prompt_telugu": "మీ గురించి మీరు ఎలా పరిచయం చేసుకుంటారు?",
+          "audio": "My name is Ananya.",
+          "pronunciation_telugu": "మై నేమ్ ఈజ్ అనన్య.",
+          "choices": ["My name is Ananya.", "I name Ananya.", "Name my Ananya."],
+          "correct_index": 0,
+          "feedback": "‘My name is…’ is the complete sentence.",
+          "feedback_telugu": "‘మై నేమ్ ఈజ్…’ అనేది పూర్తి వాక్యం."
+        },
+        {
+          "id": "w1l2q2",
+          "prompt": "What question asks for a person’s name?",
+          "prompt_telugu": "ఒకరి పేరు అడగడానికి ఏ ప్రశ్న ఉపయోగిస్తారు?",
+          "audio": "What is your name?",
+          "pronunciation_telugu": "వాట్ ఈజ్ యువర్ నేమ్?",
+          "choices": ["How are you?", "What is your name?", "Where is your book?"],
+          "correct_index": 1,
+          "feedback": "Ask ‘What is your name?’ politely.",
+          "feedback_telugu": "మర్యాదగా ‘వాట్ ఈజ్ యువర్ నేమ్?’ అని అడగండి."
+        },
+        {
+          "id": "w1l2q3",
+          "prompt": "Complete: I ___ Harshini.",
+          "prompt_telugu": "పూర్తి చేయండి: ఐ ___ హర్షిణి.",
+          "audio": "I am Harshini.",
+          "pronunciation_telugu": "ఐ యామ్ హర్షిణి.",
+          "choices": ["is", "am", "are"],
+          "correct_index": 1,
+          "feedback": "We say ‘I am Harshini’.",
+          "feedback_telugu": "‘ఐ యామ్ హర్షిణి’ అని అంటాము."
+        }
+      ]
+    },
+    {
+      "id": "class3-unit1-lesson3",
+      "day": "WED",
+      "title": "How are you?",
+      "telugu_title": "మీరు ఎలా ఉన్నారు?",
+      "objective": "Ask how someone is and understand a simple response.",
+      "objective_telugu": "ఒకరి యోగక్షేమాలు అడిగి, సరళమైన సమాధానాన్ని అర్థం చేసుకోవడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "How are you?", "pronunciation_telugu": "హౌ ఆర్ యూ?", "meaning_telugu": "మీరు ఎలా ఉన్నారు?"},
+        {"english": "I am fine.", "pronunciation_telugu": "ఐ యామ్ ఫైన్.", "meaning_telugu": "నేను బాగున్నాను."},
+        {"english": "I am happy.", "pronunciation_telugu": "ఐ యామ్ హ్యాపీ.", "meaning_telugu": "నేను సంతోషంగా ఉన్నాను."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Use happy, okay, and tired face cards. Students copy the expression and name the feeling in Telugu first.",
+        "model": "Ask a confident student ‘How are you?’ and model ‘I am fine, thank you.’",
+        "guided_practice": "Hold up a feeling card. Students answer together using ‘I am ___.’",
+        "pair_practice": "Pairs ask and answer twice, changing the feeling word on the second turn.",
+        "common_errors": "If students answer only ‘fine’, accept it first and expand naturally to ‘I am fine.’",
+        "home_practice": "Ask a family member ‘How are you?’ and listen to the answer."
+      },
+      "questions": [
+        {
+          "id": "w1l3q1",
+          "prompt": "Which sentence asks about someone’s wellbeing?",
+          "prompt_telugu": "ఒకరి యోగక్షేమాలు అడిగే వాక్యం ఏది?",
+          "audio": "How are you?",
+          "pronunciation_telugu": "హౌ ఆర్ యూ?",
+          "choices": ["How are you?", "What is your name?", "Good night."],
+          "correct_index": 0,
+          "feedback": "‘How are you?’ asks how a person feels.",
+          "feedback_telugu": "‘హౌ ఆర్ యూ?’ ఒకరు ఎలా ఉన్నారో అడుగుతుంది."
+        },
+        {
+          "id": "w1l3q2",
+          "prompt": "Rohan feels good. What can he say?",
+          "prompt_telugu": "రోహన్ బాగున్నాడు. అతను ఏమని చెప్పవచ్చు?",
+          "audio": "I am fine.",
+          "pronunciation_telugu": "ఐ యామ్ ఫైన్.",
+          "choices": ["I fine.", "I am fine.", "Am fine I."],
+          "correct_index": 1,
+          "feedback": "Use the complete response ‘I am fine.’",
+          "feedback_telugu": "‘ఐ యామ్ ఫైన్’ అనే పూర్తి సమాధానాన్ని ఉపయోగించండి."
+        },
+        {
+          "id": "w1l3q3",
+          "prompt": "Choose the polite two-line conversation.",
+          "prompt_telugu": "మర్యాదపూర్వకమైన రెండు వాక్యాల సంభాషణను ఎంచుకోండి.",
+          "audio": "How are you? I am fine, thank you.",
+          "pronunciation_telugu": "హౌ ఆర్ యూ? ఐ యామ్ ఫైన్, థాంక్ యూ.",
+          "choices": ["How are you? — I am fine, thank you.", "How are you? — My book.", "Goodbye. — My name."],
+          "correct_index": 0,
+          "feedback": "The answer matches the question and includes ‘thank you’.",
+          "feedback_telugu": "సమాధానం ప్రశ్నకు సరిపోతుంది మరియు ‘థాంక్ యూ’ కూడా ఉంది."
+        }
+      ]
+    },
+    {
+      "id": "class3-unit1-lesson4",
+      "day": "THU",
+      "title": "Nice to meet you",
+      "telugu_title": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది",
+      "objective": "Respond politely when meeting someone for the first time.",
+      "objective_telugu": "మొదటిసారి ఒకరిని కలిసినప్పుడు మర్యాదగా స్పందించడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "Nice to meet you.", "pronunciation_telugu": "నైస్ టు మీట్ యూ.", "meaning_telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది."},
+        {"english": "Nice to meet you too.", "pronunciation_telugu": "నైస్ టు మీట్ యూ టూ.", "meaning_telugu": "మిమ్మల్ని కలవడం కూడా నాకు ఆనందంగా ఉంది."},
+        {"english": "This is my friend.", "pronunciation_telugu": "దిస్ ఈజ్ మై ఫ్రెండ్.", "meaning_telugu": "ఇది నా స్నేహితుడు/స్నేహితురాలు."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Pretend to meet a new student. Smile, make eye contact, and say ‘Nice to meet you.’",
+        "model": "Demonstrate both turns: ‘Nice to meet you’ and ‘Nice to meet you too.’",
+        "guided_practice": "The class repeats each line with a friendly voice and a small wave.",
+        "pair_practice": "Pairs exchange names and the two ‘Nice to meet you’ lines.",
+        "common_errors": "Students may omit ‘to’. Clap the rhythm: Nice / to / meet / you.",
+        "home_practice": "Practise the two-line exchange with a sibling or family member."
+      },
+      "questions": [
+        {
+          "id": "w1l4q1",
+          "prompt": "You meet a new classmate. What is polite to say?",
+          "prompt_telugu": "మీరు కొత్త సహపాఠిని కలిశారు. మర్యాదగా ఏమని చెబుతారు?",
+          "audio": "Nice to meet you.",
+          "pronunciation_telugu": "నైస్ టు మీట్ యూ.",
+          "choices": ["Nice to meet you.", "Give me your book.", "Go away."],
+          "correct_index": 0,
+          "feedback": "‘Nice to meet you’ is friendly and polite.",
+          "feedback_telugu": "‘నైస్ టు మీట్ యూ’ అనేది స్నేహపూర్వకమైన, మర్యాదపూర్వకమైన మాట."
+        },
+        {
+          "id": "w1l4q2",
+          "prompt": "Someone says ‘Nice to meet you.’ Choose your reply.",
+          "prompt_telugu": "ఎవరైనా ‘నైస్ టు మీట్ యూ’ అన్నారు. మీ సమాధానాన్ని ఎంచుకోండి.",
+          "audio": "Nice to meet you too.",
+          "pronunciation_telugu": "నైస్ టు మీట్ యూ టూ.",
+          "choices": ["Good morning yesterday.", "Nice to meet you too.", "My fine is name."],
+          "correct_index": 1,
+          "feedback": "Add ‘too’ to return the friendly greeting.",
+          "feedback_telugu": "అదే స్నేహపూర్వక భావాన్ని తిరిగి చెప్పడానికి ‘టూ’ జోడించండి."
+        },
+        {
+          "id": "w1l4q3",
+          "prompt": "Complete: This is my ___.",
+          "prompt_telugu": "పూర్తి చేయండి: దిస్ ఈజ్ మై ___.",
+          "audio": "This is my friend.",
+          "pronunciation_telugu": "దిస్ ఈజ్ మై ఫ్రెండ్.",
+          "choices": ["friend", "fine", "morning"],
+          "correct_index": 0,
+          "feedback": "Use ‘friend’ when introducing a classmate.",
+          "feedback_telugu": "సహపాఠిని పరిచయం చేసేటప్పుడు ‘ఫ్రెండ్’ ఉపయోగించండి."
+        }
+      ]
+    },
+    {
+      "id": "class3-unit1-lesson5",
+      "day": "FRI",
+      "title": "Let’s have a conversation",
+      "telugu_title": "మనము సంభాషిద్దాం",
+      "objective": "Use the week’s phrases in a short conversation.",
+      "objective_telugu": "ఈ వారం నేర్చుకున్న వాక్యాలతో చిన్న సంభాషణ చేయడం.",
+      "duration_minutes": 15,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "Hello! My name is Rohan.", "pronunciation_telugu": "హలో! మై నేమ్ ఈజ్ రోహన్.", "meaning_telugu": "హలో! నా పేరు రోహన్."},
+        {"english": "How are you?", "pronunciation_telugu": "హౌ ఆర్ యూ?", "meaning_telugu": "మీరు ఎలా ఉన్నారు?"},
+        {"english": "I am fine, thank you.", "pronunciation_telugu": "ఐ యామ్ ఫైన్, థాంక్ యూ.", "meaning_telugu": "నేను బాగున్నాను, ధన్యవాదాలు."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Review the five key expressions with gesture cards and quick whole-class repetition.",
+        "model": "Perform a four-line conversation with a student from greeting through ‘Nice to meet you.’",
+        "guided_practice": "Build the conversation one line at a time. Point to visual cues instead of translating every line.",
+        "pair_practice": "Pairs perform the complete conversation, then change partners and repeat with new names.",
+        "common_errors": "Focus on confidence and meaning. Correct only one important pattern per turn so children keep speaking.",
+        "home_practice": "Perform the full conversation for a family member."
+      },
+      "questions": [
+        {
+          "id": "w1l5q1",
+          "prompt": "Which line should begin a conversation?",
+          "prompt_telugu": "సంభాషణను ఏ వాక్యంతో ప్రారంభించాలి?",
+          "audio": "Hello!",
+          "pronunciation_telugu": "హలో!",
+          "choices": ["Hello!", "I am fine.", "Nice to meet you too."],
+          "correct_index": 0,
+          "feedback": "Begin with a greeting such as ‘Hello’.",
+          "feedback_telugu": "‘హలో’ వంటి అభివాదంతో ప్రారంభించండి."
+        },
+        {
+          "id": "w1l5q2",
+          "prompt": "Put the ideas in a natural order.",
+          "prompt_telugu": "వాక్యాలను సహజమైన క్రమంలో ఎంచుకోండి.",
+          "audio": "Hello. My name is Sai. How are you?",
+          "pronunciation_telugu": "హలో. మై నేమ్ ఈజ్ సాయి. హౌ ఆర్ యూ?",
+          "choices": ["Name → goodbye → hello", "Hello → name → how are you", "Fine → afternoon → name"],
+          "correct_index": 1,
+          "feedback": "Greet first, introduce yourself, and then ask how the person is.",
+          "feedback_telugu": "మొదట అభివాదం చేసి, మీ పేరు చెప్పి, తర్వాత వారు ఎలా ఉన్నారో అడగండి."
+        },
+        {
+          "id": "w1l5q3",
+          "prompt": "Complete the conversation: ‘How are you?’ — ‘___’",
+          "prompt_telugu": "సంభాషణను పూర్తి చేయండి: ‘హౌ ఆర్ యూ?’ — ‘___’",
+          "audio": "I am fine, thank you.",
+          "pronunciation_telugu": "ఐ యామ్ ఫైన్, థాంక్ యూ.",
+          "choices": ["My name question.", "I am fine, thank you.", "Good night morning."],
+          "correct_index": 1,
+          "feedback": "This is a complete and polite response.",
+          "feedback_telugu": "ఇది పూర్తి మరియు మర్యాదపూర్వకమైన సమాధానం."
+        }
+      ]
+    }
+  ],
+  "weekend_test": {
+    "id": "class3-unit1-week1-test",
+    "title": "Week 1 Challenge",
+    "telugu_title": "1వ వారం ఛాలెంజ్",
+    "instructions": "Choose the best answer for each question.",
+    "instructions_telugu": "ప్రతి ప్రశ్నకు సరైన సమాధానాన్ని ఎంచుకోండి.",
+    "xp": 50,
+    "pass_score": 70,
+    "questions": [
+      {"id": "w1tq1", "prompt": "It is 9:00 a.m. What do you say?", "prompt_telugu": "ఉదయం 9 గంటలు. ఏమని చెబుతారు?", "audio": "Good morning!", "pronunciation_telugu": "గుడ్ మార్నింగ్!", "choices": ["Good morning!", "Good night!", "Goodbye!"], "correct_index": 0},
+      {"id": "w1tq2", "prompt": "Choose the correct introduction.", "prompt_telugu": "సరైన పరిచయ వాక్యాన్ని ఎంచుకోండి.", "audio": "My name is Harshini.", "pronunciation_telugu": "మై నేమ్ ఈజ్ హర్షిణి.", "choices": ["Name Harshini my.", "My name is Harshini.", "I name Harshini."], "correct_index": 1},
+      {"id": "w1tq3", "prompt": "Which question asks for a name?", "prompt_telugu": "పేరు అడిగే ప్రశ్న ఏది?", "audio": "What is your name?", "pronunciation_telugu": "వాట్ ఈజ్ యువర్ నేమ్?", "choices": ["How are you?", "What is your name?", "Where are you?"], "correct_index": 1},
+      {"id": "w1tq4", "prompt": "Answer: How are you?", "prompt_telugu": "సమాధానం ఇవ్వండి: హౌ ఆర్ యూ?", "audio": "I am fine, thank you.", "pronunciation_telugu": "ఐ యామ్ ఫైన్, థాంక్ యూ.", "choices": ["I am fine, thank you.", "My name fine.", "Good morning night."], "correct_index": 0},
+      {"id": "w1tq5", "prompt": "You meet a new friend. What do you say?", "prompt_telugu": "మీరు కొత్త స్నేహితుడిని కలిశారు. ఏమని చెబుతారు?", "audio": "Nice to meet you.", "pronunciation_telugu": "నైస్ టు మీట్ యూ.", "choices": ["Nice to meet you.", "Close the door.", "Give me a pencil."], "correct_index": 0},
+      {"id": "w1tq6", "prompt": "Complete: This is my ___.", "prompt_telugu": "పూర్తి చేయండి: దిస్ ఈజ్ మై ___.", "audio": "This is my friend.", "pronunciation_telugu": "దిస్ ఈజ్ మై ఫ్రెండ్.", "choices": ["morning", "friend", "fine"], "correct_index": 1},
+      {"id": "w1tq7", "prompt": "It is 2:00 p.m. Choose the greeting.", "prompt_telugu": "మధ్యాహ్నం 2 గంటలు. అభివాదాన్ని ఎంచుకోండి.", "audio": "Good afternoon!", "pronunciation_telugu": "గుడ్ ఆఫ్టర్నూన్!", "choices": ["Good afternoon!", "Good morning!", "Good night!"], "correct_index": 0},
+      {"id": "w1tq8", "prompt": "Reply to: Nice to meet you.", "prompt_telugu": "సమాధానం ఇవ్వండి: నైస్ టు మీట్ యూ.", "audio": "Nice to meet you too.", "pronunciation_telugu": "నైస్ టు మీట్ యూ టూ.", "choices": ["Nice to meet you too.", "How name fine?", "Goodbye morning."], "correct_index": 0},
+      {"id": "w1tq9", "prompt": "Choose the complete sentence.", "prompt_telugu": "పూర్తి వాక్యాన్ని ఎంచుకోండి.", "audio": "I am Sai.", "pronunciation_telugu": "ఐ యామ్ సాయి.", "choices": ["I Sai.", "Am Sai.", "I am Sai."], "correct_index": 2},
+      {"id": "w1tq10", "prompt": "Which conversation is natural?", "prompt_telugu": "సహజమైన సంభాషణ ఏది?", "audio": "Hello. What is your name? My name is Rohan.", "pronunciation_telugu": "హలో. వాట్ ఈజ్ యువర్ నేమ్? మై నేమ్ ఈజ్ రోహన్.", "choices": ["Hello. — What is your name? — My name is Rohan.", "Good night. — I name? — Fine book.", "How are you? — My pencil is morning."], "correct_index": 0}
+    ]
+  }
+}

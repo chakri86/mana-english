@@ -1,0 +1,67 @@
+import json
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CONTENT_FILE = ROOT / "backend/app/content/class3_week1.json"
+
+
+class ClassThreeWeekOneTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.module = json.loads(CONTENT_FILE.read_text(encoding="utf-8"))
+
+    def test_week_has_five_daily_lessons_and_ten_test_questions(self):
+        self.assertEqual(self.module["grade"], 3)
+        self.assertEqual(self.module["week"], 1)
+        self.assertEqual(len(self.module["lessons"]), 5)
+        self.assertEqual(len(self.module["weekend_test"]["questions"]), 10)
+
+    def test_every_lesson_has_bilingual_practice_and_teacher_guidance(self):
+        required_guidance = {
+            "warm_up",
+            "model",
+            "guided_practice",
+            "pair_practice",
+            "common_errors",
+            "home_practice",
+        }
+        for lesson in self.module["lessons"]:
+            self.assertTrue(lesson["telugu_title"])
+            self.assertTrue(lesson["objective_telugu"])
+            self.assertGreaterEqual(len(lesson["key_phrases"]), 3)
+            self.assertEqual(len(lesson["questions"]), 3)
+            self.assertEqual(set(lesson["teacher_guidance"]), required_guidance)
+            for phrase in lesson["key_phrases"]:
+                self.assertTrue(phrase["pronunciation_telugu"])
+                self.assertTrue(phrase["meaning_telugu"])
+
+    def test_question_ids_are_unique_and_answers_are_valid(self):
+        questions = [
+            question
+            for lesson in self.module["lessons"]
+            for question in lesson["questions"]
+        ] + self.module["weekend_test"]["questions"]
+        ids = [question["id"] for question in questions]
+        self.assertEqual(len(ids), len(set(ids)))
+        for question in questions:
+            self.assertTrue(question["prompt_telugu"])
+            self.assertTrue(question["pronunciation_telugu"])
+            self.assertGreaterEqual(len(question["choices"]), 3)
+            self.assertIn(question["correct_index"], range(len(question["choices"])))
+
+    def test_student_payload_can_hide_answer_keys(self):
+        from backend.app.content import student_week
+
+        student_module = student_week(3, 1)
+        for lesson in student_module["lessons"]:
+            self.assertNotIn("teacher_guidance", lesson)
+            for question in lesson["questions"]:
+                self.assertNotIn("correct_index", question)
+        for question in student_module["weekend_test"]["questions"]:
+            self.assertNotIn("correct_index", question)
+
+
+if __name__ == "__main__":
+    unittest.main()
