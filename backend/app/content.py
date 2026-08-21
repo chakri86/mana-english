@@ -24,6 +24,10 @@ def student_week(grade: int, week: int) -> dict:
             question.pop("correct_index", None)
     for question in module["weekend_test"]["questions"]:
         question.pop("correct_index", None)
+        # Assessment payloads must not expose the model answer through the
+        # audio text or its Telugu pronunciation hint.
+        question["audio"] = question["prompt"]
+        question["pronunciation_telugu"] = "ప్రశ్నను వినండి. సమాధానం చూపించబడదు."
     return module
 
 

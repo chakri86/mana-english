@@ -535,12 +535,13 @@
   function renderQuestion() {
     const questions = activeQuestions();
     const question = questions[questionIndex];
+    const isTest = activeMode === "test";
     resetAnswer();
-    document.getElementById("exercise-eyebrow").textContent = activeMode === "test" ? "WEEKEND TEST" : `${activeLesson.day} · SPEAKING PRACTICE`;
+    document.getElementById("exercise-eyebrow").textContent = isTest ? "WEEKEND TEST · NO ANSWER HINTS" : `${activeLesson.day} · SPEAKING PRACTICE`;
     document.getElementById("exercise-title").textContent = question.prompt;
     document.getElementById("exercise-telugu").textContent = question.prompt_telugu;
-    document.getElementById("exercise-phrase").textContent = `“${question.audio}”`;
-    document.getElementById("exercise-pronunciation").textContent = question.pronunciation_telugu;
+    document.getElementById("exercise-phrase").textContent = isTest ? "Listen to the question" : `“${question.audio}”`;
+    document.getElementById("exercise-pronunciation").textContent = isTest ? "ప్రశ్నను మాత్రమే వినండి. సమాధానం చూపించబడదు." : question.pronunciation_telugu;
     document.getElementById("lesson-counter").textContent = `${questionIndex + 1} / ${questions.length}`;
     document.getElementById("lesson-progress-bar").style.width = `${((questionIndex + 1) / questions.length) * 100}%`;
     const buttons = question.choices.map((choice, index) => {
@@ -851,7 +852,10 @@
     if (currentUser && currentUser.role === "student") await loadStudent();
     else showHome();
   });
-  document.getElementById("exercise-audio").addEventListener("click", () => speak(activeQuestions()[questionIndex].audio));
+  document.getElementById("exercise-audio").addEventListener("click", () => {
+    const question = activeQuestions()[questionIndex];
+    speak(activeMode === "test" ? question.prompt : question.audio);
+  });
   document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => speak("confident")));
   document.getElementById("speak-listen").addEventListener("click", () => speak(speakPhrases[speakIndex].english));
   document.getElementById("speak-record").addEventListener("click", toggleRecording);

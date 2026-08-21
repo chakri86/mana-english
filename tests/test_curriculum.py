@@ -62,6 +62,18 @@ class ClassThreeWeekOneTests(unittest.TestCase):
         for question in student_module["weekend_test"]["questions"]:
             self.assertNotIn("correct_index", question)
 
+    def test_weekend_test_payload_does_not_reveal_answers_as_audio_hints(self):
+        from backend.app.content import student_week
+
+        student_module = student_week(3, 1)
+        source_questions = {question["id"]: question for question in self.module["weekend_test"]["questions"]}
+        for question in student_module["weekend_test"]["questions"]:
+            source = source_questions[question["id"]]
+            correct_answer = source["choices"][source["correct_index"]]
+            self.assertNotEqual(question["audio"], correct_answer)
+            self.assertNotEqual(question["pronunciation_telugu"], source["pronunciation_telugu"])
+            self.assertEqual(question["audio"], question["prompt"])
+
 
 if __name__ == "__main__":
     unittest.main()

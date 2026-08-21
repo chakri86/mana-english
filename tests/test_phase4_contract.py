@@ -78,6 +78,12 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn('status: completed ? "completed" : "needs_practice"', javascript)
         self.assertIn('checkButton.dataset.mode = "retry-missed"', javascript)
 
+    def test_weekend_test_ui_plays_only_the_question(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        self.assertIn('isTest ? "Listen to the question"', javascript)
+        self.assertIn('activeMode === "test" ? question.prompt : question.audio', javascript)
+        self.assertIn('WEEKEND TEST · NO ANSWER HINTS', javascript)
+
 
 if __name__ == "__main__":
     unittest.main()
