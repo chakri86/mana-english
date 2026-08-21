@@ -35,7 +35,7 @@ class LoginResponse(BaseModel):
 
 
 class ProgressUpdate(BaseModel):
-    status: Literal["started", "completed"] = "completed"
+    status: Literal["started", "needs_practice", "completed"] = "completed"
     score: int = Field(default=0, ge=0, le=100)
     xp: int = Field(default=0, ge=0, le=100)
 

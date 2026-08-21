@@ -47,6 +47,24 @@ bearer = HTTPBearer(auto_error=False)
 failed_attempts: dict[str, deque[float]] = defaultdict(deque)
 RATE_WINDOW_SECONDS = 600
 RATE_LIMIT = 5
+MASTERY_SCORE = 67
+
+
+def reconcile_legacy_mastery(db: Session) -> None:
+    lesson_ids = {lesson["id"] for lesson in LESSONS}
+    records = db.scalars(
+        select(LessonProgress).where(
+            LessonProgress.lesson_id.in_(lesson_ids),
+            LessonProgress.status == "completed",
+            LessonProgress.score < MASTERY_SCORE,
+        )
+    ).all()
+    for record in records:
+        record.status = "needs_practice"
+        record.xp = 0
+        record.completed_at = None
+    if records:
+        db.commit()
 
 
 @asynccontextmanager
@@ -55,12 +73,13 @@ async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         seed_demo_data(db)
+        reconcile_legacy_mastery(db)
     yield
 
 
 app = FastAPI(
     title="Mana English API",
-    version="0.5.0",
+    version="0.5.1",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -124,7 +143,7 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.5.0"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.5.1"}
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
@@ -329,17 +348,20 @@ def save_progress_record(
         )
     )
     now = datetime.now(timezone.utc)
+    was_completed = record is not None and record.status == "completed"
     if record is None:
         record = LessonProgress(user_id=user.id, lesson_id=lesson_id)
         db.add(record)
     else:
         record.attempts = (record.attempts or 0) + 1
-    record.status = progress_status
+    if not was_completed or progress_status == "completed":
+        record.status = progress_status
     # SQLAlchemy applies Python column defaults during INSERT. Until the first
     # flush, a newly constructed progress record can still contain None here.
     record.score = max(record.score or 0, score)
     record.xp = max(record.xp or 0, xp)
-    record.completed_at = now if progress_status == "completed" else record.completed_at
+    if not was_completed or progress_status == "completed":
+        record.completed_at = now if progress_status == "completed" else None
     db.commit()
     db.refresh(record)
     return record

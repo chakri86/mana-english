@@ -67,6 +67,17 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn('id="student-improvement-list"', html)
         self.assertIn('id="student-mistake-history"', html)
 
+    def test_lesson_completion_requires_minimum_mastery(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        api = (ROOT / "backend/app/main.py").read_text(encoding="utf-8")
+        schemas = (ROOT / "backend/app/schemas.py").read_text(encoding="utf-8")
+        self.assertIn("MASTERY_SCORE = 67", api)
+        self.assertIn("reconcile_legacy_mastery", api)
+        self.assertIn('Literal["started", "needs_practice", "completed"]', schemas)
+        self.assertIn("const completed = score >= 67", javascript)
+        self.assertIn('status: completed ? "completed" : "needs_practice"', javascript)
+        self.assertIn('checkButton.dataset.mode = "retry-missed"', javascript)
+
 
 if __name__ == "__main__":
     unittest.main()

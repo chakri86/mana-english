@@ -26,7 +26,8 @@
   let questionIndex = 0;
   let selectedIndex = null;
   let questionAttemptNumber = 1;
-  let lessonFirstTryCorrect = new Set();
+  let lessonMasteredQuestions = new Set();
+  let lessonQuestionSubset = null;
   let testAnswers = {};
   let assignmentRecords = [];
   let teacherData = null;
@@ -260,7 +261,10 @@
     document.getElementById("progress-completion-label").textContent = `${completed} of 5 complete`;
     document.getElementById("student-progress-list").replaceChildren(...moduleData.lessons.map((lesson) => {
       const record = records.get(lesson.id);
-      return simpleRow(lesson.title, lesson.day, record ? `+${record.xp} XP` : "0 XP", record ? "Completed" : "Not started", false);
+      const completedLesson = record && record.status === "completed";
+      const needsPractice = record && record.status === "needs_practice";
+      const lessonStatus = completedLesson ? "Completed" : needsPractice ? "Needs practice" : "Not started";
+      return simpleRow(lesson.title, lesson.day, completedLesson ? `+${record.xp} XP` : "0 XP", lessonStatus, needsPractice);
     }));
     renderMistakeHistory(improvements);
     const assignmentList = document.getElementById("student-assignment-list");
@@ -279,7 +283,8 @@
     activeMode = "lesson";
     activeLesson = lesson;
     questionIndex = 0;
-    lessonFirstTryCorrect = new Set();
+    lessonMasteredQuestions = new Set();
+    lessonQuestionSubset = null;
     testAnswers = {};
     renderQuestion();
     showScreen("lesson");
@@ -309,7 +314,8 @@
       const lesson = moduleData.lessons[index];
       const record = records.get(item.dataset.lessonId);
       const isDone = record && record.status === "completed";
-      const canStart = isDone || index <= completed;
+      const needsPractice = record && record.status === "needs_practice";
+      const canStart = isDone || needsPractice || index <= completed;
       item.querySelector(".lesson-copy span").textContent = `${lesson.day} · LESSON ${index + 1}`;
       item.querySelector(".lesson-copy b").textContent = lesson.title;
       item.querySelector(".lesson-copy small").textContent = lesson.telugu_title;
@@ -326,9 +332,9 @@
         practise.addEventListener("click", () => openLessonById(lesson.id));
         action.replaceChildren(practise);
       } else if (canStart) {
-        node.textContent = index === completed ? "🙂" : "💬";
+        node.textContent = needsPractice ? "↻" : index === completed ? "🙂" : "💬";
         const button = document.createElement("button");
-        button.textContent = index === completed ? "Continue" : "Start";
+        button.textContent = needsPractice ? "Practice again" : index === completed ? "Continue" : "Start";
         button.addEventListener("click", () => openLessonById(lesson.id));
         action.replaceChildren(button);
       } else {
@@ -502,7 +508,8 @@
   }
 
   function activeQuestions() {
-    return activeMode === "test" ? moduleData.weekend_test.questions : activeLesson.questions;
+    if (activeMode === "test") return moduleData.weekend_test.questions;
+    return lessonQuestionSubset || activeLesson.questions;
   }
 
   function resetAnswer() {
@@ -564,13 +571,36 @@
       return;
     }
     checkButton.disabled = true;
-    const score = Math.round((lessonFirstTryCorrect.size / activeLesson.questions.length) * 100);
+    const masteredCount = lessonMasteredQuestions.size;
+    const score = Math.round((masteredCount / activeLesson.questions.length) * 100);
+    const completed = score >= 67;
     await api(`/api/progress/${activeLesson.id}`, {
       method: "PUT",
-      body: JSON.stringify({ status: "completed", score, xp: activeLesson.xp })
+      body: JSON.stringify({ status: completed ? "completed" : "needs_practice", score, xp: completed ? activeLesson.xp : 0 })
     });
-    await loadStudent();
-    showToast(`+${activeLesson.xp} XP saved. చాలా బాగుంది!`);
+    if (completed) {
+      await loadStudent();
+      showToast(`Lesson mastered · +${activeLesson.xp} XP. చాలా బాగుంది!`);
+      return;
+    }
+    lessonQuestionSubset = activeLesson.questions.filter((question) => !lessonMasteredQuestions.has(question.id));
+    questionIndex = 0;
+    document.getElementById("exercise-eyebrow").textContent = "MORE PRACTICE NEEDED";
+    document.getElementById("exercise-title").textContent = `${masteredCount} of ${activeLesson.questions.length} questions mastered`;
+    document.getElementById("exercise-telugu").textContent = `పాఠం పూర్తి కావడానికి కనీసం 3లో 2 ప్రశ్నలకు సరైన సమాధానం ఇవ్వాలి.`;
+    document.getElementById("exercise-phrase").textContent = "Keep trying — you can do it!";
+    document.getElementById("exercise-pronunciation").textContent = "మళ్లీ ప్రయత్నించండి!";
+    document.getElementById("lesson-counter").textContent = `${masteredCount} / ${activeLesson.questions.length} mastered`;
+    document.getElementById("lesson-progress-bar").style.width = `${score}%`;
+    answerList.replaceChildren();
+    feedback.replaceChildren(
+      Object.assign(document.createElement("b"), { textContent: "Lesson not completed · పాఠం ఇంకా పూర్తి కాలేదు" }),
+      Object.assign(document.createElement("p"), { textContent: "Practise the missed questions and earn mastery before moving to the next lesson." })
+    );
+    answerFooter.className = "wrong";
+    checkButton.textContent = "Practice missed questions";
+    checkButton.dataset.mode = "retry-missed";
+    checkButton.disabled = false;
   }
 
   async function submitTest() {
@@ -817,7 +847,10 @@
     if (document.getElementById("tests-start-button").disabled) showToast("Complete all five lessons to unlock the test.");
     else openTest();
   });
-  document.getElementById("close-lesson").addEventListener("click", showHome);
+  document.getElementById("close-lesson").addEventListener("click", async () => {
+    if (currentUser && currentUser.role === "student") await loadStudent();
+    else showHome();
+  });
   document.getElementById("exercise-audio").addEventListener("click", () => speak(activeQuestions()[questionIndex].audio));
   document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => speak("confident")));
   document.getElementById("speak-listen").addEventListener("click", () => speak(speakPhrases[speakIndex].english));
@@ -841,6 +874,11 @@
     try {
       if (checkButton.dataset.mode === "finish-test") {
         await loadStudent();
+        return;
+      }
+      if (checkButton.dataset.mode === "retry-missed") {
+        questionIndex = 0;
+        renderQuestion();
         return;
       }
       if (checkButton.dataset.mode === "continue") {
@@ -876,14 +914,14 @@
       const buttons = [...answerList.children];
       const selectedButton = buttons.find((button) => Number(button.dataset.answerIndex) === selectedIndex);
       if (result.correct) {
-        if (questionAttemptNumber === 1) lessonFirstTryCorrect.add(question.id);
+        lessonMasteredQuestions.add(question.id);
         buttons.forEach((button) => { button.disabled = true; });
         if (selectedButton) selectedButton.classList.add("correct-answer");
         title.textContent = "Excellent! చాలా బాగుంది!";
         detail.textContent = `${result.feedback} ${result.feedback_telugu}`;
         feedback.replaceChildren(title, detail);
         answerFooter.className = "correct";
-        checkButton.textContent = questionIndex + 1 === activeQuestions().length ? "Complete lesson" : "Continue";
+        checkButton.textContent = questionIndex + 1 === activeQuestions().length ? "Finish lesson" : "Continue";
         checkButton.dataset.mode = "continue";
         checkButton.disabled = false;
       } else if (!result.reveal_correct) {
@@ -913,7 +951,7 @@
         detail.textContent = `${result.feedback} ${result.feedback_telugu}`;
         feedback.replaceChildren(title, detail);
         answerFooter.className = "wrong";
-        checkButton.textContent = questionIndex + 1 === activeQuestions().length ? "Complete lesson" : "Continue";
+        checkButton.textContent = questionIndex + 1 === activeQuestions().length ? "Finish lesson" : "Continue";
         checkButton.dataset.mode = "continue";
         checkButton.disabled = false;
       }
