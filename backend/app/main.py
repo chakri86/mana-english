@@ -60,7 +60,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Mana English API",
-    version="0.4.0",
+    version="0.4.1",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -124,7 +124,7 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.4.0"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.4.1"}
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
@@ -226,10 +226,12 @@ def save_progress_record(
         record = LessonProgress(user_id=user.id, lesson_id=lesson_id)
         db.add(record)
     else:
-        record.attempts += 1
+        record.attempts = (record.attempts or 0) + 1
     record.status = progress_status
-    record.score = max(record.score, score)
-    record.xp = max(record.xp, xp)
+    # SQLAlchemy applies Python column defaults during INSERT. Until the first
+    # flush, a newly constructed progress record can still contain None here.
+    record.score = max(record.score or 0, score)
+    record.xp = max(record.xp or 0, xp)
     record.completed_at = now if progress_status == "completed" else record.completed_at
     db.commit()
     db.refresh(record)

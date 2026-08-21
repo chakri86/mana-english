@@ -1,4 +1,4 @@
-# Mana English Phase 4 v0.4.0
+# Mana English Phase 4 v0.4.1
 
 Secure pilot web application for spoken-English learning in Classes 3–5 in Andhra Pradesh and Telangana. The interface combines English, Telugu pronunciation support, Telugu meaning, practice lessons, and a teacher progress view.
 
@@ -72,7 +72,7 @@ podman ps
 Expected health response:
 
 ```json
-{"status":"ok","service":"mana-english-api","version":"0.4.0"}
+{"status":"ok","service":"mana-english-api","version":"0.4.1"}
 ```
 
 ## Architecture

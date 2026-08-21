@@ -33,6 +33,12 @@ class PhaseFourMenuTests(unittest.TestCase):
             self.assertIn(route, api)
         self.assertIn("class Assignment(Base):", models)
 
+    def test_first_progress_save_handles_unapplied_database_defaults(self):
+        api = (ROOT / "backend/app/main.py").read_text(encoding="utf-8")
+        self.assertIn("max(record.score or 0, score)", api)
+        self.assertIn("max(record.xp or 0, xp)", api)
+        self.assertIn("(record.attempts or 0) + 1", api)
+
     def test_visible_controls_are_wired_without_placeholder_handler(self):
         javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
         for behavior in (
