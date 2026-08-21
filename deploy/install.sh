@@ -15,7 +15,7 @@ CONF_DIR="/etc/mana-english"
 QUADLET_DIR="/etc/containers/systemd"
 BACKUP_ROOT="/var/backups/mana-english"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-IMAGE_NAME="localhost/mana-english-api:0.4.1"
+IMAGE_NAME="localhost/mana-english-api:0.5.0"
 
 for file in \
   "${SOURCE_DIR}/index.html" \
@@ -126,7 +126,7 @@ curl -fsS http://localhost/api/health
 curl -fsS http://localhost/ | grep -q "Mana English"
 
 echo
-echo "Mana English Phase 4 deployed successfully."
+echo "Mana English Phase 5 deployed successfully."
 echo "Open: http://192.168.247.200"
 echo
 echo "Student login"

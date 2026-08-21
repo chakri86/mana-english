@@ -52,6 +52,8 @@ class ProgressView(BaseModel):
 class AnswerRequest(BaseModel):
     question_id: str = Field(min_length=3, max_length=40)
     selected_index: int = Field(ge=0, le=10)
+    attempt_number: int = Field(default=1, ge=1, le=2)
+    activity: Literal["lesson", "practice"] = "lesson"
 
 
 class TestSubmission(BaseModel):

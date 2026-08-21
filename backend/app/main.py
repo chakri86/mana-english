@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from .content import find_question, load_week, student_week
 from .db import Base, SessionLocal, engine, get_db, wait_for_database
-from .models import Assignment, LessonProgress, School, User
+from .models import AnswerAttempt, Assignment, LessonProgress, School, User
 from .schemas import (
     AnswerRequest,
     AssignmentCreate,
@@ -60,7 +60,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Mana English API",
-    version="0.4.1",
+    version="0.5.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -124,7 +124,7 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.4.1"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.5.0"}
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
@@ -190,6 +190,7 @@ def check_module_answer(
     week: int,
     payload: AnswerRequest,
     current: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     module = requested_week(grade, week, current)
     question = find_question(module, payload.question_id)
@@ -198,13 +199,119 @@ def check_module_answer(
     if payload.selected_index >= len(question["choices"]):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Answer choice not found")
     correct = payload.selected_index == question["correct_index"]
+    lesson = next(
+        (item for item in module["lessons"] if any(q["id"] == payload.question_id for q in item["questions"])),
+        None,
+    )
+    lesson_id = lesson["id"] if lesson else module["weekend_test"]["id"]
+    if current.role == "student":
+        db.add(
+            AnswerAttempt(
+                user_id=current.id,
+                question_id=payload.question_id,
+                lesson_id=lesson_id,
+                activity=payload.activity,
+                selected_index=payload.selected_index,
+                correct_index=question["correct_index"],
+                is_correct=correct,
+                attempt_number=payload.attempt_number,
+            )
+        )
+        db.commit()
+    reveal_correct = not correct and payload.attempt_number >= 2
     return {
         "question_id": payload.question_id,
         "correct": correct,
-        "correct_index": question["correct_index"] if not correct else None,
+        "attempt_number": payload.attempt_number,
+        "reveal_correct": reveal_correct,
+        "correct_index": question["correct_index"] if reveal_correct else None,
+        "correct_answer": question["choices"][question["correct_index"]] if reveal_correct else None,
         "feedback": question.get("feedback", "Correct answer." if correct else "Review this phrase and try again."),
         "feedback_telugu": question.get("feedback_telugu", "సరైన సమాధానం." if correct else "ఈ వాక్యాన్ని మళ్లీ చూసి ప్రయత్నించండి."),
     }
+
+
+def question_details(question_id: str) -> tuple[dict, dict] | None:
+    for lesson in WEEK_ONE["lessons"]:
+        question = next((item for item in lesson["questions"] if item["id"] == question_id), None)
+        if question:
+            return lesson, question
+    question = next(
+        (item for item in WEEK_ONE["weekend_test"]["questions"] if item["id"] == question_id),
+        None,
+    )
+    if question:
+        return WEEK_ONE["weekend_test"], question
+    return None
+
+
+def improvement_summary(db: Session, user: User) -> dict:
+    attempts = db.scalars(
+        select(AnswerAttempt)
+        .where(AnswerAttempt.user_id == user.id)
+        .order_by(AnswerAttempt.created_at)
+    ).all()
+    grouped: dict[str, list[AnswerAttempt]] = defaultdict(list)
+    for attempt in attempts:
+        grouped[attempt.question_id].append(attempt)
+
+    questions = []
+    for question_id, records in grouped.items():
+        mistakes = [record for record in records if not record.is_correct]
+        details = question_details(question_id)
+        if not mistakes or details is None:
+            continue
+        lesson, question = details
+        questions.append(
+            {
+                "question_id": question_id,
+                "lesson_id": lesson["id"],
+                "lesson_title": lesson["title"],
+                "lesson_title_telugu": lesson["telugu_title"],
+                "prompt": question["prompt"],
+                "prompt_telugu": question["prompt_telugu"],
+                "correct_answer": question["choices"][question["correct_index"]],
+                "feedback": question.get("feedback", "Review the correct answer and practise again."),
+                "feedback_telugu": question.get("feedback_telugu", "సరైన సమాధానాన్ని చూసి మళ్లీ సాధన చేయండి."),
+                "mistake_count": len(mistakes),
+                "last_attempt_correct": records[-1].is_correct,
+                "status": "Improving" if records[-1].is_correct else "Needs practice",
+            }
+        )
+    questions.sort(key=lambda item: (item["status"] != "Needs practice", -item["mistake_count"]))
+
+    history = []
+    for attempt in reversed([item for item in attempts if not item.is_correct]):
+        details = question_details(attempt.question_id)
+        if details is None:
+            continue
+        lesson, question = details
+        history.append(
+            {
+                "question_id": attempt.question_id,
+                "lesson_title": lesson["title"],
+                "prompt": question["prompt"],
+                "selected_answer": question["choices"][attempt.selected_index],
+                "correct_answer": question["choices"][attempt.correct_index],
+                "feedback_telugu": question.get("feedback_telugu", "సరైన సమాధానాన్ని చూసి మళ్లీ సాధన చేయండి."),
+                "attempt_number": attempt.attempt_number,
+                "activity": attempt.activity,
+                "created_at": attempt.created_at.isoformat(),
+            }
+        )
+    return {
+        "total_mistakes": sum(item["mistake_count"] for item in questions),
+        "needs_practice": sum(item["status"] == "Needs practice" for item in questions),
+        "questions": questions,
+        "history": history,
+    }
+
+
+@app.get("/api/improvements")
+def get_improvements(current: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current.role != "student":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Student account required")
+    return improvement_summary(db, current)
 
 
 def save_progress_record(
@@ -258,6 +365,22 @@ def submit_week_test(
         payload.answers.get(question["id"]) == question["correct_index"]
         for question in questions
     )
+    for question in questions:
+        selected_index = payload.answers.get(question["id"])
+        if selected_index is None or selected_index >= len(question["choices"]):
+            continue
+        db.add(
+            AnswerAttempt(
+                user_id=current.id,
+                question_id=question["id"],
+                lesson_id=weekly_test["id"],
+                activity="test",
+                selected_index=selected_index,
+                correct_index=question["correct_index"],
+                is_correct=selected_index == question["correct_index"],
+                attempt_number=1,
+            )
+        )
     score = round((correct_count / len(questions)) * 100)
     passed = score >= weekly_test["pass_score"]
     xp = weekly_test["xp"] if passed else 10
@@ -392,15 +515,16 @@ def teacher_dashboard(
         records = db.scalars(
             select(LessonProgress).where(LessonProgress.user_id == student.id)
         ).all()
+        improvements = improvement_summary(db, student)
         lesson_records = [r for r in records if "-lesson" in r.lesson_id and r.status == "completed"]
         test_record = next((r for r in records if r.lesson_id.endswith("week1-test")), None)
         xp = sum(r.xp for r in records)
         accuracy = test_record.score if test_record else 0
         total_accuracy += accuracy
         total_lessons += len(lesson_records)
-        if accuracy >= 90:
+        if accuracy >= 90 and improvements["needs_practice"] == 0:
             student_status = "Excellent"
-        elif accuracy >= 75:
+        elif accuracy >= 75 and improvements["needs_practice"] <= 1:
             student_status = "On track"
         else:
             student_status = "Needs help"
@@ -413,6 +537,8 @@ def teacher_dashboard(
                 "lessons_completed": len(lesson_records),
                 "lessons_total": 5,
                 "test_score": accuracy,
+                "mistakes": improvements["total_mistakes"],
+                "improvement_area": improvements["questions"][0]["lesson_title"] if improvements["questions"] else "None yet",
                 "status": student_status,
             }
         )
@@ -439,7 +565,7 @@ def download_teacher_report(
     data = teacher_dashboard(current, db)
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["Student", "Student ID", "XP", "Lessons completed", "Lessons total", "Week 1 test", "Status"])
+    writer.writerow(["Student", "Student ID", "XP", "Lessons completed", "Lessons total", "Week 1 test", "Mistakes", "Main improvement area", "Status"])
     for student in data["students"]:
         writer.writerow(
             [
@@ -449,6 +575,8 @@ def download_teacher_report(
                 student["lessons_completed"],
                 student["lessons_total"],
                 student["test_score"],
+                student["mistakes"],
+                student["improvement_area"],
                 student["status"],
             ]
         )

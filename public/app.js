@@ -25,6 +25,8 @@
   let activeLesson = null;
   let questionIndex = 0;
   let selectedIndex = null;
+  let questionAttemptNumber = 1;
+  let lessonFirstTryCorrect = new Set();
   let testAnswers = {};
   let assignmentRecords = [];
   let teacherData = null;
@@ -35,6 +37,8 @@
   let recordingChunks = [];
   let practiceQuestions = [];
   let practiceCurrent = null;
+  let practiceAttemptNumber = 1;
+  let improvementData = { total_mistakes: 0, needs_practice: 0, questions: [], history: [] };
   let toastTimer;
 
   const token = () => sessionStorage.getItem(TOKEN_KEY);
@@ -187,11 +191,39 @@
     return card;
   }
 
-  function renderStudentSecondary(user, progress, assignments) {
+  function renderMistakeHistory(improvements) {
+    const improvementList = document.getElementById("student-improvement-list");
+    const mistakeHistory = document.getElementById("student-mistake-history");
+    document.getElementById("improvement-count").textContent = `${improvements.total_mistakes} mistake${improvements.total_mistakes === 1 ? "" : "s"}`;
+    improvementList.replaceChildren(...(improvements.questions.length
+      ? improvements.questions.map((item) => simpleRow(
+        item.lesson_title,
+        `${item.prompt} · ${item.prompt_telugu}`,
+        `${item.mistake_count} mistake${item.mistake_count === 1 ? "" : "s"}`,
+        item.status,
+        item.status === "Needs practice"
+      ))
+      : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No mistakes recorded yet. Keep practising! · ఇంకా తప్పులు నమోదు కాలేదు." })]));
+    mistakeHistory.replaceChildren(...(improvements.history.length
+      ? improvements.history.map((item) => {
+        const card = document.createElement("article");
+        card.className = "mistake-item";
+        card.append(
+          Object.assign(document.createElement("b"), { textContent: item.prompt }),
+          Object.assign(document.createElement("p"), { textContent: item.lesson_title }),
+          Object.assign(document.createElement("span"), { textContent: `Your answer: ${item.selected_answer}` }),
+          Object.assign(document.createElement("em"), { textContent: `Correct answer: ${item.correct_answer} · ${item.feedback_telugu}` })
+        );
+        return card;
+      })
+      : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "Your mistake history will appear here." })]));
+  }
+
+  function renderStudentSecondary(user, progress, assignments, improvements) {
     const records = new Map(progress.map((item) => [item.lesson_id, item]));
     const completed = completedLessonCount(progress);
     const testRecord = records.get(moduleData.weekend_test.id);
-    const lessonScores = progress.filter((item) => item.lesson_id.includes("-lesson") && item.score > 0);
+    const lessonScores = progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed");
     const accuracy = lessonScores.length ? Math.round(lessonScores.reduce((sum, item) => sum + item.score, 0) / lessonScores.length) : 0;
 
     speakPhrases = moduleData.lessons.flatMap((lesson) => lesson.key_phrases);
@@ -200,9 +232,11 @@
     document.getElementById("progress-lessons").textContent = completed;
     document.getElementById("progress-spoken").textContent = spokenCount();
 
+    const improvementIds = new Set(improvements.questions.map((item) => item.question_id));
     practiceQuestions = moduleData.lessons
       .filter((lesson, index) => records.has(lesson.id) || index === 0)
-      .flatMap((lesson) => lesson.questions);
+      .flatMap((lesson) => lesson.questions)
+      .sort((left, right) => Number(improvementIds.has(right.id)) - Number(improvementIds.has(left.id)));
     practiceCurrent = null;
     document.getElementById("practice-question").textContent = "Choose Start practice to begin.";
     document.getElementById("practice-telugu").textContent = "";
@@ -228,6 +262,7 @@
       const record = records.get(lesson.id);
       return simpleRow(lesson.title, lesson.day, record ? `+${record.xp} XP` : "0 XP", record ? "Completed" : "Not started", false);
     }));
+    renderMistakeHistory(improvements);
     const assignmentList = document.getElementById("student-assignment-list");
     assignmentList.replaceChildren(...(assignments.length
       ? assignments.map((item) => simpleRow(item.title, `Due ${item.due_date}`, `Class ${item.grade}${item.section}`, records.has(item.lesson_id) ? "Completed" : "Assigned"))
@@ -244,6 +279,7 @@
     activeMode = "lesson";
     activeLesson = lesson;
     questionIndex = 0;
+    lessonFirstTryCorrect = new Set();
     testAnswers = {};
     renderQuestion();
     showScreen("lesson");
@@ -255,11 +291,11 @@
     if (lesson) openLessonById(lesson.id);
   }
 
-  function renderStudent(user, progress, assignments = []) {
+  function renderStudent(user, progress, assignments = [], improvements = improvementData) {
     progressRecords = progress;
     const records = new Map(progress.map((item) => [item.lesson_id, item]));
     const completed = completedLessonCount(progress);
-    const scored = progress.filter((item) => item.score > 0);
+    const scored = progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed");
     const accuracy = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
     document.getElementById("student-first-name").textContent = firstName(user.display_name);
     document.getElementById("weekly-goal-text").textContent = `${completed} / 5 lessons`;
@@ -305,7 +341,8 @@
     const testRecord = records.get(moduleData.weekend_test.id);
     testButton.disabled = completed < moduleData.lessons.length;
     testButton.textContent = testRecord ? `Retake · ${testRecord.score}%` : completed >= moduleData.lessons.length ? "Start test" : "Complete all lessons";
-    renderStudentSecondary(user, progress, assignments);
+    improvementData = improvements;
+    renderStudentSecondary(user, progress, assignments, improvements);
   }
 
   function createRosterRow(student) {
@@ -322,7 +359,7 @@
     const lessons = Object.assign(document.createElement("span"), { textContent: `${student.lessons_completed}/${student.lessons_total}` });
     const test = Object.assign(document.createElement("span"), { textContent: `${student.test_score}%` });
     const studentStatus = document.createElement("em");
-    studentStatus.textContent = student.status;
+    studentStatus.textContent = student.mistakes ? `${student.status} · ${student.mistakes}` : student.status;
     if (student.status === "Needs help") studentStatus.className = "needs-help";
     row.append(name, xp, lessons, test, studentStatus);
     return row;
@@ -404,7 +441,7 @@
     );
     const attention = document.getElementById("attention-list");
     attention.replaceChildren(...(needsHelp.length
-      ? needsHelp.map((student) => simpleRow(student.name, `${student.lessons_completed}/5 lessons`, student.test_score ? `${student.test_score}% test` : "Test pending", "Needs help", true))
+      ? needsHelp.map((student) => simpleRow(student.name, student.improvement_area, `${student.mistakes} mistake${student.mistakes === 1 ? "" : "s"}`, "Needs help", true))
       : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No students currently require attention." })]));
 
     const lessonSelect = document.getElementById("assignment-lesson");
@@ -434,13 +471,14 @@
   }
 
   async function loadStudent() {
-    const [user, progress, week, assignments] = await Promise.all([
-      api("/api/auth/me"), api("/api/progress"), api("/api/modules/3/weeks/1"), api("/api/assignments")
+    const [user, progress, week, assignments, improvements] = await Promise.all([
+      api("/api/auth/me"), api("/api/progress"), api("/api/modules/3/weeks/1"), api("/api/assignments"), api("/api/improvements")
     ]);
     setUser(user);
     moduleData = week;
     assignmentRecords = assignments;
-    renderStudent(user, progress, assignments);
+    improvementData = improvements;
+    renderStudent(user, progress, assignments, improvements);
     showStudentView("learn");
     showScreen("student");
   }
@@ -469,6 +507,7 @@
 
   function resetAnswer() {
     selectedIndex = null;
+    questionAttemptNumber = 1;
     checkButton.disabled = true;
     checkButton.dataset.mode = "check";
     checkButton.textContent = activeMode === "test" ? "Save answer" : "Check answer";
@@ -477,9 +516,11 @@
   }
 
   function selectAnswer(index, button) {
+    if (button.disabled) return;
     selectedIndex = index;
     [...answerList.children].forEach((item) => item.classList.toggle("selected", item === button));
     checkButton.disabled = false;
+    if (activeMode !== "test" && questionAttemptNumber === 2) checkButton.textContent = "Check again";
     answerFooter.className = "";
     feedback.replaceChildren();
   }
@@ -497,6 +538,7 @@
     document.getElementById("lesson-progress-bar").style.width = `${((questionIndex + 1) / questions.length) * 100}%`;
     const buttons = question.choices.map((choice, index) => {
       const button = document.createElement("button");
+      button.dataset.answerIndex = String(index);
       const number = Object.assign(document.createElement("span"), { textContent: index + 1 });
       button.append(number, document.createTextNode(choice));
       button.addEventListener("click", () => selectAnswer(index, button));
@@ -522,9 +564,10 @@
       return;
     }
     checkButton.disabled = true;
+    const score = Math.round((lessonFirstTryCorrect.size / activeLesson.questions.length) * 100);
     await api(`/api/progress/${activeLesson.id}`, {
       method: "PUT",
-      body: JSON.stringify({ status: "completed", score: 100, xp: activeLesson.xp })
+      body: JSON.stringify({ status: "completed", score, xp: activeLesson.xp })
     });
     await loadStudent();
     showToast(`+${activeLesson.xp} XP saved. చాలా బాగుంది!`);
@@ -604,12 +647,14 @@
     }
     const choices = practiceQuestions.filter((question) => question !== practiceCurrent);
     practiceCurrent = choices[Math.floor(Math.random() * choices.length)] || practiceQuestions[0];
+    practiceAttemptNumber = 1;
     document.getElementById("practice-question").textContent = practiceCurrent.prompt;
     document.getElementById("practice-telugu").textContent = practiceCurrent.prompt_telugu;
     document.getElementById("practice-feedback").textContent = "";
     document.getElementById("practice-button").textContent = "Next question";
     const buttons = practiceCurrent.choices.map((choice, index) => {
       const button = document.createElement("button");
+      button.dataset.answerIndex = String(index);
       button.append(Object.assign(document.createElement("span"), { textContent: index + 1 }), document.createTextNode(choice));
       button.addEventListener("click", () => checkPracticeAnswer(index, button));
       return button;
@@ -624,14 +669,33 @@
     try {
       const result = await api("/api/modules/3/weeks/1/check", {
         method: "POST",
-        body: JSON.stringify({ question_id: practiceCurrent.id, selected_index: index })
+        body: JSON.stringify({ question_id: practiceCurrent.id, selected_index: index, attempt_number: practiceAttemptNumber, activity: "practice" })
       });
       const target = document.getElementById("practice-feedback");
-      target.textContent = result.correct ? `✓ ${result.feedback} ${result.feedback_telugu}` : `Try again next time. ${result.feedback_telugu}`;
-      target.className = `inline-feedback ${result.correct ? "success" : "warning"}`;
+      if (result.correct) {
+        selectedButton.classList.add("correct-answer");
+        target.textContent = `✓ ${result.feedback} ${result.feedback_telugu}`;
+        target.className = "inline-feedback success";
+      } else if (!result.reveal_correct) {
+        selectedButton.classList.remove("selected");
+        selectedButton.classList.add("eliminated");
+        practiceAttemptNumber = 2;
+        buttons.forEach((button) => { if (!button.classList.contains("eliminated")) button.disabled = false; });
+        target.textContent = "One wrong choice removed. Choose again from the two answers. · ఒక తప్పు ఎంపిక తొలగించబడింది. మిగిలిన రెండింటిలో మళ్లీ ఎంచుకోండి.";
+        target.className = "inline-feedback warning";
+      } else {
+        selectedButton.classList.add("wrong-answer");
+        const correctButton = buttons.find((button) => Number(button.dataset.answerIndex) === result.correct_index);
+        if (correctButton) {
+          correctButton.classList.remove("eliminated");
+          correctButton.classList.add("correct-answer");
+        }
+        target.textContent = `Correct answer: ${result.correct_answer}. ${result.feedback} ${result.feedback_telugu}`;
+        target.className = "inline-feedback warning";
+      }
     } catch (error) {
       showToast(error.message);
-      buttons.forEach((button) => { button.disabled = false; });
+      buttons.forEach((button) => { if (!button.classList.contains("eliminated")) button.disabled = false; });
     }
   }
 
@@ -741,7 +805,7 @@
   });
   document.getElementById("preview-student").addEventListener("click", () => {
     progressRecords = [];
-    renderStudent(currentUser, [], []);
+    renderStudent(currentUser, [], [], { total_mistakes: 0, needs_practice: 0, questions: [], history: [] });
     showStudentView("learn");
     showScreen("student");
     showToast("Student preview · progress changes are disabled");
@@ -788,10 +852,6 @@
         }
         return;
       }
-      if (checkButton.dataset.mode === "retry") {
-        renderQuestion();
-        return;
-      }
       if (selectedIndex === null) return;
 
       const question = activeQuestions()[questionIndex];
@@ -809,17 +869,54 @@
       checkButton.disabled = true;
       const result = await api("/api/modules/3/weeks/1/check", {
         method: "POST",
-        body: JSON.stringify({ question_id: question.id, selected_index: selectedIndex })
+        body: JSON.stringify({ question_id: question.id, selected_index: selectedIndex, attempt_number: questionAttemptNumber, activity: "lesson" })
       });
       const title = document.createElement("b");
       const detail = document.createElement("p");
-      title.textContent = result.correct ? "Excellent! చాలా బాగుంది!" : "Let’s try again · మళ్ళీ ప్రయత్నిద్దాం";
-      detail.textContent = `${result.feedback} ${result.feedback_telugu}`;
-      feedback.replaceChildren(title, detail);
-      answerFooter.className = result.correct ? "correct" : "wrong";
-      checkButton.textContent = result.correct ? (questionIndex + 1 === activeQuestions().length ? "Complete lesson" : "Continue") : "Try again";
-      checkButton.dataset.mode = result.correct ? "continue" : "retry";
-      checkButton.disabled = false;
+      const buttons = [...answerList.children];
+      const selectedButton = buttons.find((button) => Number(button.dataset.answerIndex) === selectedIndex);
+      if (result.correct) {
+        if (questionAttemptNumber === 1) lessonFirstTryCorrect.add(question.id);
+        buttons.forEach((button) => { button.disabled = true; });
+        if (selectedButton) selectedButton.classList.add("correct-answer");
+        title.textContent = "Excellent! చాలా బాగుంది!";
+        detail.textContent = `${result.feedback} ${result.feedback_telugu}`;
+        feedback.replaceChildren(title, detail);
+        answerFooter.className = "correct";
+        checkButton.textContent = questionIndex + 1 === activeQuestions().length ? "Complete lesson" : "Continue";
+        checkButton.dataset.mode = "continue";
+        checkButton.disabled = false;
+      } else if (!result.reveal_correct) {
+        if (selectedButton) {
+          selectedButton.classList.remove("selected");
+          selectedButton.classList.add("eliminated");
+          selectedButton.disabled = true;
+        }
+        selectedIndex = null;
+        questionAttemptNumber = 2;
+        title.textContent = "One choice removed · ఒక ఎంపిక తొలగించబడింది";
+        detail.textContent = "Choose again from the two remaining answers. · మిగిలిన రెండు సమాధానాల్లో మళ్లీ ఎంచుకోండి.";
+        feedback.replaceChildren(title, detail);
+        answerFooter.className = "wrong";
+        checkButton.textContent = "Check again";
+        checkButton.dataset.mode = "check";
+        checkButton.disabled = true;
+      } else {
+        buttons.forEach((button) => { button.disabled = true; });
+        if (selectedButton) selectedButton.classList.add("wrong-answer");
+        const correctButton = buttons.find((button) => Number(button.dataset.answerIndex) === result.correct_index);
+        if (correctButton) {
+          correctButton.classList.remove("eliminated", "selected");
+          correctButton.classList.add("correct-answer");
+        }
+        title.textContent = `Correct answer: ${result.correct_answer}`;
+        detail.textContent = `${result.feedback} ${result.feedback_telugu}`;
+        feedback.replaceChildren(title, detail);
+        answerFooter.className = "wrong";
+        checkButton.textContent = questionIndex + 1 === activeQuestions().length ? "Complete lesson" : "Continue";
+        checkButton.dataset.mode = "continue";
+        checkButton.disabled = false;
+      }
     } catch (error) {
       showToast(error.message);
       checkButton.disabled = false;

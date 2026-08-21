@@ -52,6 +52,21 @@ class PhaseFourMenuTests(unittest.TestCase):
             self.assertIn(f"function {behavior}", javascript)
         self.assertNotIn("This feature is planned for a later build", javascript)
 
+    def test_two_attempt_correction_and_mistake_history_are_present(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        api = (ROOT / "backend/app/main.py").read_text(encoding="utf-8")
+        models = (ROOT / "backend/app/models.py").read_text(encoding="utf-8")
+        html = (ROOT / "public/index.html").read_text(encoding="utf-8")
+        self.assertIn('class AnswerAttempt(Base):', models)
+        self.assertIn('@app.get("/api/improvements")', api)
+        self.assertIn('attempt_number=payload.attempt_number', api)
+        self.assertIn('activity="test"', api)
+        self.assertIn('questionAttemptNumber = 2', javascript)
+        self.assertIn('classList.add("eliminated")', javascript)
+        self.assertIn('result.correct_index', javascript)
+        self.assertIn('id="student-improvement-list"', html)
+        self.assertIn('id="student-mistake-history"', html)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -44,6 +44,9 @@ class User(Base):
     progress: Mapped[list["LessonProgress"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    answer_attempts: Mapped[list["AnswerAttempt"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class LessonProgress(Base):
@@ -61,6 +64,23 @@ class LessonProgress(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped[User] = relationship(back_populates="progress")
+
+
+class AnswerAttempt(Base):
+    __tablename__ = "answer_attempts"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    question_id: Mapped[str] = mapped_column(String(40), index=True)
+    lesson_id: Mapped[str] = mapped_column(String(80), index=True)
+    activity: Mapped[str] = mapped_column(String(20), default="lesson")
+    selected_index: Mapped[int] = mapped_column(Integer)
+    correct_index: Mapped[int] = mapped_column(Integer)
+    is_correct: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    attempt_number: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, index=True)
+
+    user: Mapped[User] = relationship(back_populates="answer_attempts")
 
 
 class Assignment(Base):
