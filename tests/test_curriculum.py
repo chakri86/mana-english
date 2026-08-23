@@ -35,7 +35,25 @@ class ClassThreeWeekOneTests(unittest.TestCase):
             self.assertEqual(set(lesson["teacher_guidance"]), required_guidance)
             for phrase in lesson["key_phrases"]:
                 self.assertTrue(phrase["pronunciation_telugu"])
+                self.assertTrue(phrase["natural_pronunciation_telugu"])
                 self.assertTrue(phrase["meaning_telugu"])
+            for question in lesson["questions"]:
+                self.assertTrue(question["natural_pronunciation_telugu"])
+
+    def test_telugu_uses_reviewed_child_friendly_pronunciation(self):
+        serialized = json.dumps(self.module, ensure_ascii=False)
+        self.assertNotIn("ఈజ్", serialized)
+        self.assertNotIn("యువర్", serialized)
+        self.assertNotIn("ప్రశ్న ఉపయోగిస్తారు", serialized)
+        name_phrase = next(
+            phrase
+            for lesson in self.module["lessons"]
+            for phrase in lesson["key_phrases"]
+            if phrase["english"] == "What is your name?"
+        )
+        self.assertEqual(name_phrase["pronunciation_telugu"], "వాట్ ఇజ్ యోర్ నేమ్?")
+        self.assertEqual(name_phrase["natural_pronunciation_telugu"], "వాటిజ్ యోర్ నేమ్?")
+        self.assertEqual(name_phrase["meaning_telugu"], "నీ పేరు ఏమిటి?")
 
     def test_question_ids_are_unique_and_answers_are_valid(self):
         questions = [
