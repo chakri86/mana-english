@@ -100,6 +100,16 @@ class PhaseFourMenuTests(unittest.TestCase):
             self.assertIn(f'id="{element_id}"', html)
         self.assertIn(".answers .answer-option", styles)
 
+    def test_telugu_voice_loading_and_missing_voice_guidance_are_present(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "public/index.html").read_text(encoding="utf-8")
+        self.assertIn("function loadSpeechVoices", javascript)
+        self.assertIn('addEventListener("voiceschanged"', javascript)
+        self.assertIn('language.toLowerCase().startsWith("te") && !voice', javascript)
+        self.assertIn("function refreshTeluguVoiceStatus", javascript)
+        self.assertIn('id="telugu-voice-status"', html)
+        self.assertIn('id="telugu-voice-test"', html)
+
 
 if __name__ == "__main__":
     unittest.main()
