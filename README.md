@@ -1,4 +1,4 @@
-# Mana English Phase 5 v0.5.5
+# Mana English Phase 5 v0.5.6
 
 Secure pilot web application for spoken-English learning in Classes 3–5 in Andhra Pradesh and Telangana. The interface combines English, Telugu pronunciation support, Telugu meaning, practice lessons, and a teacher progress view.
 
@@ -10,7 +10,7 @@ Secure pilot web application for spoken-English learning in Classes 3–5 in And
 - PostgreSQL-backed student accounts and lesson progress
 - Class 3 Week 1 learning path with English and Telugu support
 - Five complete daily lessons with 15 guided practice questions
-- Slow Telugu pronunciation, natural connected pronunciation, and child-friendly Telugu meaning for every key phrase
+- One clear Telugu pronunciation guide and one child-friendly Telugu meaning for every key phrase
 - Teacher warm-up, modelling, guided-practice, pair-practice, error-correction, and home-practice notes
 - A 10-question weekend test scored securely by the API
 - Working student Speak, Practice, Tests, Progress, and Telugu Help views
@@ -79,7 +79,7 @@ podman ps
 Expected health response:
 
 ```json
-{"status":"ok","service":"mana-english-api","version":"0.5.5"}
+{"status":"ok","service":"mana-english-api","version":"0.5.6"}
 ```
 
 ## Architecture
