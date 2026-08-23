@@ -15,7 +15,7 @@ CONF_DIR="/etc/mana-english"
 QUADLET_DIR="/etc/containers/systemd"
 BACKUP_ROOT="/var/backups/mana-english"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-IMAGE_NAME="localhost/mana-english-api:0.5.3"
+IMAGE_NAME="localhost/mana-english-api:0.5.5"
 
 for file in \
   "${SOURCE_DIR}/index.html" \
