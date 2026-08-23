@@ -110,8 +110,7 @@
     teacherData = null;
   }
 
-  function preferredFemaleVoice(language) {
-    const voices = window.speechSynthesis.getVoices();
+  function preferredFemaleVoice(language, voices = window.speechSynthesis.getVoices()) {
     const languagePrefix = language.toLowerCase().split("-")[0];
     const matching = voices.filter((voice) => voice.lang.toLowerCase().startsWith(languagePrefix));
     const femaleHints = ["female", "heera", "shruti", "priya", "swara", "veena", "zira", "aria", "samantha", "susan", "karen", "moira", "ava", "natasha", "neerja", "lekha"];
@@ -121,18 +120,67 @@
       || null;
   }
 
-  function speak(text, language = "en-IN") {
+  function loadSpeechVoices() {
+    if (!("speechSynthesis" in window)) return Promise.resolve([]);
+    const existing = window.speechSynthesis.getVoices();
+    if (existing.length) return Promise.resolve(existing);
+    return new Promise((resolve) => {
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        window.speechSynthesis.removeEventListener("voiceschanged", finish);
+        resolve(window.speechSynthesis.getVoices());
+      };
+      window.speechSynthesis.addEventListener("voiceschanged", finish);
+      window.setTimeout(finish, 1200);
+    });
+  }
+
+  function setTeluguVoiceStatus(voice) {
+    const status = document.getElementById("telugu-voice-status");
+    if (!status) return;
+    status.classList.toggle("voice-ready", Boolean(voice));
+    status.classList.toggle("voice-missing", !voice);
+    status.innerHTML = voice
+      ? `<b>✓ Telugu audio is ready</b><p>Female voice preference: ${escapeHtml(voice.name)} (${escapeHtml(voice.lang)})</p>`
+      : "<b>Telugu voice is not available in this browser</b><p>On Windows, open Settings → Time &amp; language → Language &amp; region → add Telugu and install Speech/Text-to-speech if it is offered. Then close and reopen the browser. If the device does not offer a Telugu speech voice, the school administrator must enable cloud Telugu audio.</p>";
+  }
+
+  async function refreshTeluguVoiceStatus() {
+    const voices = await loadSpeechVoices();
+    const voice = preferredFemaleVoice("te-IN", voices);
+    setTeluguVoiceStatus(voice);
+    return voice;
+  }
+
+  async function speak(text, language = "en-IN") {
     if (!("speechSynthesis" in window)) {
       showToast("Audio is not supported by this browser.");
+      return;
+    }
+    const voices = await loadSpeechVoices();
+    const voice = preferredFemaleVoice(language, voices);
+    if (language.toLowerCase().startsWith("te") && !voice) {
+      setTeluguVoiceStatus(null);
+      document.getElementById("telugu-help-dialog").showModal();
+      showToast("Telugu voice is not installed on this device.");
       return;
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language;
-    const voice = preferredFemaleVoice(language);
     if (voice) utterance.voice = voice;
     utterance.rate = 0.78;
     utterance.pitch = 1.08;
+    utterance.onerror = () => {
+      if (language.toLowerCase().startsWith("te")) {
+        setTeluguVoiceStatus(null);
+        showToast("Telugu audio could not play. Check the Telugu voice setup.");
+      } else {
+        showToast("Audio could not play. Please try again.");
+      }
+    };
     window.speechSynthesis.speak(utterance);
   }
 
@@ -192,7 +240,8 @@
     const phrase = speakPhrases[speakIndex % speakPhrases.length];
     document.getElementById("speak-step").textContent = `PHRASE ${speakIndex + 1} OF ${speakPhrases.length}`;
     document.getElementById("speak-english").textContent = phrase.english;
-    document.getElementById("speak-pronunciation").textContent = phrase.pronunciation_telugu;
+    const naturalPronunciation = phrase.natural_pronunciation_telugu || phrase.pronunciation_telugu;
+    document.getElementById("speak-pronunciation").textContent = `నెమ్మదిగా: ${phrase.pronunciation_telugu}\nసహజంగా: ${naturalPronunciation}`;
     document.getElementById("speak-meaning").textContent = phrase.meaning_telugu;
     if (!window.isSecureContext || !navigator.mediaDevices || !window.MediaRecorder) {
       document.getElementById("speak-record").textContent = "✓ Mark as practised";
@@ -576,7 +625,10 @@
     document.getElementById("exercise-title").textContent = question.prompt;
     document.getElementById("exercise-telugu").textContent = question.prompt_telugu;
     document.getElementById("exercise-phrase").textContent = isTest ? "Listen to the question" : `“${question.audio}”`;
-    document.getElementById("exercise-pronunciation").textContent = isTest ? "ప్రశ్నను మాత్రమే వినండి. సమాధానం చూపించబడదు." : question.pronunciation_telugu;
+    const naturalPronunciation = question.natural_pronunciation_telugu || question.pronunciation_telugu;
+    document.getElementById("exercise-pronunciation").textContent = isTest
+      ? "ప్రశ్నను మాత్రమే వినండి. సమాధానం చూపించబడదు."
+      : `నెమ్మదిగా: ${question.pronunciation_telugu}\nసహజంగా: ${naturalPronunciation}`;
     document.getElementById("lesson-counter").textContent = `${questionIndex + 1} / ${questions.length}`;
     document.getElementById("lesson-progress-bar").style.width = `${((questionIndex + 1) / questions.length) * 100}%`;
     answerList.replaceChildren(...question.choices.map((choice, index) => createAnswerOption(choice, index, selectAnswer)));
@@ -893,7 +945,11 @@
   document.getElementById("practice-listen-telugu").addEventListener("click", () => {
     if (practiceCurrent) speak(practiceCurrent.prompt_telugu, "te-IN");
   });
-  document.getElementById("telugu-help-button").addEventListener("click", () => document.getElementById("telugu-help-dialog").showModal());
+  document.getElementById("telugu-help-button").addEventListener("click", () => {
+    document.getElementById("telugu-help-dialog").showModal();
+    refreshTeluguVoiceStatus();
+  });
+  document.getElementById("telugu-voice-test").addEventListener("click", () => speak("తెలుగు సహాయం సిద్ధంగా ఉంది.", "te-IN"));
   document.querySelectorAll("[data-close-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.closeDialog).close()));
   document.querySelectorAll(".assign-lesson-button").forEach((button) => button.addEventListener("click", () => openAssignmentDialog()));
   document.getElementById("assignment-form").addEventListener("submit", submitAssignment);
