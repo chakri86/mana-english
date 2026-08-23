@@ -240,8 +240,7 @@
     const phrase = speakPhrases[speakIndex % speakPhrases.length];
     document.getElementById("speak-step").textContent = `PHRASE ${speakIndex + 1} OF ${speakPhrases.length}`;
     document.getElementById("speak-english").textContent = phrase.english;
-    const naturalPronunciation = phrase.natural_pronunciation_telugu || phrase.pronunciation_telugu;
-    document.getElementById("speak-pronunciation").textContent = `నెమ్మదిగా: ${phrase.pronunciation_telugu}\nసహజంగా: ${naturalPronunciation}`;
+    document.getElementById("speak-pronunciation").textContent = `ఉచ్చారణ: ${phrase.pronunciation_telugu}`;
     document.getElementById("speak-meaning").textContent = phrase.meaning_telugu;
     if (!window.isSecureContext || !navigator.mediaDevices || !window.MediaRecorder) {
       document.getElementById("speak-record").textContent = "✓ Mark as practised";
@@ -625,10 +624,9 @@
     document.getElementById("exercise-title").textContent = question.prompt;
     document.getElementById("exercise-telugu").textContent = question.prompt_telugu;
     document.getElementById("exercise-phrase").textContent = isTest ? "Listen to the question" : `“${question.audio}”`;
-    const naturalPronunciation = question.natural_pronunciation_telugu || question.pronunciation_telugu;
     document.getElementById("exercise-pronunciation").textContent = isTest
       ? "ప్రశ్నను మాత్రమే వినండి. సమాధానం చూపించబడదు."
-      : `నెమ్మదిగా: ${question.pronunciation_telugu}\nసహజంగా: ${naturalPronunciation}`;
+      : `ఉచ్చారణ: ${question.pronunciation_telugu}`;
     document.getElementById("lesson-counter").textContent = `${questionIndex + 1} / ${questions.length}`;
     document.getElementById("lesson-progress-bar").style.width = `${((questionIndex + 1) / questions.length) * 100}%`;
     answerList.replaceChildren(...question.choices.map((choice, index) => createAnswerOption(choice, index, selectAnswer)));
