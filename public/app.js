@@ -20,6 +20,8 @@
   const toast = document.getElementById("toast");
   let currentUser = null;
   let moduleData = null;
+  let activeGrade = 3;
+  let activeWeek = 1;
   let progressRecords = [];
   let activeMode = "lesson";
   let activeLesson = null;
@@ -108,6 +110,9 @@
     progressRecords = [];
     assignmentRecords = [];
     teacherData = null;
+    activeWeek = 1;
+    const selector = document.getElementById("week-selector");
+    if (selector) selector.value = "1";
   }
 
   function preferredFemaleVoice(language, voices = window.speechSynthesis.getVoices()) {
@@ -204,8 +209,29 @@
     return row;
   }
 
+  function moduleProgress(progress) {
+    if (!moduleData) return [];
+    const ids = new Set([
+      ...moduleData.lessons.map((lesson) => lesson.id),
+      moduleData.weekend_test.id,
+      ...(moduleData.role_play ? [moduleData.role_play.id] : [])
+    ]);
+    return progress.filter((item) => ids.has(item.lesson_id));
+  }
+
   function completedLessonCount(progress) {
-    return progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed").length;
+    if (!moduleData) return 0;
+    const lessonIds = new Set(moduleData.lessons.map((lesson) => lesson.id));
+    return progress.filter((item) => lessonIds.has(item.lesson_id) && item.status === "completed").length;
+  }
+
+  function rolePlayCompleted(progress) {
+    if (!moduleData || !moduleData.role_play) return true;
+    return progress.some((item) => item.lesson_id === moduleData.role_play.id && item.status === "completed");
+  }
+
+  function moduleApi(suffix = "") {
+    return `/api/modules/${activeGrade}/weeks/${activeWeek}${suffix}`;
   }
 
   function showStudentView(name) {
@@ -273,6 +299,97 @@
     return card;
   }
 
+  function updateWeekCopy() {
+    if (!moduleData) return;
+    const weekLabel = `CLASS 3 · WEEK ${activeWeek}`;
+    const setText = (selector, value) => {
+      const element = document.querySelector(selector);
+      if (element) element.textContent = value;
+    };
+    setText("#student-learn-view .welcome .eyebrow", weekLabel);
+    setText("#student-learn-view .section-heading h2", moduleData.theme);
+    setText("#student-learn-view .section-heading > span", `Unit ${moduleData.unit} of 10`);
+    setText("#student-learn-view .test-card b", `Week ${activeWeek} Test`);
+    setText("#practice-label", `WEEK ${activeWeek} REVIEW`);
+    setText("#student-tests-view .test-hub .today-label", `WEEK ${activeWeek}`);
+    setText("#student-tests-view .test-hub h2", moduleData.theme);
+    setText("#student-progress-view .list-card .card-title h3", `Week ${activeWeek} lesson progress`);
+    setText("#teacher-dashboard-view .teacher-heading .eyebrow", `CLASS 3A · WEEK ${activeWeek}`);
+    setText("#teacher-dashboard-view .roster .card-title p", `Class 3A · Week ${activeWeek}`);
+    setText("#teacher-dashboard-view .teacher-guide h3", `Week ${activeWeek} teaching guide`);
+    setText("#teacher-dashboard-view .teacher-guide .card-title > span", `Class 3 · ${moduleData.lessons.reduce((sum, lesson) => sum + lesson.duration_minutes, 0)} minutes`);
+    setText("#teacher-dashboard-view #metric-accuracy + em", `Week ${activeWeek} test`);
+    setText("#teacher-students-view .teacher-heading p", `Review every student’s Week ${activeWeek} progress.`);
+    setText("#teacher-lessons-view .teacher-heading h1", `Week ${activeWeek} lessons`);
+    setText("#teacher-assessments-view .teacher-heading .eyebrow", `WEEK ${activeWeek} TEST`);
+    setText("#teacher-reports-view .teacher-heading .eyebrow", `CLASS 3A · WEEK ${activeWeek}`);
+    setText("#teacher-reports-view .list-card .card-title span", `Based on Week ${activeWeek} results`);
+    const selector = document.getElementById("week-selector");
+    if (selector) selector.value = String(activeWeek);
+  }
+
+  function renderRolePlay(progress) {
+    const card = document.getElementById("role-play-card");
+    if (!card) return;
+    if (!moduleData.role_play) {
+      card.classList.add("hidden");
+      return;
+    }
+    card.classList.remove("hidden");
+    const completed = rolePlayCompleted(progress);
+    card.querySelector("span").textContent = `ROLE PLAY · ${moduleData.role_play.turns.length} TURNS`;
+    card.querySelector("b").textContent = moduleData.role_play.title;
+    card.querySelector("p").textContent = moduleData.role_play.telugu_title;
+    const button = card.querySelector("button");
+    button.textContent = completed ? "Practise again" : "Start role play";
+    card.classList.toggle("done", completed);
+    button.onclick = openRolePlayDialog;
+  }
+
+  function openRolePlayDialog() {
+    if (!moduleData || !moduleData.role_play) return;
+    const rolePlay = moduleData.role_play;
+    document.getElementById("role-play-title").textContent = rolePlay.title;
+    document.getElementById("role-play-telugu").textContent = rolePlay.telugu_title;
+    document.getElementById("role-play-instructions").textContent = `${rolePlay.instructions} ${rolePlay.instructions_telugu}`;
+    const turns = rolePlay.turns.map((turn, index) => {
+      const row = document.createElement("article");
+      row.className = "role-play-turn";
+      const copy = document.createElement("div");
+      copy.append(
+        Object.assign(document.createElement("small"), { textContent: `${index + 1} · ${turn.speaker}` }),
+        Object.assign(document.createElement("b"), { textContent: turn.english }),
+        Object.assign(document.createElement("span"), { textContent: turn.action })
+      );
+      const listen = Object.assign(document.createElement("button"), { type: "button", textContent: "🔊" });
+      listen.setAttribute("aria-label", `Listen to ${turn.speaker}`);
+      listen.addEventListener("click", () => speak(turn.english, "en-IN"));
+      row.append(copy, listen);
+      return row;
+    });
+    document.getElementById("role-play-turns").replaceChildren(...turns);
+    const complete = document.getElementById("role-play-complete");
+    complete.textContent = currentUser.role === "student" && !rolePlayCompleted(progressRecords)
+      ? "I completed all 8 turns"
+      : "Close role play";
+    document.getElementById("role-play-dialog").showModal();
+  }
+
+  async function completeRolePlay() {
+    if (currentUser.role !== "student" || rolePlayCompleted(progressRecords)) {
+      document.getElementById("role-play-dialog").close();
+      return;
+    }
+    const rolePlay = moduleData.role_play;
+    await api(`/api/progress/${rolePlay.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: "completed", score: 100, xp: rolePlay.xp || 20 })
+    });
+    document.getElementById("role-play-dialog").close();
+    await loadStudent();
+    showToast(`Role play completed · +${rolePlay.xp || 20} XP`);
+  }
+
   function renderMistakeHistory(improvements) {
     const improvementList = document.getElementById("student-improvement-list");
     const mistakeHistory = document.getElementById("student-mistake-history");
@@ -302,10 +419,12 @@
   }
 
   function renderStudentSecondary(user, progress, assignments, improvements) {
-    const records = new Map(progress.map((item) => [item.lesson_id, item]));
+    const currentProgress = moduleProgress(progress);
+    const records = new Map(currentProgress.map((item) => [item.lesson_id, item]));
     const completed = completedLessonCount(progress);
     const testRecord = records.get(moduleData.weekend_test.id);
-    const lessonScores = progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed");
+    const lessonIds = new Set(moduleData.lessons.map((lesson) => lesson.id));
+    const lessonScores = currentProgress.filter((item) => lessonIds.has(item.lesson_id) && item.status === "completed");
     const accuracy = lessonScores.length ? Math.round(lessonScores.reduce((sum, item) => sum + item.score, 0) / lessonScores.length) : 0;
 
     speakPhrases = moduleData.lessons.flatMap((lesson) => lesson.key_phrases);
@@ -329,19 +448,27 @@
     document.getElementById("practice-listen-telugu").disabled = true;
 
     const testsButton = document.getElementById("tests-start-button");
-    testsButton.disabled = completed < moduleData.lessons.length;
-    testsButton.textContent = testRecord ? `Retake Week 1 test · ${testRecord.score}%` : completed >= moduleData.lessons.length ? "Start Week 1 test" : `Complete ${moduleData.lessons.length - completed} more lesson${moduleData.lessons.length - completed === 1 ? "" : "s"}`;
+    const rolePlayReady = rolePlayCompleted(progress);
+    const weekReady = completed >= moduleData.lessons.length && rolePlayReady;
+    testsButton.disabled = !weekReady;
+    testsButton.textContent = testRecord && testRecord.status === "completed"
+      ? `Retake Week ${activeWeek} test · ${testRecord.score}%`
+      : !rolePlayReady
+        ? "Complete the role play"
+        : weekReady
+          ? `Start Week ${activeWeek} test`
+          : `Complete ${moduleData.lessons.length - completed} more lesson${moduleData.lessons.length - completed === 1 ? "" : "s"}`;
     const history = document.getElementById("student-test-history");
     history.replaceChildren(testRecord
-      ? simpleRow("Week 1 Challenge", `${testRecord.score}%`, `${testRecord.attempts} attempt${testRecord.attempts === 1 ? "" : "s"}`, testRecord.score >= 70 ? "Passed" : "Review", testRecord.score < 70)
+      ? simpleRow(`Week ${activeWeek} Challenge`, `${testRecord.score}%`, `${testRecord.attempts} attempt${testRecord.attempts === 1 ? "" : "s"}`, testRecord.status === "completed" ? "Passed" : "Needs practice", testRecord.status !== "completed")
       : Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No completed tests yet." }));
 
     document.getElementById("student-progress-metrics").replaceChildren(
       metricCard("⚡", "Total XP", String(user.xp || 0), "All activities"),
-      metricCard("📚", "Lessons", `${completed}/5`, "Week 1"),
+      metricCard("📚", "Lessons", `${completed}/${moduleData.lessons.length}`, `Week ${activeWeek}`),
       metricCard("🎯", "Accuracy", `${accuracy}%`, "Lesson practice")
     );
-    document.getElementById("progress-completion-label").textContent = `${completed} of 5 complete`;
+    document.getElementById("progress-completion-label").textContent = `${completed} of ${moduleData.lessons.length} complete`;
     document.getElementById("student-progress-list").replaceChildren(...moduleData.lessons.map((lesson) => {
       const record = records.get(lesson.id);
       const completedLesson = record && record.status === "completed";
@@ -349,10 +476,11 @@
       const lessonStatus = completedLesson ? "Completed" : needsPractice ? "Needs practice" : "Not started";
       return simpleRow(lesson.title, lesson.day, completedLesson ? `+${record.xp} XP` : "0 XP", lessonStatus, needsPractice);
     }));
+    renderRolePlay(progress);
     renderMistakeHistory(improvements);
     const assignmentList = document.getElementById("student-assignment-list");
     assignmentList.replaceChildren(...(assignments.length
-      ? assignments.map((item) => simpleRow(item.title, `Due ${item.due_date}`, `Class ${item.grade}${item.section}`, records.has(item.lesson_id) ? "Completed" : "Assigned"))
+      ? assignments.map((item) => simpleRow(item.title, `Due ${item.due_date}`, `Class ${item.grade}${item.section}`, records.get(item.lesson_id)?.status === "completed" ? "Completed" : "Assigned"))
       : [Object.assign(document.createElement("div"), { className: "empty-state", textContent: "No teacher assignments yet." })]));
   }
 
@@ -381,21 +509,34 @@
 
   function renderStudent(user, progress, assignments = [], improvements = improvementData) {
     progressRecords = progress;
-    const records = new Map(progress.map((item) => [item.lesson_id, item]));
+    const currentProgress = moduleProgress(progress);
+    const records = new Map(currentProgress.map((item) => [item.lesson_id, item]));
     const completed = completedLessonCount(progress);
-    const scored = progress.filter((item) => item.lesson_id.includes("-lesson") && item.status === "completed");
+    const lessonIds = new Set(moduleData.lessons.map((lesson) => lesson.id));
+    const scored = currentProgress.filter((item) => lessonIds.has(item.lesson_id) && item.status === "completed");
     const accuracy = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
+    updateWeekCopy();
     document.getElementById("student-first-name").textContent = firstName(user.display_name);
-    document.getElementById("weekly-goal-text").textContent = `${completed} / 5 lessons`;
-    document.getElementById("weekly-goal-bar").style.width = `${Math.min(completed * 20, 100)}%`;
+    document.getElementById("weekly-goal-text").textContent = `${completed} / ${moduleData.lessons.length} lessons`;
+    document.getElementById("weekly-goal-bar").style.width = `${Math.min((completed / moduleData.lessons.length) * 100, 100)}%`;
     document.getElementById("progress-xp").textContent = user.xp || 0;
     document.getElementById("progress-accuracy").textContent = `${accuracy}%`;
     document.getElementById("header-xp").textContent = `${user.xp || 0} XP`;
     document.getElementById("header-lessons").textContent = `${completed} lesson${completed === 1 ? "" : "s"}`;
 
+    const featuredLesson = moduleData.lessons[Math.min(completed, moduleData.lessons.length - 1)];
+    const featuredPhrase = featuredLesson.key_phrases[0];
+    document.querySelector(".today-card .today-label").textContent = `TODAY’S LESSON · ${featuredLesson.duration_minutes} MIN`;
+    document.querySelector(".today-card h2").textContent = featuredLesson.title;
+    document.querySelector(".today-card > .today-copy > p").textContent = featuredLesson.objective;
+    document.querySelector(".today-card .language-example strong").textContent = featuredPhrase.english;
+    document.querySelector(".today-card .language-example span").textContent = featuredPhrase.pronunciation_telugu;
+    document.querySelector(".today-card .language-example small").textContent = featuredPhrase.meaning_telugu;
+
     document.querySelectorAll(".path-item[data-lesson-id]").forEach((item, index) => {
       const lesson = moduleData.lessons[index];
-      const record = records.get(item.dataset.lessonId);
+      item.dataset.lessonId = lesson.id;
+      const record = records.get(lesson.id);
       const isDone = record && record.status === "completed";
       const needsPractice = record && record.status === "needs_practice";
       const canStart = isDone || needsPractice || index <= completed;
@@ -428,8 +569,13 @@
 
     const testButton = document.getElementById("open-test");
     const testRecord = records.get(moduleData.weekend_test.id);
-    testButton.disabled = completed < moduleData.lessons.length;
-    testButton.textContent = testRecord ? `Retake · ${testRecord.score}%` : completed >= moduleData.lessons.length ? "Start test" : "Complete all lessons";
+    const weekReady = completed >= moduleData.lessons.length && rolePlayCompleted(progress);
+    testButton.disabled = !weekReady;
+    testButton.textContent = testRecord && testRecord.status === "completed"
+      ? `Retake · ${testRecord.score}%`
+      : !rolePlayCompleted(progress)
+        ? "Complete role play"
+        : weekReady ? "Start test" : "Complete all lessons";
     improvementData = improvements;
     renderStudentSecondary(user, progress, assignments, improvements);
   }
@@ -512,7 +658,7 @@
     const passed = students.filter((student) => student.test_score >= 70);
     const needsHelp = students.filter((student) => student.status === "Needs help");
     document.getElementById("assessment-metrics").replaceChildren(
-      metricCard("📝", "Tests completed", `${tested.length}/${students.length}`, "Week 1"),
+      metricCard("📝", "Tests completed", `${tested.length}/${students.length}`, `Week ${activeWeek}`),
       metricCard("✅", "Passed", String(passed.length), "70% or higher"),
       metricCard("🎯", "Class average", `${data.metrics.average_accuracy}%`, "All students"),
       metricCard("🧭", "Needs support", String(needsHelp.length), "Follow-up group")
@@ -525,7 +671,7 @@
     document.getElementById("report-metrics").replaceChildren(
       metricCard("👥", "Students", String(data.metrics.total_students), "Class 3A"),
       metricCard("📚", "Lessons completed", String(data.metrics.lessons_completed), "Weekly total"),
-      metricCard("🎯", "Average test", `${data.metrics.average_accuracy}%`, "Week 1"),
+      metricCard("🎯", "Average test", `${data.metrics.average_accuracy}%`, `Week ${activeWeek}`),
       metricCard("⚡", "Total XP", String(students.reduce((sum, student) => sum + student.xp, 0)), "Class total")
     );
     const attention = document.getElementById("attention-list");
@@ -542,12 +688,13 @@
     }));
     const latest = assignments[0];
     document.getElementById("latest-assignment-title").textContent = latest ? latest.title : "No assignment yet";
-    document.getElementById("latest-assignment-detail").textContent = latest ? `Due ${latest.due_date}` : "Assign a Week 1 lesson to Class 3A.";
+    document.getElementById("latest-assignment-detail").textContent = latest ? `Due ${latest.due_date}` : `Assign a Week ${activeWeek} lesson to Class 3A.`;
     document.getElementById("latest-assignment-meta").textContent = latest ? `👥 Class ${latest.grade}${latest.section} · ${latest.lesson_id}` : "👥 Class 3A";
   }
 
   function renderTeacher(data, assignments = []) {
     const metrics = data.metrics;
+    updateWeekCopy();
     document.getElementById("teacher-school").textContent = data.school;
     document.getElementById("teacher-name").textContent = firstName(currentUser.display_name);
     document.getElementById("metric-students").textContent = `${metrics.active_students} / ${metrics.total_students}`;
@@ -560,8 +707,13 @@
   }
 
   async function loadStudent() {
+    activeGrade = currentUser && currentUser.grade ? currentUser.grade : 3;
     const [user, progress, week, assignments, improvements] = await Promise.all([
-      api("/api/auth/me"), api("/api/progress"), api("/api/modules/3/weeks/1"), api("/api/assignments"), api("/api/improvements")
+      api("/api/auth/me"),
+      api("/api/progress"),
+      api(moduleApi()),
+      api("/api/assignments"),
+      api(`/api/improvements?grade=${activeGrade}&week=${activeWeek}`)
     ]);
     setUser(user);
     moduleData = week;
@@ -574,7 +726,10 @@
 
   async function loadTeacher() {
     const [user, dashboard, week, assignments] = await Promise.all([
-      api("/api/auth/me"), api("/api/teacher/dashboard"), api("/api/modules/3/weeks/1"), api("/api/assignments")
+      api("/api/auth/me"),
+      api(`/api/teacher/dashboard?week=${activeWeek}`),
+      api(moduleApi()),
+      api("/api/assignments")
     ]);
     setUser(user);
     moduleData = week;
@@ -651,7 +806,7 @@
     checkButton.disabled = true;
     const masteredCount = lessonMasteredQuestions.size;
     const score = Math.round((masteredCount / activeLesson.questions.length) * 100);
-    const completed = score >= 67;
+    const completed = score >= (moduleData.mastery_score || 67);
     await api(`/api/progress/${activeLesson.id}`, {
       method: "PUT",
       body: JSON.stringify({ status: completed ? "completed" : "needs_practice", score, xp: completed ? activeLesson.xp : 0 })
@@ -683,7 +838,7 @@
 
   async function submitTest() {
     checkButton.disabled = true;
-    const result = await api("/api/modules/3/weeks/1/test/submit", {
+    const result = await api(moduleApi("/test/submit"), {
       method: "POST",
       body: JSON.stringify({ answers: testAnswers })
     });
@@ -770,7 +925,7 @@
     buttons.forEach((button) => { button.disabled = true; });
     selectedButton.classList.add("selected");
     try {
-      const result = await api("/api/modules/3/weeks/1/check", {
+      const result = await api(moduleApi("/check"), {
         method: "POST",
         body: JSON.stringify({ question_id: practiceCurrent.id, selected_index: index, attempt_number: practiceAttemptNumber, activity: "practice" })
       });
@@ -837,12 +992,12 @@
 
   async function downloadReport() {
     try {
-      const response = await fetch("/api/teacher/report.csv", { headers: { Authorization: `Bearer ${token()}` } });
+      const response = await fetch(`/api/teacher/report.csv?week=${activeWeek}`, { headers: { Authorization: `Bearer ${token()}` } });
       if (!response.ok) throw new Error("Report download failed.");
       const blob = await response.blob();
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "mana-english-class3a-week1.csv";
+      link.download = `mana-english-class3a-week${activeWeek}.csv`;
       document.body.append(link);
       link.click();
       link.remove();
@@ -906,6 +1061,20 @@
     showScreen("login");
     showToast("You have signed out.");
   });
+  document.getElementById("week-selector").addEventListener("change", async (event) => {
+    const requested = Number(event.target.value);
+    if (![1, 2].includes(requested) || requested === activeWeek) return;
+    activeWeek = requested;
+    try {
+      if (currentUser.role === "student") await loadStudent();
+      else await loadTeacher();
+      showToast(`Week ${activeWeek} loaded · ${moduleData.theme}`);
+    } catch (error) {
+      activeWeek = 1;
+      event.target.value = "1";
+      showToast(error.message);
+    }
+  });
   document.getElementById("preview-student").addEventListener("click", () => {
     progressRecords = [];
     renderStudent(currentUser, [], [], { total_mistakes: 0, needs_practice: 0, questions: [], history: [] });
@@ -914,11 +1083,19 @@
     showToast("Student preview · progress changes are disabled");
   });
   document.querySelector(".today-card .open-lesson").addEventListener("click", openNextLesson);
-  document.querySelector(".today-card .sound-button").addEventListener("click", () => speak("My name is Ananya."));
+  document.querySelector(".today-card .sound-button").addEventListener("click", () => {
+    if (!moduleData) return;
+    const completed = completedLessonCount(progressRecords);
+    const lesson = moduleData.lessons[Math.min(completed, moduleData.lessons.length - 1)];
+    speak(lesson.key_phrases[0].english, "en-IN");
+  });
   document.getElementById("open-test").addEventListener("click", openTest);
   document.getElementById("tests-start-button").addEventListener("click", () => {
-    if (document.getElementById("tests-start-button").disabled) showToast("Complete all five lessons to unlock the test.");
+    if (document.getElementById("tests-start-button").disabled) showToast("Complete all five lessons and the role play to unlock the test.");
     else openTest();
+  });
+  document.getElementById("role-play-complete").addEventListener("click", async () => {
+    try { await completeRolePlay(); } catch (error) { showToast(error.message); }
   });
   document.getElementById("close-lesson").addEventListener("click", async () => {
     if (currentUser && currentUser.role === "student") await loadStudent();
@@ -995,7 +1172,7 @@
       }
 
       checkButton.disabled = true;
-      const result = await api("/api/modules/3/weeks/1/check", {
+      const result = await api(moduleApi("/check"), {
         method: "POST",
         body: JSON.stringify({ question_id: question.id, selected_index: selectedIndex, attempt_number: questionAttemptNumber, activity: "lesson" })
       });

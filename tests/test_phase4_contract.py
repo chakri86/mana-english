@@ -74,7 +74,7 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn("MASTERY_SCORE = 67", api)
         self.assertIn("reconcile_legacy_mastery", api)
         self.assertIn('Literal["started", "needs_practice", "completed"]', schemas)
-        self.assertIn("const completed = score >= 67", javascript)
+        self.assertIn("const completed = score >= (moduleData.mastery_score || 67)", javascript)
         self.assertIn('status: completed ? "completed" : "needs_practice"', javascript)
         self.assertIn('checkButton.dataset.mode = "retry-missed"', javascript)
 
@@ -109,6 +109,20 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn("function refreshTeluguVoiceStatus", javascript)
         self.assertIn('id="telugu-voice-status"', html)
         self.assertIn('id="telugu-voice-test"', html)
+
+    def test_week_two_selector_and_role_play_are_wired(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "public/index.html").read_text(encoding="utf-8")
+        api = (ROOT / "backend/app/main.py").read_text(encoding="utf-8")
+        self.assertIn('id="week-selector"', html)
+        self.assertIn('id="role-play-dialog"', html)
+        self.assertIn('id="role-play-complete"', html)
+        self.assertIn('/assets/week2-roleplay.jpg', html)
+        self.assertIn("function renderRolePlay", javascript)
+        self.assertIn("function completeRolePlay", javascript)
+        self.assertIn("activeWeek = requested", javascript)
+        self.assertIn("SUPPORTED_WEEKS = (1, 2)", api)
+        self.assertIn("required_progress_ids", api)
 
 
 if __name__ == "__main__":

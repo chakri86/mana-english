@@ -40,6 +40,7 @@
   <header id="topbar" class="topbar hidden">
     <button class="brand" data-home aria-label="Mana English home"><span class="brand-mark">మ</span><span><b>Mana</b> English</span></button>
     <span id="role-label" class="role-chip">Student</span>
+    <label class="week-picker">Learning week<select id="week-selector" aria-label="Choose learning week"><option value="1">Week 1</option><option value="2">Week 2</option></select></label>
     <div class="top-stats"><span>📚 <b id="header-lessons">0 lessons</b></span><span>⚡ <b id="header-xp">0 XP</b></span><i id="user-avatar">ME</i><button id="logout-button" class="logout-button">Sign out</button></div>
   </header>
 
@@ -61,6 +62,7 @@
         <article class="path-item open" data-lesson-id="class3-unit1-lesson3"><div class="path-line"></div><div class="node">💬</div><div class="lesson-copy"><span>WED · LESSON 3</span><b>How are you?</b><small>మీరు ఎలా ఉన్నారు?</small></div><div class="lesson-action"><span>12 min</span></div></article>
         <article class="path-item locked" data-lesson-id="class3-unit1-lesson4"><div class="path-line"></div><div class="node">🔒</div><div class="lesson-copy"><span>THU · LESSON 4</span><b>Nice to meet you</b><small>మిమ్మల్ని కలవడం ఆనందంగా ఉంది</small></div><div class="lesson-action"><span>Locked</span></div></article>
         <article class="path-item locked" data-lesson-id="class3-unit1-lesson5"><div class="node">🔒</div><div class="lesson-copy"><span>FRI · LESSON 5</span><b>Let’s have a conversation</b><small>మనము సంభాషిద్దాం</small></div><div class="lesson-action"><span>Locked</span></div></article>
+        <article id="role-play-card" class="role-play-card hidden"><div>🎭</div><section><span>ROLE PLAY</span><b>Getting ready for class</b><p>Listen, act and speak together</p></section><button type="button">Start role play</button></article>
         <article class="test-card"><div>🏆</div><section><span>WEEKEND CHALLENGE</span><b>Week 1 Test</b><p>10 questions · Listening + MCQ</p></section><button id="open-test" disabled>Complete all lessons</button></article>
       </div>
     </section>
@@ -134,6 +136,7 @@
 
   <dialog id="assignment-dialog" class="app-dialog"><form id="assignment-form" method="dialog"><button type="button" class="dialog-close" data-close-dialog="assignment-dialog" aria-label="Close">✕</button><p class="eyebrow">NEW ASSIGNMENT</p><h2>Assign a lesson</h2><label>Lesson<select id="assignment-lesson" required></select></label><div class="form-row"><label>Class<input value="3" disabled></label><label>Section<input id="assignment-section" value="A" maxlength="10" required></label></div><label>Due date<input id="assignment-due-date" type="date" required></label><div id="assignment-error" class="login-error"></div><button class="primary" type="submit">Assign to Class 3A</button></form></dialog>
   <dialog id="telugu-help-dialog" class="app-dialog help-dialog"><section><button type="button" class="dialog-close" data-close-dialog="telugu-help-dialog" aria-label="Close">✕</button><p class="eyebrow">తెలుగు సహాయం</p><h2>How to use Telugu support</h2><div id="telugu-voice-status" class="voice-status"><b>Checking Telugu audio…</b><p>Please wait while the browser loads its installed voices.</p></div><button id="telugu-voice-test" type="button" class="secondary-action">🔊 Test Telugu voice</button><div class="help-steps"><article><b>1 · Listen</b><p>🔊 నొక్కి ఇంగ్లీష్ లేదా తెలుగు వాక్యాన్ని వినండి.</p></article><article><b>2 · Read</b><p>తెలుగు లిపిలో ఉన్న ఉచ్చారణను చదవండి.</p></article><article><b>3 · Speak</b><p>వాక్యాన్ని నెమ్మదిగా, స్పష్టంగా చెప్పండి.</p></article><article><b>4 · Understand</b><p>తెలుగు అర్థాన్ని చూసి వాక్యాన్ని అర్థం చేసుకోండి.</p></article></div><button type="button" class="primary" data-close-dialog="telugu-help-dialog">అర్థమైంది</button></section></dialog>
+  <dialog id="role-play-dialog" class="app-dialog role-play-dialog"><section><button type="button" class="dialog-close" data-close-dialog="role-play-dialog" aria-label="Close">✕</button><p class="eyebrow">SPOKEN ENGLISH ROLE PLAY</p><h2 id="role-play-title">Getting ready for class</h2><b id="role-play-telugu" class="role-play-telugu"></b><p id="role-play-instructions"></p><img class="role-play-scene" src="/assets/week2-roleplay.jpg" alt="Parrot Teacher and Tara getting ready for class"><div id="role-play-turns" class="role-play-turns"></div><button id="role-play-complete" type="button" class="primary">I completed all 8 turns</button></section></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
   <script src="/app.js"></script>

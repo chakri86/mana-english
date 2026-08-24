@@ -30,18 +30,21 @@ from .security import create_access_token, decode_access_token, verify_secret
 from .seed import seed_demo_data
 
 
-WEEK_ONE = load_week(3, 1)
-LESSONS = [
-    {
+SUPPORTED_WEEKS = (1, 2)
+WEEK_MODULES = {week: load_week(3, week) for week in SUPPORTED_WEEKS}
+ALL_LESSONS = [lesson for module in WEEK_MODULES.values() for lesson in module["lessons"]]
+
+
+def lesson_summary(lesson: dict, week: int) -> dict:
+    return {
         "id": lesson["id"],
+        "week": week,
         "day": lesson["day"],
         "title": lesson["title"],
         "telugu": lesson["telugu_title"],
         "duration_minutes": lesson["duration_minutes"],
         "xp": lesson["xp"],
     }
-    for lesson in WEEK_ONE["lessons"]
-]
 
 bearer = HTTPBearer(auto_error=False)
 failed_attempts: dict[str, deque[float]] = defaultdict(deque)
@@ -51,7 +54,7 @@ MASTERY_SCORE = 67
 
 
 def reconcile_legacy_mastery(db: Session) -> None:
-    lesson_ids = {lesson["id"] for lesson in LESSONS}
+    lesson_ids = {lesson["id"] for lesson in ALL_LESSONS}
     records = db.scalars(
         select(LessonProgress).where(
             LessonProgress.lesson_id.in_(lesson_ids),
@@ -79,7 +82,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Mana English API",
-    version="0.5.6",
+    version="0.6.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -143,7 +146,7 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.5.6"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.6.0"}
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
@@ -179,7 +182,19 @@ def me(current: User = Depends(get_current_user), db: Session = Depends(get_db))
 
 @app.get("/api/lessons")
 def list_lessons(current: User = Depends(get_current_user)):
-    return {"grade": current.grade or 3, "unit": 1, "lessons": LESSONS}
+    return {
+        "grade": current.grade or 3,
+        "weeks": [
+            {
+                "week": week,
+                "unit": module["unit"],
+                "theme": module["theme"],
+                "theme_telugu": module["theme_telugu"],
+                "lessons": [lesson_summary(lesson, week) for lesson in module["lessons"]],
+            }
+            for week, module in WEEK_MODULES.items()
+        ],
+    }
 
 
 def requested_week(grade: int, week: int, current: User) -> dict:
@@ -251,27 +266,37 @@ def check_module_answer(
 
 
 def question_details(question_id: str) -> tuple[dict, dict] | None:
-    for lesson in WEEK_ONE["lessons"]:
-        question = next((item for item in lesson["questions"] if item["id"] == question_id), None)
+    for module in WEEK_MODULES.values():
+        for lesson in module["lessons"]:
+            question = next((item for item in lesson["questions"] if item["id"] == question_id), None)
+            if question:
+                return lesson, question
+        question = next(
+            (item for item in module["weekend_test"]["questions"] if item["id"] == question_id),
+            None,
+        )
         if question:
-            return lesson, question
-    question = next(
-        (item for item in WEEK_ONE["weekend_test"]["questions"] if item["id"] == question_id),
-        None,
-    )
-    if question:
-        return WEEK_ONE["weekend_test"], question
+            return module["weekend_test"], question
     return None
 
 
-def improvement_summary(db: Session, user: User) -> dict:
+def improvement_summary(db: Session, user: User, module: dict | None = None) -> dict:
     attempts = db.scalars(
         select(AnswerAttempt)
         .where(AnswerAttempt.user_id == user.id)
         .order_by(AnswerAttempt.created_at)
     ).all()
+    allowed_question_ids = None
+    if module is not None:
+        allowed_question_ids = {
+            question["id"]
+            for lesson in module["lessons"]
+            for question in lesson["questions"]
+        } | {question["id"] for question in module["weekend_test"]["questions"]}
     grouped: dict[str, list[AnswerAttempt]] = defaultdict(list)
     for attempt in attempts:
+        if allowed_question_ids is not None and attempt.question_id not in allowed_question_ids:
+            continue
         grouped[attempt.question_id].append(attempt)
 
     questions = []
@@ -301,6 +326,8 @@ def improvement_summary(db: Session, user: User) -> dict:
 
     history = []
     for attempt in reversed([item for item in attempts if not item.is_correct]):
+        if allowed_question_ids is not None and attempt.question_id not in allowed_question_ids:
+            continue
         details = question_details(attempt.question_id)
         if details is None:
             continue
@@ -327,10 +354,16 @@ def improvement_summary(db: Session, user: User) -> dict:
 
 
 @app.get("/api/improvements")
-def get_improvements(current: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_improvements(
+    grade: int = 3,
+    week: int | None = None,
+    current: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     if current.role != "student":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Student account required")
-    return improvement_summary(db, current)
+    module = requested_week(grade, week, current) if week is not None else None
+    return improvement_summary(db, current, module)
 
 
 def save_progress_record(
@@ -381,8 +414,23 @@ def submit_week_test(
     weekly_test = module["weekend_test"]
     questions = weekly_test["questions"]
     valid_ids = {question["id"] for question in questions}
-    if not set(payload.answers).issubset(valid_ids):
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Test contains an unknown question")
+    if set(payload.answers) != valid_ids:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Answer every test question before submitting")
+    required_progress_ids = {lesson["id"] for lesson in module["lessons"]}
+    role_play = module.get("role_play")
+    if role_play and role_play.get("required_for_test"):
+        required_progress_ids.add(role_play["id"])
+    completed_ids = set(
+        db.scalars(
+            select(LessonProgress.lesson_id).where(
+                LessonProgress.user_id == current.id,
+                LessonProgress.lesson_id.in_(required_progress_ids),
+                LessonProgress.status == "completed",
+            )
+        ).all()
+    )
+    if not required_progress_ids.issubset(completed_ids):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Complete the week’s lessons and role play before taking the test")
     correct_count = sum(
         payload.answers.get(question["id"]) == question["correct_index"]
         for question in questions
@@ -405,8 +453,9 @@ def submit_week_test(
         )
     score = round((correct_count / len(questions)) * 100)
     passed = score >= weekly_test["pass_score"]
-    xp = weekly_test["xp"] if passed else 10
-    record = save_progress_record(db, current, weekly_test["id"], "completed", score, xp)
+    xp = weekly_test["xp"] if passed else 0
+    progress_status = "completed" if passed else "needs_practice"
+    record = save_progress_record(db, current, weekly_test["id"], progress_status, score, xp)
     return {
         "score": score,
         "correct": correct_count,
@@ -473,7 +522,7 @@ def create_assignment(
 ):
     if current.role not in {"teacher", "admin"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Teacher account required")
-    lesson = next((item for item in LESSONS if item["id"] == payload.lesson_id), None)
+    lesson = next((item for item in ALL_LESSONS if item["id"] == payload.lesson_id), None)
     if lesson is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found")
     assignment = Assignment(
@@ -500,7 +549,11 @@ def save_progress(
 ):
     if current.role != "student":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Student account required")
-    valid_ids = {lesson["id"] for lesson in LESSONS} | {"class3-unit1-week1-test"}
+    valid_ids = {lesson["id"] for lesson in ALL_LESSONS}
+    for module in WEEK_MODULES.values():
+        valid_ids.add(module["weekend_test"]["id"])
+        if module.get("role_play"):
+            valid_ids.add(module["role_play"]["id"])
     if lesson_id not in valid_ids:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found")
     record = save_progress_record(db, current, lesson_id, payload.status, payload.score, payload.xp)
@@ -516,11 +569,19 @@ def save_progress(
 
 @app.get("/api/teacher/dashboard")
 def teacher_dashboard(
+    week: int = 1,
     current: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if current.role not in {"teacher", "admin"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Teacher account required")
+    try:
+        module = load_week(3, week)
+    except FileNotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Learning module not found")
+    lesson_ids = {lesson["id"] for lesson in module["lessons"]}
+    test_id = module["weekend_test"]["id"]
+    role_play_id = module.get("role_play", {}).get("id")
     students = db.scalars(
         select(User)
         .where(
@@ -537,9 +598,9 @@ def teacher_dashboard(
         records = db.scalars(
             select(LessonProgress).where(LessonProgress.user_id == student.id)
         ).all()
-        improvements = improvement_summary(db, student)
-        lesson_records = [r for r in records if "-lesson" in r.lesson_id and r.status == "completed"]
-        test_record = next((r for r in records if r.lesson_id.endswith("week1-test")), None)
+        improvements = improvement_summary(db, student, module)
+        lesson_records = [r for r in records if r.lesson_id in lesson_ids and r.status == "completed"]
+        test_record = next((r for r in records if r.lesson_id == test_id), None)
         xp = sum(r.xp for r in records)
         accuracy = test_record.score if test_record else 0
         total_accuracy += accuracy
@@ -557,8 +618,9 @@ def teacher_dashboard(
                 "username": student.username,
                 "xp": xp,
                 "lessons_completed": len(lesson_records),
-                "lessons_total": 5,
+                "lessons_total": len(module["lessons"]),
                 "test_score": accuracy,
+                "role_play_completed": bool(role_play_id and any(r.lesson_id == role_play_id and r.status == "completed" for r in records)),
                 "mistakes": improvements["total_mistakes"],
                 "improvement_area": improvements["questions"][0]["lesson_title"] if improvements["questions"] else "None yet",
                 "status": student_status,
@@ -573,21 +635,24 @@ def teacher_dashboard(
             "total_students": student_count,
             "lessons_completed": total_lessons,
             "average_accuracy": round(total_accuracy / student_count) if student_count else 0,
-            "speaking_reviews": 0,
+            "speaking_reviews": sum(student["role_play_completed"] for student in student_rows),
         },
+        "week": week,
+        "theme": module["theme"],
         "students": student_rows,
     }
 
 
 @app.get("/api/teacher/report.csv")
 def download_teacher_report(
+    week: int = 1,
     current: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    data = teacher_dashboard(current, db)
+    data = teacher_dashboard(week=week, current=current, db=db)
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["Student", "Student ID", "XP", "Lessons completed", "Lessons total", "Week 1 test", "Mistakes", "Main improvement area", "Status"])
+    writer.writerow(["Student", "Student ID", "XP", "Lessons completed", "Lessons total", f"Week {week} test", "Role play", "Mistakes", "Main improvement area", "Status"])
     for student in data["students"]:
         writer.writerow(
             [
@@ -597,10 +662,11 @@ def download_teacher_report(
                 student["lessons_completed"],
                 student["lessons_total"],
                 student["test_score"],
+                "Completed" if student["role_play_completed"] else "Not completed",
                 student["mistakes"],
                 student["improvement_area"],
                 student["status"],
             ]
         )
-    headers = {"Content-Disposition": 'attachment; filename="mana-english-class3a-week1.csv"'}
+    headers = {"Content-Disposition": f'attachment; filename="mana-english-class3a-week{week}.csv"'}
     return StreamingResponse(iter([output.getvalue()]), media_type="text/csv; charset=utf-8", headers=headers)

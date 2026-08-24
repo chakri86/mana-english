@@ -26,10 +26,11 @@ class PhaseTwoContractTests(unittest.TestCase):
             "/api/auth/me",
             "/api/progress",
             "/api/teacher/dashboard",
-            "/api/modules/3/weeks/1",
             "/api/assignments",
         ):
             self.assertIn(endpoint, javascript)
+        self.assertIn("function moduleApi", javascript)
+        self.assertIn("/api/modules/${activeGrade}/weeks/${activeWeek}", javascript)
         self.assertIn('headers.set("Authorization", `Bearer ${token()}`)', javascript)
 
     def test_api_contract_is_present(self):

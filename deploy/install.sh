@@ -15,7 +15,7 @@ CONF_DIR="/etc/mana-english"
 QUADLET_DIR="/etc/containers/systemd"
 BACKUP_ROOT="/var/backups/mana-english"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-IMAGE_NAME="localhost/mana-english-api:0.5.6"
+IMAGE_NAME="localhost/mana-english-api:0.6.0"
 
 for file in \
   "${SOURCE_DIR}/index.html" \
@@ -24,6 +24,7 @@ for file in \
   "${BACKEND_DIR}/Containerfile" \
   "${BACKEND_DIR}/requirements.txt" \
   "${BACKEND_DIR}/app/content/class3_week1.json" \
+  "${BACKEND_DIR}/app/content/class3_week2.json" \
   "${SCRIPT_DIR}/nginx-api.conf"; do
   test -f "${file}"
 done
