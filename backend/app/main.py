@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .content import find_question, load_week, student_week
+from .content import find_question, load_week, pronunciation_guide, student_week
 from .db import Base, SessionLocal, engine, get_db, wait_for_database
 from .models import AnswerAttempt, Assignment, LessonProgress, School, User
 from .schemas import (
@@ -82,7 +82,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Mana English API",
-    version="0.7.0",
+    version="0.8.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
     redoc_url=None,
@@ -146,7 +146,12 @@ def check_rate_limit(key: str) -> None:
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "mana-english-api", "version": "0.7.0"}
+    return {"status": "ok", "service": "mana-english-api", "version": "0.8.0"}
+
+
+@app.get("/api/pronunciation-guide")
+def get_pronunciation_guide(current: User = Depends(get_current_user)) -> dict:
+    return pronunciation_guide()
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)

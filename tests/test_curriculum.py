@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTENT_FILE = ROOT / "backend/app/content/class3_week1.json"
 CONTENT_WEEK_TWO = ROOT / "backend/app/content/class3_week2.json"
+PRONUNCIATION_GUIDE = ROOT / "backend/app/content/pronunciation_guide.json"
 
 
 class ClassThreeWeekOneTests(unittest.TestCase):
@@ -81,6 +82,8 @@ class ClassThreeWeekOneTests(unittest.TestCase):
                 self.assertNotIn("correct_index", question)
         for question in student_module["weekend_test"]["questions"]:
             self.assertNotIn("correct_index", question)
+            self.assertEqual(question["audio"], question["prompt"])
+            self.assertEqual(question["pronunciation_telugu"], "ప్రశ్నను వినండి. సమాధానం చూపించబడదు.")
 
     def test_weekend_test_payload_does_not_reveal_answers_as_audio_hints(self):
         from backend.app.content import student_week
@@ -182,6 +185,34 @@ class ClassThreeWeekTwoTests(unittest.TestCase):
             self.assertNotIn("correct_index", question)
             self.assertEqual(question["audio"], question["prompt"])
             self.assertEqual(question["pronunciation_telugu"], "ప్రశ్నను వినండి. సమాధానం చూపించబడదు.")
+
+
+class PronunciationGuideTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.guide = json.loads(PRONUNCIATION_GUIDE.read_text(encoding="utf-8"))
+
+    def test_guide_progresses_from_one_to_four_syllables(self):
+        self.assertEqual([level["syllable_count"] for level in self.guide["levels"]], [1, 2, 3, 4])
+        self.assertEqual(sum(len(level["words"]) for level in self.guide["levels"]), 24)
+        self.assertEqual(len(self.guide["routine"]), 4)
+
+    def test_every_word_has_valid_syllables_and_child_support(self):
+        all_words = []
+        for level in self.guide["levels"]:
+            for item in level["words"]:
+                all_words.append(item["word"])
+                self.assertEqual(len(item["syllables"]), level["syllable_count"])
+                self.assertIn(item["stress_index"], range(level["syllable_count"]))
+                self.assertTrue(item["phonetic"])
+                self.assertTrue(item["pronunciation_telugu"])
+                self.assertTrue(item["meaning_telugu"])
+                self.assertTrue(item["example"])
+        self.assertEqual(len(all_words), len(set(all_words)))
+
+    def test_guide_uses_concrete_course_vocabulary(self):
+        words = {item["word"] for level in self.guide["levels"] for item in level["words"]}
+        self.assertTrue({"book", "name", "hello", "teacher", "afternoon", "conversation"}.issubset(words))
 
 
 if __name__ == "__main__":

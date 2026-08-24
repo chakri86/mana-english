@@ -16,6 +16,17 @@ def load_week(grade: int, week: int) -> dict:
         return json.load(source)
 
 
+@lru_cache(maxsize=1)
+def load_pronunciation_guide() -> dict:
+    path = CONTENT_DIR / "pronunciation_guide.json"
+    with path.open(encoding="utf-8") as source:
+        return json.load(source)
+
+
+def pronunciation_guide() -> dict:
+    return copy.deepcopy(load_pronunciation_guide())
+
+
 def student_week(grade: int, week: int) -> dict:
     module = copy.deepcopy(load_week(grade, week))
     for lesson in module["lessons"]:

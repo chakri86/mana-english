@@ -142,6 +142,21 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn("Say it: ${item.phonetic}", javascript)
         self.assertIn(".vocabulary-grid", css)
 
+    def test_separate_pronunciation_guide_is_wired_to_student_navigation(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "public/index.html").read_text(encoding="utf-8")
+        css = (ROOT / "public/styles.css").read_text(encoding="utf-8")
+        self.assertIn('data-student-view="vocabulary"', html)
+        self.assertIn('id="student-vocabulary-view"', html)
+        self.assertIn('id="pronunciation-levels"', html)
+        self.assertIn('data-syllable-filter="1"', html)
+        self.assertIn('data-syllable-filter="4"', html)
+        self.assertIn("function renderPronunciationGuide", javascript)
+        self.assertIn("function applySyllableFilter", javascript)
+        self.assertIn('speak(item.word, "en-IN")', javascript)
+        self.assertIn(".syllable-parts", css)
+        self.assertIn(".pronunciation-word-card", css)
+
 
 if __name__ == "__main__":
     unittest.main()

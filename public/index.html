@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#118661">
   <meta name="description" content="Mana English spoken-English learning for children in Andhra Pradesh and Telangana, with Telugu support.">
   <title>Mana English</title>
-  <link rel="stylesheet" href="/styles.css?v=0.7.0">
+  <link rel="stylesheet" href="/styles.css?v=0.8.0">
 </head>
 <body>
   <main id="login-screen" class="screen active login-shell">
@@ -46,7 +46,7 @@
 
   <main id="student-screen" class="screen student-layout">
     <aside class="sidebar">
-      <nav><button class="nav-active" data-student-view="learn">🏠 <span>Learn</span></button><button data-student-view="speak">🎙️ <span>Speak</span></button><button data-student-view="practice">🧩 <span>Practice</span></button><button data-student-view="tests">📝 <span>Tests</span></button><button data-student-view="progress">📈 <span>Progress</span></button></nav>
+      <nav><button class="nav-active" data-student-view="learn">🏠 <span>Learn</span></button><button data-student-view="vocabulary">🔤 <span>Vocabulary</span></button><button data-student-view="speak">🎙️ <span>Speak</span></button><button data-student-view="practice">🧩 <span>Practice</span></button><button data-student-view="tests">📝 <span>Tests</span></button><button data-student-view="progress">📈 <span>Progress</span></button></nav>
       <div class="help"><strong>🦜</strong><b>Need help?</b><p>Tap Telugu support anytime.</p><button id="telugu-help-button">తెలుగు సహాయం</button></div>
     </aside>
     <section id="student-learn-view" class="learning-area student-view active">
@@ -66,6 +66,13 @@
         <article id="role-play-card" class="role-play-card hidden"><div>🎭</div><section><span>ROLE PLAY</span><b>Getting ready for class</b><p>Listen, act and speak together</p></section><button type="button">Start role play</button></article>
         <article class="test-card"><div>🏆</div><section><span>WEEKEND CHALLENGE</span><b>Week 1 Test</b><p>10 questions · Listening + MCQ</p></section><button id="open-test" disabled>Complete all lessons</button></article>
       </div>
+    </section>
+    <section id="student-vocabulary-view" class="learning-area student-view">
+      <div class="page-heading"><p class="eyebrow">PRONUNCIATION PATH</p><h1>Vocabulary and phonetics guide</h1><p>Hear the word, clap its syllables, say each part, and join the complete word.</p></div>
+      <article class="pronunciation-hero"><div><span>🔤</span><section><p class="eyebrow">WHAT IS A SYLLABLE?</p><h2>A syllable is one beat in a word.</h2><p>Book has one beat. Teach-er has two beats. Con-ver-sa-tion has four beats.</p><b id="pronunciation-guide-telugu"></b></section></div><button id="pronunciation-example-listen" class="primary" type="button">🔊 Hear an example</button></article>
+      <section><div id="pronunciation-routine" class="pronunciation-routine"></div></section>
+      <div class="syllable-tools"><div><p class="eyebrow">CHOOSE A LEVEL</p><h3>Build from one beat to four beats</h3></div><div class="syllable-filters"><button class="active" type="button" data-syllable-filter="all">All</button><button type="button" data-syllable-filter="1">1 beat</button><button type="button" data-syllable-filter="2">2 beats</button><button type="button" data-syllable-filter="3">3 beats</button><button type="button" data-syllable-filter="4">4 beats</button></div></div>
+      <div id="pronunciation-levels" class="pronunciation-levels"></div>
     </section>
     <section id="student-speak-view" class="learning-area student-view">
       <div class="page-heading"><p class="eyebrow">SPEAKING LAB</p><h1>Listen, speak and build confidence</h1><p>Choose a phrase, listen carefully, and record your voice.</p></div>
@@ -94,7 +101,7 @@
       <article class="panel-card"><div class="card-title"><h3>Your progress</h3><button data-student-view="progress">View all</button></div><div class="stats"><div>⚡<b id="progress-xp">0</b><small>Total XP</small></div><div>📚<b id="progress-lessons">0</b><small>Lessons</small></div><div>🎯<b id="progress-accuracy">0%</b><small>Accuracy</small></div><div>🎙️<b id="progress-spoken">0</b><small>Recordings</small></div></div></article>
       <article class="panel-card word"><p class="eyebrow">WORD OF THE DAY</p><button class="sound-button">🔊</button><h3 id="word-of-day">hello</h3><em id="word-of-day-phonetic">Say it: heh-LOH</em><b id="word-of-day-pronunciation">హలో</b><small id="word-of-day-meaning">నమస్కారం</small></article>
     </aside>
-    <nav class="mobile-nav"><button data-student-view="learn">🏠<span>Learn</span></button><button data-student-view="speak">🎙️<span>Speak</span></button><button data-student-view="practice">🧩<span>Practice</span></button><button data-student-view="tests">📝<span>Tests</span></button><button data-student-view="progress">📈<span>Progress</span></button></nav>
+    <nav class="mobile-nav"><button data-student-view="learn">🏠<span>Learn</span></button><button data-student-view="vocabulary">🔤<span>Words</span></button><button data-student-view="speak">🎙️<span>Speak</span></button><button data-student-view="practice">🧩<span>Practice</span></button><button data-student-view="tests">📝<span>Tests</span></button><button data-student-view="progress">📈<span>Progress</span></button></nav>
   </main>
 
   <main id="lesson-screen" class="screen lesson-screen">
@@ -141,6 +148,6 @@
   <dialog id="role-play-dialog" class="app-dialog role-play-dialog"><section><button type="button" class="dialog-close" data-close-dialog="role-play-dialog" aria-label="Close">✕</button><p class="eyebrow">SPOKEN ENGLISH ROLE PLAY</p><h2 id="role-play-title">Role play</h2><b id="role-play-telugu" class="role-play-telugu"></b><p id="role-play-instructions"></p><img id="role-play-scene" class="role-play-scene" alt=""><div id="role-play-turns" class="role-play-turns"></div><button id="role-play-complete" type="button" class="primary">I completed all 8 turns</button></section></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="/app.js?v=0.7.0"></script>
+  <script src="/app.js?v=0.8.0"></script>
 </body>
 </html>

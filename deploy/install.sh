@@ -15,7 +15,7 @@ CONF_DIR="/etc/mana-english"
 QUADLET_DIR="/etc/containers/systemd"
 BACKUP_ROOT="/var/backups/mana-english"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-IMAGE_NAME="localhost/mana-english-api:0.7.0"
+IMAGE_NAME="localhost/mana-english-api:0.8.0"
 
 for file in \
   "${SOURCE_DIR}/index.html" \
@@ -27,6 +27,7 @@ for file in \
   "${BACKEND_DIR}/requirements.txt" \
   "${BACKEND_DIR}/app/content/class3_week1.json" \
   "${BACKEND_DIR}/app/content/class3_week2.json" \
+  "${BACKEND_DIR}/app/content/pronunciation_guide.json" \
   "${SCRIPT_DIR}/nginx-api.conf"; do
   test -f "${file}"
 done
@@ -133,7 +134,7 @@ curl -fsS http://localhost/api/health
 curl -fsS http://localhost/ | grep -q "Mana English"
 
 echo
-echo "Mana English Phase 7 v0.7.0 deployed successfully."
+echo "Mana English Phase 8 v0.8.0 deployed successfully."
 echo "Open: http://192.168.247.200"
 echo
 echo "Student login"

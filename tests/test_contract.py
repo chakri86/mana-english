@@ -18,8 +18,8 @@ class PhaseTwoContractTests(unittest.TestCase):
             "student-roster",
         ):
             self.assertIn(f'id="{element_id}"', html)
-        self.assertIn('/styles.css?v=0.7.0', html)
-        self.assertIn('/app.js?v=0.7.0', html)
+        self.assertIn('/styles.css?v=0.8.0', html)
+        self.assertIn('/app.js?v=0.8.0', html)
 
     def test_browser_uses_authenticated_api(self):
         javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
@@ -29,6 +29,7 @@ class PhaseTwoContractTests(unittest.TestCase):
             "/api/progress",
             "/api/teacher/dashboard",
             "/api/assignments",
+            "/api/pronunciation-guide",
         ):
             self.assertIn(endpoint, javascript)
         self.assertIn("function moduleApi", javascript)
@@ -39,6 +40,7 @@ class PhaseTwoContractTests(unittest.TestCase):
         api = (ROOT / "backend/app/main.py").read_text(encoding="utf-8")
         for route in (
             '@app.get("/api/health")',
+            '@app.get("/api/pronunciation-guide")',
             '@app.post("/api/auth/login"',
             '@app.get("/api/auth/me"',
             '@app.get("/api/progress"',
@@ -58,6 +60,7 @@ class PhaseTwoContractTests(unittest.TestCase):
         self.assertIn('"${SOURCE_DIR}/assets/week1-roleplay.jpg"', installer)
         self.assertIn('"${SOURCE_DIR}/assets/week2-roleplay.jpg"', installer)
         self.assertIn('week1-roleplay.jpg week2-roleplay.jpg', installer)
+        self.assertIn('"${BACKEND_DIR}/app/content/pronunciation_guide.json"', installer)
         self.assertNotIn("change-me", installer.lower())
 
     def test_demo_credentials_can_be_rotated_without_resetting_progress(self):

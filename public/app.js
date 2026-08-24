@@ -42,6 +42,7 @@
   let practiceCurrent = null;
   let practiceAttemptNumber = 1;
   let improvementData = { total_mistakes: 0, needs_practice: 0, questions: [], history: [] };
+  let pronunciationGuideData = null;
   let toastTimer;
 
   const token = () => sessionStorage.getItem(TOKEN_KEY);
@@ -110,6 +111,7 @@
     progressRecords = [];
     assignmentRecords = [];
     teacherData = null;
+    pronunciationGuideData = null;
     activeWeek = 1;
     const selector = document.getElementById("week-selector");
     if (selector) selector.value = "1";
@@ -378,6 +380,83 @@
     document.getElementById("word-of-day-phonetic").textContent = `Say it: ${featured.phonetic}`;
     document.getElementById("word-of-day-pronunciation").textContent = featured.pronunciation_telugu;
     document.getElementById("word-of-day-meaning").textContent = featured.meaning_telugu;
+  }
+
+  function createPronunciationWordCard(item, syllableCount) {
+    const card = document.createElement("article");
+    card.className = "pronunciation-word-card";
+    const heading = document.createElement("header");
+    const title = document.createElement("div");
+    title.append(
+      Object.assign(document.createElement("i"), { textContent: item.icon || "💬" }),
+      Object.assign(document.createElement("h4"), { textContent: item.word })
+    );
+    const listen = Object.assign(document.createElement("button"), { type: "button", textContent: "🔊" });
+    listen.setAttribute("aria-label", `Listen to ${item.word}`);
+    listen.addEventListener("click", () => speak(item.word, "en-IN"));
+    heading.append(title, listen);
+
+    const syllables = document.createElement("div");
+    syllables.className = "syllable-parts";
+    item.syllables.forEach((part, index) => {
+      const chip = Object.assign(document.createElement("span"), { textContent: part });
+      chip.classList.toggle("stress", index === item.stress_index);
+      syllables.append(chip);
+      if (index < item.syllables.length - 1) syllables.append(Object.assign(document.createElement("em"), { textContent: "·" }));
+    });
+
+    const phonetic = Object.assign(document.createElement("strong"), { textContent: `Say it: ${item.phonetic}` });
+    const telugu = document.createElement("div");
+    telugu.className = "pronunciation-telugu";
+    telugu.append(
+      Object.assign(document.createElement("b"), { textContent: item.pronunciation_telugu }),
+      Object.assign(document.createElement("span"), { textContent: item.meaning_telugu })
+    );
+    const example = Object.assign(document.createElement("p"), { textContent: item.example });
+    const count = Object.assign(document.createElement("small"), { textContent: `${syllableCount} ${syllableCount === 1 ? "beat" : "beats"}` });
+    card.append(heading, count, syllables, phonetic, telugu, example);
+    return card;
+  }
+
+  function applySyllableFilter(value) {
+    document.querySelectorAll("[data-syllable-filter]").forEach((button) => button.classList.toggle("active", button.dataset.syllableFilter === value));
+    document.querySelectorAll(".pronunciation-level").forEach((level) => {
+      level.classList.toggle("hidden", value !== "all" && level.dataset.syllables !== value);
+    });
+  }
+
+  function renderPronunciationGuide() {
+    if (!pronunciationGuideData) return;
+    document.getElementById("pronunciation-guide-telugu").textContent = pronunciationGuideData.subtitle_telugu;
+    document.getElementById("pronunciation-routine").replaceChildren(...pronunciationGuideData.routine.map((step) => {
+      const card = document.createElement("article");
+      card.append(
+        Object.assign(document.createElement("i"), { textContent: step.icon }),
+        Object.assign(document.createElement("small"), { textContent: `STEP ${step.step}` }),
+        Object.assign(document.createElement("b"), { textContent: step.title }),
+        Object.assign(document.createElement("p"), { textContent: step.instruction })
+      );
+      return card;
+    }));
+    document.getElementById("pronunciation-levels").replaceChildren(...pronunciationGuideData.levels.map((level) => {
+      const section = document.createElement("section");
+      section.className = "pronunciation-level";
+      section.dataset.syllables = String(level.syllable_count);
+      const header = document.createElement("header");
+      const copy = document.createElement("div");
+      copy.append(
+        Object.assign(document.createElement("span"), { textContent: `LEVEL ${level.syllable_count}` }),
+        Object.assign(document.createElement("h3"), { textContent: level.title }),
+        Object.assign(document.createElement("p"), { textContent: level.description })
+      );
+      header.append(copy, Object.assign(document.createElement("b"), { textContent: `${level.words.length} words` }));
+      const words = document.createElement("div");
+      words.className = "pronunciation-word-grid";
+      words.replaceChildren(...level.words.map((item) => createPronunciationWordCard(item, level.syllable_count)));
+      section.append(header, words);
+      return section;
+    }));
+    applySyllableFilter("all");
   }
 
   function openRolePlayDialog() {
@@ -748,33 +827,39 @@
 
   async function loadStudent() {
     activeGrade = currentUser && currentUser.grade ? currentUser.grade : 3;
-    const [user, progress, week, assignments, improvements] = await Promise.all([
+    const [user, progress, week, assignments, improvements, pronunciationGuide] = await Promise.all([
       api("/api/auth/me"),
       api("/api/progress"),
       api(moduleApi()),
       api("/api/assignments"),
-      api(`/api/improvements?grade=${activeGrade}&week=${activeWeek}`)
+      api(`/api/improvements?grade=${activeGrade}&week=${activeWeek}`),
+      api("/api/pronunciation-guide")
     ]);
     setUser(user);
     moduleData = week;
     assignmentRecords = assignments;
     improvementData = improvements;
+    pronunciationGuideData = pronunciationGuide;
+    renderPronunciationGuide();
     renderStudent(user, progress, assignments, improvements);
     showStudentView("learn");
     showScreen("student");
   }
 
   async function loadTeacher() {
-    const [user, dashboard, week, assignments] = await Promise.all([
+    const [user, dashboard, week, assignments, pronunciationGuide] = await Promise.all([
       api("/api/auth/me"),
       api(`/api/teacher/dashboard?week=${activeWeek}`),
       api(moduleApi()),
-      api("/api/assignments")
+      api("/api/assignments"),
+      api("/api/pronunciation-guide")
     ]);
     setUser(user);
     moduleData = week;
     teacherData = dashboard;
     assignmentRecords = assignments;
+    pronunciationGuideData = pronunciationGuide;
+    renderPronunciationGuide();
     renderTeacher(dashboard, assignments);
     showTeacherView("dashboard");
     showScreen("teacher");
@@ -1090,6 +1175,8 @@
     showStudentView(button.dataset.studentView);
     showScreen("student");
   }));
+  document.querySelectorAll("[data-syllable-filter]").forEach((button) => button.addEventListener("click", () => applySyllableFilter(button.dataset.syllableFilter)));
+  document.getElementById("pronunciation-example-listen").addEventListener("click", () => speak("conversation", "en-IN"));
   document.querySelectorAll("[data-teacher-view]").forEach((button) => button.addEventListener("click", () => {
     showTeacherView(button.dataset.teacherView);
     showScreen("teacher");

@@ -1,0 +1,65 @@
+{
+  "title": "Vocabulary and Pronunciation Guide",
+  "subtitle": "Learn to hear, clap, split and say English words clearly.",
+  "subtitle_telugu": "ఇంగ్లీష్ పదాలను విని, చప్పట్లు కొట్టి, భాగాలుగా విడదీసి స్పష్టంగా పలకడం నేర్చుకోండి.",
+  "routine": [
+    {"step": 1, "title": "Listen", "instruction": "Tap the speaker and listen twice.", "icon": "👂"},
+    {"step": 2, "title": "Clap", "instruction": "Clap once for every syllable.", "icon": "👏"},
+    {"step": 3, "title": "Say slowly", "instruction": "Say each word part separately.", "icon": "🐢"},
+    {"step": 4, "title": "Say normally", "instruction": "Join the parts and say the complete word.", "icon": "💬"}
+  ],
+  "levels": [
+    {
+      "syllable_count": 1,
+      "title": "One-syllable words",
+      "description": "One clear beat. Clap once.",
+      "words": [
+        {"word": "book", "syllables": ["book"], "stress_index": 0, "phonetic": "BOOK", "pronunciation_telugu": "బుక్", "meaning_telugu": "పుస్తకం", "icon": "📘", "example": "This is my book."},
+        {"word": "bag", "syllables": ["bag"], "stress_index": 0, "phonetic": "BAG", "pronunciation_telugu": "బ్యాగ్", "meaning_telugu": "సంచి", "icon": "🎒", "example": "This is my bag."},
+        {"word": "name", "syllables": ["name"], "stress_index": 0, "phonetic": "NAYM", "pronunciation_telugu": "నేమ్", "meaning_telugu": "పేరు", "icon": "🏷️", "example": "My name is Tara."},
+        {"word": "friend", "syllables": ["friend"], "stress_index": 0, "phonetic": "FREND", "pronunciation_telugu": "ఫ్రెండ్", "meaning_telugu": "స్నేహితుడు లేదా స్నేహితురాలు", "icon": "🤝", "example": "This is my friend."},
+        {"word": "fine", "syllables": ["fine"], "stress_index": 0, "phonetic": "FYN", "pronunciation_telugu": "ఫైన్", "meaning_telugu": "బాగున్నాను", "icon": "🙂", "example": "I am fine."},
+        {"word": "meet", "syllables": ["meet"], "stress_index": 0, "phonetic": "MEET", "pronunciation_telugu": "మీట్", "meaning_telugu": "కలవడం", "icon": "🙋", "example": "Nice to meet you."}
+      ]
+    },
+    {
+      "syllable_count": 2,
+      "title": "Two-syllable words",
+      "description": "Two word parts. Clap twice.",
+      "words": [
+        {"word": "hello", "syllables": ["hel", "lo"], "stress_index": 1, "phonetic": "heh-LOH", "pronunciation_telugu": "హలో", "meaning_telugu": "నమస్కారం", "icon": "👋", "example": "Hello, teacher!"},
+        {"word": "teacher", "syllables": ["teach", "er"], "stress_index": 0, "phonetic": "TEE-cher", "pronunciation_telugu": "టీచర్", "meaning_telugu": "బోధించే వ్యక్తి", "icon": "🦜", "example": "Good morning, teacher."},
+        {"word": "happy", "syllables": ["hap", "py"], "stress_index": 0, "phonetic": "HAP-ee", "pronunciation_telugu": "హ్యాపీ", "meaning_telugu": "సంతోషంగా", "icon": "😊", "example": "I am happy."},
+        {"word": "morning", "syllables": ["morn", "ing"], "stress_index": 0, "phonetic": "MOR-ning", "pronunciation_telugu": "మార్నింగ్", "meaning_telugu": "ఉదయం", "icon": "🌅", "example": "Good morning!"},
+        {"word": "pencil", "syllables": ["pen", "cil"], "stress_index": 0, "phonetic": "PEN-sil", "pronunciation_telugu": "పెన్సిల్", "meaning_telugu": "రాయడానికి ఉపయోగించే పెన్సిల్", "icon": "✏️", "example": "This is my pencil."},
+        {"word": "ready", "syllables": ["read", "y"], "stress_index": 0, "phonetic": "RED-ee", "pronunciation_telugu": "రెడీ", "meaning_telugu": "సిద్ధంగా", "icon": "✅", "example": "I am ready."}
+      ]
+    },
+    {
+      "syllable_count": 3,
+      "title": "Three-syllable words",
+      "description": "Three word parts. Say the strong part clearly.",
+      "words": [
+        {"word": "afternoon", "syllables": ["af", "ter", "noon"], "stress_index": 2, "phonetic": "af-ter-NOON", "pronunciation_telugu": "ఆఫ్టర్‌నూన్", "meaning_telugu": "మధ్యాహ్నం", "icon": "☀️", "example": "Good afternoon!"},
+        {"word": "introduce", "syllables": ["in", "tro", "duce"], "stress_index": 2, "phonetic": "in-truh-DOOS", "pronunciation_telugu": "ఇంట్రడ్యూస్", "meaning_telugu": "పరిచయం చేయడం", "icon": "💬", "example": "Let me introduce my friend."},
+        {"word": "together", "syllables": ["to", "geth", "er"], "stress_index": 1, "phonetic": "tuh-GETH-er", "pronunciation_telugu": "టుగెదర్", "meaning_telugu": "కలిసి", "icon": "👫", "example": "Let us speak together."},
+        {"word": "elephant", "syllables": ["el", "e", "phant"], "stress_index": 0, "phonetic": "EL-uh-fuhnt", "pronunciation_telugu": "ఎలిఫెంట్", "meaning_telugu": "ఏనుగు", "icon": "🐘", "example": "Tara is an elephant."},
+        {"word": "politely", "syllables": ["po", "lite", "ly"], "stress_index": 1, "phonetic": "puh-LYT-lee", "pronunciation_telugu": "పలైట్‌లీ", "meaning_telugu": "మర్యాదగా", "icon": "🙏", "example": "Speak politely."},
+        {"word": "yesterday", "syllables": ["yes", "ter", "day"], "stress_index": 0, "phonetic": "YES-ter-day", "pronunciation_telugu": "యెస్టర్‌డే", "meaning_telugu": "నిన్న", "icon": "📅", "example": "I came yesterday."}
+      ]
+    },
+    {
+      "syllable_count": 4,
+      "title": "Four-syllable words",
+      "description": "Four word parts. Build the word slowly, then say it normally.",
+      "words": [
+        {"word": "conversation", "syllables": ["con", "ver", "sa", "tion"], "stress_index": 2, "phonetic": "kon-ver-SAY-shun", "pronunciation_telugu": "కాన్వర్‌సేషన్", "meaning_telugu": "సంభాషణ", "icon": "🗣️", "example": "Let us have a conversation."},
+        {"word": "introduction", "syllables": ["in", "tro", "duc", "tion"], "stress_index": 2, "phonetic": "in-truh-DUK-shun", "pronunciation_telugu": "ఇంట్రడక్షన్", "meaning_telugu": "పరిచయం", "icon": "🙋", "example": "Give a short introduction."},
+        {"word": "activity", "syllables": ["ac", "tiv", "i", "ty"], "stress_index": 1, "phonetic": "ak-TIV-uh-tee", "pronunciation_telugu": "యాక్టివిటీ", "meaning_telugu": "కార్యకలాపం", "icon": "🎯", "example": "Start the speaking activity."},
+        {"word": "education", "syllables": ["ed", "u", "ca", "tion"], "stress_index": 2, "phonetic": "ed-yoo-KAY-shun", "pronunciation_telugu": "ఎడ్యుకేషన్", "meaning_telugu": "విద్య", "icon": "🎓", "example": "Education helps us learn."},
+        {"word": "information", "syllables": ["in", "for", "ma", "tion"], "stress_index": 2, "phonetic": "in-for-MAY-shun", "pronunciation_telugu": "ఇన్ఫర్మేషన్", "meaning_telugu": "సమాచారం", "icon": "ℹ️", "example": "Listen for the information."},
+        {"word": "celebration", "syllables": ["cel", "e", "bra", "tion"], "stress_index": 2, "phonetic": "sel-uh-BRAY-shun", "pronunciation_telugu": "సెలబ్రేషన్", "meaning_telugu": "వేడుక", "icon": "🎉", "example": "It is a school celebration."}
+      ]
+    }
+  ]
+}
