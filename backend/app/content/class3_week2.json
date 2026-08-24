@@ -7,6 +7,20 @@
   "weekly_outcome": "Students can name classroom objects, identify their belongings, follow polite classroom instructions, and complete a short getting-ready role play.",
   "weekly_outcome_telugu": "పిల్లలు తరగతి గదిలోని వస్తువుల పేర్లు చెప్పడం, తమ వస్తువులను గుర్తించడం, మర్యాదపూర్వక సూచనలను పాటించడం, తరగతికి సిద్ధమయ్యే చిన్న పాత్రాభినయం చేయడం నేర్చుకుంటారు.",
   "mastery_score": 67,
+  "vocabulary": [
+    {"word": "classroom", "phonetic": "KLASS-room", "pronunciation_telugu": "క్లాస్‌రూమ్", "meaning_telugu": "తరగతి గది", "icon": "🏫"},
+    {"word": "book", "phonetic": "BOOK", "pronunciation_telugu": "బుక్", "meaning_telugu": "పుస్తకం", "icon": "📘"},
+    {"word": "pencil", "phonetic": "PEN-sil", "pronunciation_telugu": "పెన్సిల్", "meaning_telugu": "రాయడానికి ఉపయోగించే పెన్సిల్", "icon": "✏️"},
+    {"word": "bag", "phonetic": "BAG", "pronunciation_telugu": "బ్యాగ్", "meaning_telugu": "సంచి", "icon": "🎒"},
+    {"word": "desk", "phonetic": "DESK", "pronunciation_telugu": "డెస్క్", "meaning_telugu": "చదువుకునే బల్ల", "icon": "🗄️"},
+    {"word": "chair", "phonetic": "CHAIR", "pronunciation_telugu": "చేర్", "meaning_telugu": "కుర్చీ", "icon": "🪑"},
+    {"word": "open", "phonetic": "OH-puhn", "pronunciation_telugu": "ఓపెన్", "meaning_telugu": "తెరవడం", "icon": "📖"},
+    {"word": "close", "phonetic": "KLOHZ", "pronunciation_telugu": "క్లోజ్", "meaning_telugu": "మూయడం", "icon": "📕"},
+    {"word": "show", "phonetic": "SHOH", "pronunciation_telugu": "షో", "meaning_telugu": "చూపించడం", "icon": "👀"},
+    {"word": "put", "phonetic": "PUT", "pronunciation_telugu": "పుట్", "meaning_telugu": "పెట్టడం", "icon": "👇"},
+    {"word": "beside", "phonetic": "bee-SYD", "pronunciation_telugu": "బిసైడ్", "meaning_telugu": "పక్కన", "icon": "↔️"},
+    {"word": "ready", "phonetic": "RED-ee", "pronunciation_telugu": "రెడీ", "meaning_telugu": "సిద్ధంగా", "icon": "✅"}
+  ],
   "lessons": [
     {
       "id": "class3-unit2-lesson1",

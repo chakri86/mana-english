@@ -346,6 +346,40 @@
     button.onclick = openRolePlayDialog;
   }
 
+  function createVocabularyCard(item) {
+    const card = document.createElement("article");
+    card.className = "vocabulary-card";
+    const icon = Object.assign(document.createElement("i"), { textContent: item.icon || "💬" });
+    const copy = document.createElement("div");
+    copy.append(
+      Object.assign(document.createElement("h4"), { textContent: item.word }),
+      Object.assign(document.createElement("small"), { textContent: `Say it: ${item.phonetic}` }),
+      Object.assign(document.createElement("b"), { textContent: item.pronunciation_telugu }),
+      Object.assign(document.createElement("p"), { textContent: item.meaning_telugu })
+    );
+    const listen = Object.assign(document.createElement("button"), { type: "button", textContent: "🔊" });
+    listen.setAttribute("aria-label", `Listen to ${item.word}`);
+    listen.addEventListener("click", () => speak(item.word, "en-IN"));
+    card.append(icon, copy, listen);
+    return card;
+  }
+
+  function renderVocabulary() {
+    const words = moduleData && Array.isArray(moduleData.vocabulary) ? moduleData.vocabulary : [];
+    ["student", "teacher"].forEach((audience) => {
+      const list = document.getElementById(`${audience}-vocabulary-list`);
+      const count = document.getElementById(`${audience}-vocabulary-count`);
+      if (list) list.replaceChildren(...words.map(createVocabularyCard));
+      if (count) count.textContent = `${words.length} words`;
+    });
+    const featured = words[0];
+    if (!featured) return;
+    document.getElementById("word-of-day").textContent = featured.word;
+    document.getElementById("word-of-day-phonetic").textContent = `Say it: ${featured.phonetic}`;
+    document.getElementById("word-of-day-pronunciation").textContent = featured.pronunciation_telugu;
+    document.getElementById("word-of-day-meaning").textContent = featured.meaning_telugu;
+  }
+
   function openRolePlayDialog() {
     if (!moduleData || !moduleData.role_play) return;
     const rolePlay = moduleData.role_play;
@@ -520,6 +554,7 @@
     const scored = currentProgress.filter((item) => lessonIds.has(item.lesson_id) && item.status === "completed");
     const accuracy = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
     updateWeekCopy();
+    renderVocabulary();
     document.getElementById("student-first-name").textContent = firstName(user.display_name);
     document.getElementById("weekly-goal-text").textContent = `${completed} / ${moduleData.lessons.length} lessons`;
     document.getElementById("weekly-goal-bar").style.width = `${Math.min((completed / moduleData.lessons.length) * 100, 100)}%`;
@@ -707,6 +742,7 @@
     document.getElementById("metric-reviews").textContent = metrics.speaking_reviews;
     document.getElementById("student-roster").replaceChildren(...data.students.map(createRosterRow));
     document.getElementById("teacher-week-plan").replaceChildren(...moduleData.lessons.map(createTeacherDay));
+    renderVocabulary();
     renderTeacherSecondary(data, assignments);
   }
 
@@ -1113,7 +1149,10 @@
     const question = activeQuestions()[questionIndex];
     speak(question.prompt_telugu, "te-IN");
   });
-  document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => speak("confident")));
+  document.querySelectorAll(".word .sound-button").forEach((button) => button.addEventListener("click", () => {
+    const featured = moduleData && moduleData.vocabulary && moduleData.vocabulary[0];
+    speak(featured ? featured.word : "hello", "en-IN");
+  }));
   document.getElementById("speak-listen").addEventListener("click", () => speak(speakPhrases[speakIndex].english));
   document.getElementById("speak-record").addEventListener("click", toggleRecording);
   document.getElementById("speak-next").addEventListener("click", nextSpeakPhrase);

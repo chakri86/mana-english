@@ -129,6 +129,19 @@ class PhaseFourMenuTests(unittest.TestCase):
         self.assertIn("SUPPORTED_WEEKS = (1, 2)", api)
         self.assertIn("required_progress_ids", api)
 
+    def test_weekly_vocabulary_is_available_to_students_and_teachers(self):
+        javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
+        html = (ROOT / "public/index.html").read_text(encoding="utf-8")
+        css = (ROOT / "public/styles.css").read_text(encoding="utf-8")
+        self.assertIn('id="student-vocabulary-list"', html)
+        self.assertIn('id="teacher-vocabulary-list"', html)
+        self.assertIn('id="word-of-day-phonetic"', html)
+        self.assertIn("function createVocabularyCard", javascript)
+        self.assertIn("function renderVocabulary", javascript)
+        self.assertIn('speak(item.word, "en-IN")', javascript)
+        self.assertIn("Say it: ${item.phonetic}", javascript)
+        self.assertIn(".vocabulary-grid", css)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#118661">
   <meta name="description" content="Mana English spoken-English learning for children in Andhra Pradesh and Telangana, with Telugu support.">
   <title>Mana English</title>
-  <link rel="stylesheet" href="/styles.css?v=0.6.2">
+  <link rel="stylesheet" href="/styles.css?v=0.7.0">
 </head>
 <body>
   <main id="login-screen" class="screen active login-shell">
@@ -62,6 +62,7 @@
         <article class="path-item open" data-lesson-id="class3-unit1-lesson3"><div class="path-line"></div><div class="node">💬</div><div class="lesson-copy"><span>WED · LESSON 3</span><b>How are you?</b><small>మీరు ఎలా ఉన్నారు?</small></div><div class="lesson-action"><span>12 min</span></div></article>
         <article class="path-item locked" data-lesson-id="class3-unit1-lesson4"><div class="path-line"></div><div class="node">🔒</div><div class="lesson-copy"><span>THU · LESSON 4</span><b>Nice to meet you</b><small>మిమ్మల్ని కలవడం ఆనందంగా ఉంది</small></div><div class="lesson-action"><span>Locked</span></div></article>
         <article class="path-item locked" data-lesson-id="class3-unit1-lesson5"><div class="node">🔒</div><div class="lesson-copy"><span>FRI · LESSON 5</span><b>Let’s have a conversation</b><small>మనము సంభాషిద్దాం</small></div><div class="lesson-action"><span>Locked</span></div></article>
+        <section class="vocabulary-section student-vocabulary"><header><div><p class="eyebrow">WEEKLY VOCABULARY</p><h3>Listen, read and say the words</h3><p>Easy phonetics · Telugu pronunciation · Telugu meaning</p></div><span id="student-vocabulary-count">0 words</span></header><div id="student-vocabulary-list" class="vocabulary-grid"></div></section>
         <article id="role-play-card" class="role-play-card hidden"><div>🎭</div><section><span>ROLE PLAY</span><b>Getting ready for class</b><p>Listen, act and speak together</p></section><button type="button">Start role play</button></article>
         <article class="test-card"><div>🏆</div><section><span>WEEKEND CHALLENGE</span><b>Week 1 Test</b><p>10 questions · Listening + MCQ</p></section><button id="open-test" disabled>Complete all lessons</button></article>
       </div>
@@ -91,7 +92,7 @@
     <aside class="progress-panel">
       <article class="panel-card"><div class="card-title"><h3>This week</h3><span>Mon–Fri</span></div><div class="week-days"><div><span class="done">✓</span><small>M</small></div><div><span class="today">T</span><small>T</small></div><div><span>W</span><small>W</small></div><div><span>T</span><small>T</small></div><div><span>F</span><small>F</small></div></div></article>
       <article class="panel-card"><div class="card-title"><h3>Your progress</h3><button data-student-view="progress">View all</button></div><div class="stats"><div>⚡<b id="progress-xp">0</b><small>Total XP</small></div><div>📚<b id="progress-lessons">0</b><small>Lessons</small></div><div>🎯<b id="progress-accuracy">0%</b><small>Accuracy</small></div><div>🎙️<b id="progress-spoken">0</b><small>Recordings</small></div></div></article>
-      <article class="panel-card word"><p class="eyebrow">WORD OF THE DAY</p><button class="sound-button">🔊</button><h3>confident</h3><b>కాన్ఫిడెంట్</b><small>ఆత్మవిశ్వాసం గల</small><blockquote>“I am confident.”</blockquote></article>
+      <article class="panel-card word"><p class="eyebrow">WORD OF THE DAY</p><button class="sound-button">🔊</button><h3 id="word-of-day">hello</h3><em id="word-of-day-phonetic">Say it: heh-LOH</em><b id="word-of-day-pronunciation">హలో</b><small id="word-of-day-meaning">నమస్కారం</small></article>
     </aside>
     <nav class="mobile-nav"><button data-student-view="learn">🏠<span>Learn</span></button><button data-student-view="speak">🎙️<span>Speak</span></button><button data-student-view="practice">🧩<span>Practice</span></button><button data-student-view="tests">📝<span>Tests</span></button><button data-student-view="progress">📈<span>Progress</span></button></nav>
   </main>
@@ -119,6 +120,7 @@
       </div>
       <div id="teacher-lessons-view" class="teacher-view">
         <div class="teacher-heading"><div><p class="eyebrow">CURRICULUM LIBRARY</p><h1>Week 1 lessons</h1><p>Open teaching guidance or preview student practice.</p></div><button class="primary assign-lesson-button">+ Assign lesson</button></div>
+        <section class="vocabulary-section teacher-vocabulary"><header><div><p class="eyebrow">TEACHER WORD BANK</p><h3>Weekly vocabulary and pronunciation</h3><p>Use Listen → Point → Repeat → Act before asking children to read.</p></div><span id="teacher-vocabulary-count">0 words</span></header><div id="teacher-vocabulary-list" class="vocabulary-grid"></div></section>
         <div id="teacher-lesson-library" class="lesson-library"></div>
       </div>
       <div id="teacher-assessments-view" class="teacher-view">
@@ -139,6 +141,6 @@
   <dialog id="role-play-dialog" class="app-dialog role-play-dialog"><section><button type="button" class="dialog-close" data-close-dialog="role-play-dialog" aria-label="Close">✕</button><p class="eyebrow">SPOKEN ENGLISH ROLE PLAY</p><h2 id="role-play-title">Role play</h2><b id="role-play-telugu" class="role-play-telugu"></b><p id="role-play-instructions"></p><img id="role-play-scene" class="role-play-scene" alt=""><div id="role-play-turns" class="role-play-turns"></div><button id="role-play-complete" type="button" class="primary">I completed all 8 turns</button></section></dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <script src="/app.js?v=0.6.2"></script>
+  <script src="/app.js?v=0.7.0"></script>
 </body>
 </html>

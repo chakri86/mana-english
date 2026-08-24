@@ -18,8 +18,8 @@ class PhaseTwoContractTests(unittest.TestCase):
             "student-roster",
         ):
             self.assertIn(f'id="{element_id}"', html)
-        self.assertIn('/styles.css?v=0.6.2', html)
-        self.assertIn('/app.js?v=0.6.2', html)
+        self.assertIn('/styles.css?v=0.7.0', html)
+        self.assertIn('/app.js?v=0.7.0', html)
 
     def test_browser_uses_authenticated_api(self):
         javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")

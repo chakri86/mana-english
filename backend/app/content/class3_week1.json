@@ -6,6 +6,20 @@
   "theme_telugu": "పలకరింపులు - పరిచయాలు",
   "weekly_outcome": "Students can greet someone, say their name, ask how a person is, respond politely, and introduce a friend.",
   "weekly_outcome_telugu": "పిల్లలు ఒకరిని పలకరించడం, తమ పేరు చెప్పడం, ఎదుటివారు ఎలా ఉన్నారో అడగడం, మర్యాదగా సమాధానం చెప్పడం, స్నేహితుడిని పరిచయం చేయడం నేర్చుకుంటారు.",
+  "vocabulary": [
+    {"word": "hello", "phonetic": "heh-LOH", "pronunciation_telugu": "హలో", "meaning_telugu": "నమస్కారం", "icon": "👋"},
+    {"word": "good morning", "phonetic": "good MOR-ning", "pronunciation_telugu": "గుడ్ మార్నింగ్", "meaning_telugu": "శుభోదయం", "icon": "🌅"},
+    {"word": "good afternoon", "phonetic": "good af-ter-NOON", "pronunciation_telugu": "గుడ్ ఆఫ్టర్‌నూన్", "meaning_telugu": "మధ్యాహ్నం చెప్పే పలకరింపు", "icon": "☀️"},
+    {"word": "name", "phonetic": "NAYM", "pronunciation_telugu": "నేమ్", "meaning_telugu": "పేరు", "icon": "🏷️"},
+    {"word": "teacher", "phonetic": "TEE-cher", "pronunciation_telugu": "టీచర్", "meaning_telugu": "బోధించే వ్యక్తి", "icon": "🦜"},
+    {"word": "friend", "phonetic": "FREND", "pronunciation_telugu": "ఫ్రెండ్", "meaning_telugu": "స్నేహితుడు లేదా స్నేహితురాలు", "icon": "🤝"},
+    {"word": "fine", "phonetic": "FYN", "pronunciation_telugu": "ఫైన్", "meaning_telugu": "బాగున్నాను", "icon": "🙂"},
+    {"word": "happy", "phonetic": "HAP-ee", "pronunciation_telugu": "హ్యాపీ", "meaning_telugu": "సంతోషంగా", "icon": "😊"},
+    {"word": "meet", "phonetic": "MEET", "pronunciation_telugu": "మీట్", "meaning_telugu": "కలవడం", "icon": "🙋"},
+    {"word": "welcome", "phonetic": "WEL-kum", "pronunciation_telugu": "వెల్కమ్", "meaning_telugu": "స్వాగతం", "icon": "🎉"},
+    {"word": "thank you", "phonetic": "THANK-yoo", "pronunciation_telugu": "థాంక్ యూ", "meaning_telugu": "ధన్యవాదాలు", "icon": "🙏"},
+    {"word": "introduce", "phonetic": "in-truh-DOOS", "pronunciation_telugu": "ఇంట్రడ్యూస్", "meaning_telugu": "పరిచయం చేయడం", "icon": "💬"}
+  ],
   "lessons": [
     {
       "id": "class3-unit1-lesson1",

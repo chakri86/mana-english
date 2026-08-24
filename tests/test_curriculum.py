@@ -103,6 +103,17 @@ class ClassThreeWeekOneTests(unittest.TestCase):
         self.assertIn("What is your name?", role_play["turns"][2]["english"])
         self.assertEqual(role_play["turns"][-1]["english"], "Thank you, teacher.")
 
+    def test_week_one_vocabulary_has_easy_phonetics_and_one_telugu_pair(self):
+        vocabulary = self.module["vocabulary"]
+        self.assertEqual(len(vocabulary), 12)
+        self.assertEqual(len({item["word"] for item in vocabulary}), 12)
+        self.assertIn("good morning", {item["word"] for item in vocabulary})
+        for item in vocabulary:
+            self.assertTrue(item["phonetic"])
+            self.assertTrue(item["pronunciation_telugu"])
+            self.assertTrue(item["meaning_telugu"])
+            self.assertTrue(item["icon"])
+
 
 class ClassThreeWeekTwoTests(unittest.TestCase):
     @classmethod
@@ -136,6 +147,17 @@ class ClassThreeWeekTwoTests(unittest.TestCase):
         self.assertEqual(role_play["turns"][1]["speaker"], "Tara")
         self.assertIn("Please open your book.", [turn["english"] for turn in role_play["turns"]])
         self.assertEqual(role_play["turns"][-1]["english"], "Here is my pencil. I am ready.")
+
+    def test_week_two_vocabulary_covers_objects_and_actions(self):
+        vocabulary = self.module["vocabulary"]
+        words = {item["word"] for item in vocabulary}
+        self.assertEqual(len(vocabulary), 12)
+        self.assertTrue({"book", "pencil", "bag", "desk", "chair"}.issubset(words))
+        self.assertTrue({"open", "close", "show", "put", "ready"}.issubset(words))
+        for item in vocabulary:
+            self.assertTrue(item["phonetic"])
+            self.assertTrue(item["pronunciation_telugu"])
+            self.assertTrue(item["meaning_telugu"])
 
     def test_week_two_question_contract_and_skill_tags(self):
         questions = [question for lesson in self.module["lessons"] for question in lesson["questions"]]
