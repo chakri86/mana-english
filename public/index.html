@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#118661">
+  <meta name="description" content="Mana English spoken-English learning for children in Andhra Pradesh and Telangana, with Telugu support.">
+  <title>Mana English</title>
+  <link rel="stylesheet" href="/styles.css?v=0.8.0">
+</head>
+<body>
+  <main id="login-screen" class="screen active login-shell">
+    <section class="login-brand">
+      <div class="login-logo"><span>మ</span><b>Mana English</b></div>
+      <p class="eyebrow">SPEAK · PRACTISE · GROW</p>
+      <h1>English confidence,<br><em>one day at a time.</em></h1>
+      <p>Spoken English for young learners in Andhra Pradesh and Telangana—with friendly Telugu support.</p>
+      <div class="login-language"><span>My name is Ananya.</span><b>మై నేమ్ ఈజ్ అనన్య.</b><small>నా పేరు అనన్య.</small></div>
+      <div class="login-art" aria-hidden="true"><i>👧🏽</i><span>Hello!</span><b>🦜</b></div>
+    </section>
+    <section class="login-panel">
+      <form id="login-form" class="login-card">
+        <p class="eyebrow">WELCOME BACK</p>
+        <h2>Sign in to continue</h2>
+        <p>Choose your account type and enter the details provided by your school.</p>
+        <div class="login-tabs">
+          <button type="button" class="active" data-login-role="student">🎒 Student</button>
+          <button type="button" data-login-role="teacher">📚 Teacher</button>
+        </div>
+        <label>School code<input id="school-code" name="school_code" value="MANA001" autocomplete="organization" required></label>
+        <label><span id="username-label">Student ID</span><input id="username" name="username" placeholder="Example: ANANYA03" autocomplete="username" required></label>
+        <label><span id="secret-label">4-digit PIN</span><input id="secret" name="secret" type="password" inputmode="numeric" autocomplete="current-password" required></label>
+        <div id="login-error" class="login-error" role="alert"></div>
+        <button id="login-button" class="primary login-submit" type="submit">Sign in <span>→</span></button>
+        <small class="credential-note">Your test credentials are shown at the end of the server installation.</small>
+      </form>
+    </section>
+  </main>
+
+  <header id="topbar" class="topbar hidden">
+    <button class="brand" data-home aria-label="Mana English home"><span class="brand-mark">మ</span><span><b>Mana</b> English</span></button>
+    <span id="role-label" class="role-chip">Student</span>
+    <label class="week-picker">Learning week<select id="week-selector" aria-label="Choose learning week"><option value="1">Week 1</option><option value="2">Week 2</option></select></label>
+    <div class="top-stats"><span>📚 <b id="header-lessons">0 lessons</b></span><span>⚡ <b id="header-xp">0 XP</b></span><i id="user-avatar">ME</i><button id="logout-button" class="logout-button">Sign out</button></div>
+  </header>
+
+  <main id="student-screen" class="screen student-layout">
+    <aside class="sidebar">
+      <nav><button class="nav-active" data-student-view="learn">🏠 <span>Learn</span></button><button data-student-view="vocabulary">🔤 <span>Vocabulary</span></button><button data-student-view="speak">🎙️ <span>Speak</span></button><button data-student-view="practice">🧩 <span>Practice</span></button><button data-student-view="tests">📝 <span>Tests</span></button><button data-student-view="progress">📈 <span>Progress</span></button></nav>
+      <div class="help"><strong>🦜</strong><b>Need help?</b><p>Tap Telugu support anytime.</p><button id="telugu-help-button">తెలుగు సహాయం</button></div>
+    </aside>
+    <section id="student-learn-view" class="learning-area student-view active">
+      <div class="welcome"><div><p class="eyebrow">CLASS 3 · WEEK 1</p><h1>Namaskaram, <span id="student-first-name">Student</span>! 👋</h1><p>Ready for today’s English adventure?</p></div><div class="week-goal"><span>Weekly goal</span><b id="weekly-goal-text">0 / 5 lessons</b><i><em id="weekly-goal-bar"></em></i></div></div>
+      <article class="today-card">
+        <div class="today-copy"><span class="today-label">TODAY’S LESSON · 12 MIN</span><h2>Introduce yourself</h2><p>Learn to say your name clearly and confidently.</p><div class="language-example"><button class="sound-button" aria-label="Listen to the example">🔊</button><div><strong>My name is Ananya.</strong><span>మై నేమ్ ఈజ్ అనన్య.</span><small>నా పేరు అనన్య.</small></div></div><button class="primary open-lesson">Start lesson <span>→</span></button></div>
+        <div class="today-art" aria-hidden="true"><span class="bubble">Hello!</span><span class="child">👧🏽</span><i>✦</i></div>
+      </article>
+      <div class="section-heading"><div><p class="eyebrow">YOUR LEARNING PATH</p><h2>Greetings and introductions</h2></div><span>Unit 1 of 10</span></div>
+      <div class="path">
+        <article class="path-item done" data-lesson-id="class3-unit1-lesson1"><div class="path-line"></div><div class="node">✓</div><div class="lesson-copy"><span>MON · LESSON 1</span><b>Hello and good morning</b><small>హలో మరియు గుడ్ మార్నింగ్</small></div><div class="lesson-action"><span class="xp">+20 XP</span></div></article>
+        <article class="path-item current" data-lesson-id="class3-unit1-lesson2"><div class="path-line"></div><div class="node">🙂</div><div class="lesson-copy"><span>TUE · LESSON 2</span><b>My name is…</b><small>నా పేరు…</small></div><div class="lesson-action"><button class="open-lesson">Continue</button></div></article>
+        <article class="path-item open" data-lesson-id="class3-unit1-lesson3"><div class="path-line"></div><div class="node">💬</div><div class="lesson-copy"><span>WED · LESSON 3</span><b>How are you?</b><small>మీరు ఎలా ఉన్నారు?</small></div><div class="lesson-action"><span>12 min</span></div></article>
+        <article class="path-item locked" data-lesson-id="class3-unit1-lesson4"><div class="path-line"></div><div class="node">🔒</div><div class="lesson-copy"><span>THU · LESSON 4</span><b>Nice to meet you</b><small>మిమ్మల్ని కలవడం ఆనందంగా ఉంది</small></div><div class="lesson-action"><span>Locked</span></div></article>
+        <article class="path-item locked" data-lesson-id="class3-unit1-lesson5"><div class="node">🔒</div><div class="lesson-copy"><span>FRI · LESSON 5</span><b>Let’s have a conversation</b><small>మనము సంభాషిద్దాం</small></div><div class="lesson-action"><span>Locked</span></div></article>
+        <section class="vocabulary-section student-vocabulary"><header><div><p class="eyebrow">WEEKLY VOCABULARY</p><h3>Listen, read and say the words</h3><p>Easy phonetics · Telugu pronunciation · Telugu meaning</p></div><span id="student-vocabulary-count">0 words</span></header><div id="student-vocabulary-list" class="vocabulary-grid"></div></section>
+        <article id="role-play-card" class="role-play-card hidden"><div>🎭</div><section><span>ROLE PLAY</span><b>Getting ready for class</b><p>Listen, act and speak together</p></section><button type="button">Start role play</button></article>
+        <article class="test-card"><div>🏆</div><section><span>WEEKEND CHALLENGE</span><b>Week 1 Test</b><p>10 questions · Listening + MCQ</p></section><button id="open-test" disabled>Complete all lessons</button></article>
+      </div>
+    </section>
+    <section id="student-vocabulary-view" class="learning-area student-view">
+      <div class="page-heading"><p class="eyebrow">PRONUNCIATION PATH</p><h1>Vocabulary and phonetics guide</h1><p>Hear the word, clap its syllables, say each part, and join the complete word.</p></div>
+      <article class="pronunciation-hero"><div><span>🔤</span><section><p class="eyebrow">WHAT IS A SYLLABLE?</p><h2>A syllable is one beat in a word.</h2><p>Book has one beat. Teach-er has two beats. Con-ver-sa-tion has four beats.</p><b id="pronunciation-guide-telugu"></b></section></div><button id="pronunciation-example-listen" class="primary" type="button">🔊 Hear an example</button></article>
+      <section><div id="pronunciation-routine" class="pronunciation-routine"></div></section>
+      <div class="syllable-tools"><div><p class="eyebrow">CHOOSE A LEVEL</p><h3>Build from one beat to four beats</h3></div><div class="syllable-filters"><button class="active" type="button" data-syllable-filter="all">All</button><button type="button" data-syllable-filter="1">1 beat</button><button type="button" data-syllable-filter="2">2 beats</button><button type="button" data-syllable-filter="3">3 beats</button><button type="button" data-syllable-filter="4">4 beats</button></div></div>
+      <div id="pronunciation-levels" class="pronunciation-levels"></div>
+    </section>
+    <section id="student-speak-view" class="learning-area student-view">
+      <div class="page-heading"><p class="eyebrow">SPEAKING LAB</p><h1>Listen, speak and build confidence</h1><p>Choose a phrase, listen carefully, and record your voice.</p></div>
+      <article class="feature-card speaking-lab"><div><span id="speak-step" class="today-label">PHRASE 1 OF 15</span><h2 id="speak-english">Hello!</h2><b id="speak-pronunciation">హలో!</b><p id="speak-meaning">నమస్కారం!</p></div><div class="speak-actions"><button id="speak-listen" class="secondary-action">🔊 Listen</button><button id="speak-record" class="primary">🎙️ Start recording</button><button id="speak-next" class="secondary-action">Next phrase →</button></div><div id="recording-result" class="recording-result">Your recording will appear here.</div></article>
+      <div class="tip-card"><b>Speaking tip · మాట్లాడే చిట్కా</b><p>Speak slowly and clearly. Mistakes are part of learning. నెమ్మదిగా, స్పష్టంగా మాట్లాడండి.</p></div>
+    </section>
+    <section id="student-practice-view" class="learning-area student-view">
+      <div class="page-heading"><p class="eyebrow">MIXED PRACTICE</p><h1>Review what you learned</h1><p>Practise questions from your completed lessons.</p></div>
+      <article class="feature-card practice-card"><span id="practice-label" class="today-label">WEEK 1 REVIEW</span><h2 id="practice-question">Choose Start practice to begin.</h2><p id="practice-telugu" class="telugu-question"></p><div class="question-audio-actions"><button id="practice-listen-english" class="secondary-action" disabled>🔊 English question</button><button id="practice-listen-telugu" class="secondary-action" disabled>🔊 తెలుగు ప్రశ్న</button></div><div id="practice-answers" class="answers"></div><div id="practice-feedback" class="inline-feedback"></div><button id="practice-button" class="primary">Start practice</button></article>
+    </section>
+    <section id="student-tests-view" class="learning-area student-view">
+      <div class="page-heading"><p class="eyebrow">ASSESSMENTS</p><h1>Your tests</h1><p>Take unlocked tests and review your scores.</p></div>
+      <article class="feature-card test-hub"><div><span class="today-label">WEEK 1</span><h2>Greetings and introductions</h2><p>10 multiple-choice questions · Pass score 70%</p></div><button id="tests-start-button" class="primary">Check availability</button></article>
+      <article class="list-card"><div class="card-title"><h3>Test history</h3><span>Saved in your account</span></div><div id="student-test-history" class="simple-list"></div></article>
+    </section>
+    <section id="student-progress-view" class="learning-area student-view">
+      <div class="page-heading"><p class="eyebrow">MY PROGRESS</p><h1>See how far you have come</h1><p>Your completed lessons, XP and assessment results.</p></div>
+      <div id="student-progress-metrics" class="metrics student-metrics"></div>
+      <article class="list-card"><div class="card-title"><h3>Week 1 lesson progress</h3><span id="progress-completion-label">0 of 5 complete</span></div><div id="student-progress-list" class="simple-list"></div></article>
+      <article class="list-card improvement-card"><div class="card-title"><div><h3>Areas to improve · మెరుగుపరచుకోవాల్సినవి</h3><p>Questions that need more practice</p></div><span id="improvement-count">0 mistakes</span></div><div id="student-improvement-list" class="simple-list"></div></article>
+      <article class="list-card"><div class="card-title"><div><h3>Mistake history · తప్పుల చరిత్ర</h3><p>Your wrong answer and the correct answer</p></div><span>All saved</span></div><div id="student-mistake-history" class="mistake-history"></div></article>
+      <article class="list-card"><div class="card-title"><h3>Teacher assignments</h3><span>Class 3A</span></div><div id="student-assignment-list" class="simple-list"></div></article>
+    </section>
+    <aside class="progress-panel">
+      <article class="panel-card"><div class="card-title"><h3>This week</h3><span>Mon–Fri</span></div><div class="week-days"><div><span class="done">✓</span><small>M</small></div><div><span class="today">T</span><small>T</small></div><div><span>W</span><small>W</small></div><div><span>T</span><small>T</small></div><div><span>F</span><small>F</small></div></div></article>
+      <article class="panel-card"><div class="card-title"><h3>Your progress</h3><button data-student-view="progress">View all</button></div><div class="stats"><div>⚡<b id="progress-xp">0</b><small>Total XP</small></div><div>📚<b id="progress-lessons">0</b><small>Lessons</small></div><div>🎯<b id="progress-accuracy">0%</b><small>Accuracy</small></div><div>🎙️<b id="progress-spoken">0</b><small>Recordings</small></div></div></article>
+      <article class="panel-card word"><p class="eyebrow">WORD OF THE DAY</p><button class="sound-button">🔊</button><h3 id="word-of-day">hello</h3><em id="word-of-day-phonetic">Say it: heh-LOH</em><b id="word-of-day-pronunciation">హలో</b><small id="word-of-day-meaning">నమస్కారం</small></article>
+    </aside>
+    <nav class="mobile-nav"><button data-student-view="learn">🏠<span>Learn</span></button><button data-student-view="vocabulary">🔤<span>Words</span></button><button data-student-view="speak">🎙️<span>Speak</span></button><button data-student-view="practice">🧩<span>Practice</span></button><button data-student-view="tests">📝<span>Tests</span></button><button data-student-view="progress">📈<span>Progress</span></button></nav>
+  </main>
+
+  <main id="lesson-screen" class="screen lesson-screen">
+    <div class="lesson-top"><button id="close-lesson" aria-label="Close lesson">✕</button><div><i id="lesson-progress-bar"></i></div><span id="lesson-counter">1 / 3</span></div>
+    <article class="exercise"><p id="exercise-eyebrow" class="eyebrow">SPEAKING PRACTICE</p><h1 id="exercise-title">Loading lesson…</h1><p id="exercise-telugu" class="telugu-question"></p><div class="audio-prompt"><div class="prompt-audio-actions"><button id="exercise-audio" type="button" aria-label="Listen in English">EN</button><button id="exercise-audio-telugu" type="button" aria-label="Listen in Telugu">తె</button></div><div><strong id="exercise-phrase"></strong><span id="exercise-pronunciation"></span></div></div><h2>Choose the correct answer:</h2><div id="exercise-answers" class="answers"></div><footer id="answer-footer"><div id="feedback"></div><button id="check-answer" disabled>Check answer</button></footer></article>
+  </main>
+
+  <main id="teacher-screen" class="screen teacher-shell">
+    <aside class="teacher-sidebar"><div><p class="eyebrow">TEACHER PORTAL</p><h2>Class 3A</h2><span id="teacher-school">Pilot School</span></div><nav><button class="nav-active" data-teacher-view="dashboard">▦ Dashboard</button><button data-teacher-view="students">♟ Students</button><button data-teacher-view="lessons">▤ Lessons</button><button data-teacher-view="assessments">✓ Assessments</button><button data-teacher-view="reports">▥ Reports</button></nav><button class="preview-student" id="preview-student">👁 Preview student view</button></aside>
+    <section class="teacher-main">
+      <div id="teacher-dashboard-view" class="teacher-view active">
+      <div class="teacher-heading"><div><p class="eyebrow">CLASS 3A · WEEK 1</p><h1>Good morning, <span id="teacher-name">Teacher</span></h1><p>Here is how your class is progressing this week.</p></div><button class="primary assign-lesson-button">+ Assign lesson</button></div>
+      <div class="metrics"><article>👥<div><small>Active students</small><b id="metric-students">0 / 0</b><em>Current class</em></div></article><article>📚<div><small>Lessons completed</small><b id="metric-lessons">0</b><em>Weekly total</em></div></article><article>🎯<div><small>Average accuracy</small><b id="metric-accuracy">0%</b><em>Week 1 test</em></div></article><article>🎙️<div><small>Speaking reviews</small><b id="metric-reviews">0</b><em class="attention">Needs attention</em></div></article></div>
+      <div class="teacher-grid">
+        <article class="roster"><div class="card-title"><div><h3>Student progress</h3><p>Class 3A · Week 1</p></div><button data-teacher-view="reports">View report</button></div><div class="roster-head"><span>Student</span><span>XP</span><span>Lessons</span><span>Test</span><span>Status</span></div><div id="student-roster"></div></article>
+        <aside><article class="assignment"><p class="eyebrow">LATEST ASSIGNMENT</p><h3 id="latest-assignment-title">No assignment yet</h3><p id="latest-assignment-detail">Assign a Week 1 lesson to Class 3A.</p><div id="latest-assignment-meta">👥 Class 3A</div><button class="assign-lesson-button">Assign lesson →</button></article><article class="review"><b>🎙️ &nbsp; Speaking practice</b><p>Students record and replay speaking practice on their devices.</p><button data-teacher-view="students">View students</button></article></aside>
+      </div>
+      <section class="teacher-guide"><div class="card-title"><div><p class="eyebrow">TEACHER MODULE</p><h3>Week 1 teaching guide</h3><p>Five ready-to-teach daily lesson plans</p></div><span>Class 3 · 61 minutes</span></div><div id="teacher-week-plan" class="teacher-week-plan"></div></section>
+      </div>
+      <div id="teacher-students-view" class="teacher-view">
+        <div class="teacher-heading"><div><p class="eyebrow">CLASS 3A</p><h1>Students</h1><p>Review every student’s Week 1 progress.</p></div><button class="primary assign-lesson-button">+ Assign lesson</button></div>
+        <article class="list-card teacher-page-card"><div class="table-tools"><input id="student-search" type="search" placeholder="Search student or ID" aria-label="Search students"><span id="student-search-count">0 students</span></div><div class="roster-head"><span>Student</span><span>XP</span><span>Lessons</span><span>Test</span><span>Status</span></div><div id="teacher-students-table"></div></article>
+      </div>
+      <div id="teacher-lessons-view" class="teacher-view">
+        <div class="teacher-heading"><div><p class="eyebrow">CURRICULUM LIBRARY</p><h1>Week 1 lessons</h1><p>Open teaching guidance or preview student practice.</p></div><button class="primary assign-lesson-button">+ Assign lesson</button></div>
+        <section class="vocabulary-section teacher-vocabulary"><header><div><p class="eyebrow">TEACHER WORD BANK</p><h3>Weekly vocabulary and pronunciation</h3><p>Use Listen → Point → Repeat → Act before asking children to read.</p></div><span id="teacher-vocabulary-count">0 words</span></header><div id="teacher-vocabulary-list" class="vocabulary-grid"></div></section>
+        <div id="teacher-lesson-library" class="lesson-library"></div>
+      </div>
+      <div id="teacher-assessments-view" class="teacher-view">
+        <div class="teacher-heading"><div><p class="eyebrow">WEEK 1 TEST</p><h1>Assessments</h1><p>Review scores and identify students who need support.</p></div></div>
+        <div id="assessment-metrics" class="metrics"></div>
+        <article class="list-card teacher-page-card"><div class="card-title"><h3>Student test results</h3><span>Pass score 70%</span></div><div id="teacher-assessment-list" class="simple-list"></div></article>
+      </div>
+      <div id="teacher-reports-view" class="teacher-view">
+        <div class="teacher-heading"><div><p class="eyebrow">CLASS 3A · WEEK 1</p><h1>Class report</h1><p>Summary of lessons, XP and assessment performance.</p></div><button id="download-report" class="primary">Download CSV</button></div>
+        <div id="report-metrics" class="metrics"></div>
+        <article class="list-card teacher-page-card"><div class="card-title"><h3>Attention required</h3><span>Based on Week 1 results</span></div><div id="attention-list" class="simple-list"></div></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="assignment-dialog" class="app-dialog"><form id="assignment-form" method="dialog"><button type="button" class="dialog-close" data-close-dialog="assignment-dialog" aria-label="Close">✕</button><p class="eyebrow">NEW ASSIGNMENT</p><h2>Assign a lesson</h2><label>Lesson<select id="assignment-lesson" required></select></label><div class="form-row"><label>Class<input value="3" disabled></label><label>Section<input id="assignment-section" value="A" maxlength="10" required></label></div><label>Due date<input id="assignment-due-date" type="date" required></label><div id="assignment-error" class="login-error"></div><button class="primary" type="submit">Assign to Class 3A</button></form></dialog>
+  <dialog id="telugu-help-dialog" class="app-dialog help-dialog"><section><button type="button" class="dialog-close" data-close-dialog="telugu-help-dialog" aria-label="Close">✕</button><p class="eyebrow">తెలుగు సహాయం</p><h2>How to use Telugu support</h2><div id="telugu-voice-status" class="voice-status"><b>Checking Telugu audio…</b><p>Please wait while the browser loads its installed voices.</p></div><button id="telugu-voice-test" type="button" class="secondary-action">🔊 Test Telugu voice</button><div class="help-steps"><article><b>1 · Listen</b><p>🔊 నొక్కి ఇంగ్లీష్ లేదా తెలుగు వాక్యాన్ని వినండి.</p></article><article><b>2 · Read</b><p>తెలుగు లిపిలో ఉన్న ఉచ్చారణను చదవండి.</p></article><article><b>3 · Speak</b><p>వాక్యాన్ని నెమ్మదిగా, స్పష్టంగా చెప్పండి.</p></article><article><b>4 · Understand</b><p>తెలుగు అర్థాన్ని చూసి వాక్యాన్ని అర్థం చేసుకోండి.</p></article></div><button type="button" class="primary" data-close-dialog="telugu-help-dialog">అర్థమైంది</button></section></dialog>
+  <dialog id="role-play-dialog" class="app-dialog role-play-dialog"><section><button type="button" class="dialog-close" data-close-dialog="role-play-dialog" aria-label="Close">✕</button><p class="eyebrow">SPOKEN ENGLISH ROLE PLAY</p><h2 id="role-play-title">Role play</h2><b id="role-play-telugu" class="role-play-telugu"></b><p id="role-play-instructions"></p><img id="role-play-scene" class="role-play-scene" alt=""><div id="role-play-turns" class="role-play-turns"></div><button id="role-play-complete" type="button" class="primary">I completed all 8 turns</button></section></dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js?v=0.8.0"></script>
+</body>
+</html>

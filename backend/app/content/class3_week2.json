@@ -1,0 +1,208 @@
+{
+  "grade": 3,
+  "week": 2,
+  "unit": 2,
+  "theme": "Me and My Classroom",
+  "theme_telugu": "నేను - నా తరగతి గది",
+  "weekly_outcome": "Students can name classroom objects, identify their belongings, follow polite classroom instructions, and complete a short getting-ready role play.",
+  "weekly_outcome_telugu": "పిల్లలు తరగతి గదిలోని వస్తువుల పేర్లు చెప్పడం, తమ వస్తువులను గుర్తించడం, మర్యాదపూర్వక సూచనలను పాటించడం, తరగతికి సిద్ధమయ్యే చిన్న పాత్రాభినయం చేయడం నేర్చుకుంటారు.",
+  "mastery_score": 67,
+  "vocabulary": [
+    {"word": "classroom", "phonetic": "KLASS-room", "pronunciation_telugu": "క్లాస్‌రూమ్", "meaning_telugu": "తరగతి గది", "icon": "🏫"},
+    {"word": "book", "phonetic": "BOOK", "pronunciation_telugu": "బుక్", "meaning_telugu": "పుస్తకం", "icon": "📘"},
+    {"word": "pencil", "phonetic": "PEN-sil", "pronunciation_telugu": "పెన్సిల్", "meaning_telugu": "రాయడానికి ఉపయోగించే పెన్సిల్", "icon": "✏️"},
+    {"word": "bag", "phonetic": "BAG", "pronunciation_telugu": "బ్యాగ్", "meaning_telugu": "సంచి", "icon": "🎒"},
+    {"word": "desk", "phonetic": "DESK", "pronunciation_telugu": "డెస్క్", "meaning_telugu": "చదువుకునే బల్ల", "icon": "🗄️"},
+    {"word": "chair", "phonetic": "CHAIR", "pronunciation_telugu": "చేర్", "meaning_telugu": "కుర్చీ", "icon": "🪑"},
+    {"word": "open", "phonetic": "OH-puhn", "pronunciation_telugu": "ఓపెన్", "meaning_telugu": "తెరవడం", "icon": "📖"},
+    {"word": "close", "phonetic": "KLOHZ", "pronunciation_telugu": "క్లోజ్", "meaning_telugu": "మూయడం", "icon": "📕"},
+    {"word": "show", "phonetic": "SHOH", "pronunciation_telugu": "షో", "meaning_telugu": "చూపించడం", "icon": "👀"},
+    {"word": "put", "phonetic": "PUT", "pronunciation_telugu": "పుట్", "meaning_telugu": "పెట్టడం", "icon": "👇"},
+    {"word": "beside", "phonetic": "bee-SYD", "pronunciation_telugu": "బిసైడ్", "meaning_telugu": "పక్కన", "icon": "↔️"},
+    {"word": "ready", "phonetic": "RED-ee", "pronunciation_telugu": "రెడీ", "meaning_telugu": "సిద్ధంగా", "icon": "✅"}
+  ],
+  "lessons": [
+    {
+      "id": "class3-unit2-lesson1",
+      "day": "MON",
+      "title": "My classroom objects",
+      "telugu_title": "నా తరగతి గదిలోని వస్తువులు",
+      "objective": "Recognize and name five familiar classroom objects.",
+      "objective_telugu": "తరగతి గదిలోని ఐదు సాధారణ వస్తువులను గుర్తించి వాటి పేర్లు చెప్పడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "This is a book.", "pronunciation_telugu": "దిస్ ఇజ్ ఎ బుక్.", "meaning_telugu": "ఇది ఒక పుస్తకం."},
+        {"english": "This is a pencil.", "pronunciation_telugu": "దిస్ ఇజ్ ఎ పెన్సిల్.", "meaning_telugu": "ఇది ఒక పెన్సిల్."},
+        {"english": "This is a school bag.", "pronunciation_telugu": "దిస్ ఇజ్ ఎ స్కూల్ బ్యాగ్.", "meaning_telugu": "ఇది ఒక స్కూల్ బ్యాగ్."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Place a real book, pencil, bag, desk, and chair where everyone can see them. Point silently and let children name any object they already know.",
+        "model": "Hold up one object at a time and say its English name twice in a clear adult female voice. Students listen before repeating.",
+        "guided_practice": "Say an object name. Students point to or hold the matching real object. Mix the order and give five to seven seconds of wait time.",
+        "pair_practice": "Student A points to an object. Student B says ‘This is a ___.’ Then they swap roles.",
+        "common_errors": "If book and bag are confused, place them side by side and contrast the two words. Correct only the word that blocks understanding.",
+        "home_practice": "Find a book, pencil, and bag at home and say each English word to a family member."
+      },
+      "questions": [
+        {"id": "w2l1q1", "skill_tag": "object_name", "prompt": "Which one is a classroom object?", "prompt_telugu": "వీటిలో తరగతి గదిలో ఉండే వస్తువు ఏది?", "audio": "Book", "pronunciation_telugu": "బుక్", "choices": ["Rain", "Book", "Cloud"], "correct_index": 1, "feedback": "A book is a classroom object.", "feedback_telugu": "పుస్తకం తరగతి గదిలో ఉపయోగించే వస్తువు."},
+        {"id": "w2l1q2", "skill_tag": "object_name", "prompt": "Which object do you write with?", "prompt_telugu": "నువ్వు ఏ వస్తువుతో వ్రాస్తావు?", "audio": "Pencil", "pronunciation_telugu": "పెన్సిల్", "choices": ["Pencil", "Chair", "Bag"], "correct_index": 0, "feedback": "We write with a pencil.", "feedback_telugu": "మనం పెన్సిల్‌తో వ్రాస్తాము."},
+        {"id": "w2l1q3", "skill_tag": "object_name", "prompt": "Which object do you sit on?", "prompt_telugu": "నువ్వు ఏ వస్తువుపై కూర్చుంటావు?", "audio": "Chair", "pronunciation_telugu": "చెయర్", "choices": ["Book", "Chair", "Pencil"], "correct_index": 1, "feedback": "We sit on a chair.", "feedback_telugu": "మనం కుర్చీపై కూర్చుంటాము."}
+      ]
+    },
+    {
+      "id": "class3-unit2-lesson2",
+      "day": "TUE",
+      "title": "This is my book",
+      "telugu_title": "ఇది నా పుస్తకం",
+      "objective": "Identify a personal classroom object using a complete sentence.",
+      "objective_telugu": "తన వస్తువును పూర్తి ఇంగ్లీష్ వాక్యంతో పరిచయం చేయడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "This is my book.", "pronunciation_telugu": "దిస్ ఇజ్ మై బుక్.", "meaning_telugu": "ఇది నా పుస్తకం."},
+        {"english": "This is my pencil.", "pronunciation_telugu": "దిస్ ఇజ్ మై పెన్సిల్.", "meaning_telugu": "ఇది నా పెన్సిల్."},
+        {"english": "This is my bag.", "pronunciation_telugu": "దిస్ ఇజ్ మై బ్యాగ్.", "meaning_telugu": "ఇది నా బ్యాగ్."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Ask children to hold one belonging. Confirm that each learner is holding their own object before speaking.",
+        "model": "Hold your book close to you and say ‘This is my book.’ Emphasize ‘my’ with a gentle hand-to-chest gesture.",
+        "guided_practice": "Show a book, pencil, and bag. The class completes ‘This is my ___.’ for each object.",
+        "pair_practice": "Partners take turns showing two belongings and saying one complete sentence for each.",
+        "common_errors": "Recast ‘This my book’ as ‘This is my book.’ Keep the correction short and ask the learner to repeat once.",
+        "home_practice": "Show one school item at home and say ‘This is my ___.’"
+      },
+      "questions": [
+        {"id": "w2l2q1", "skill_tag": "this_is_my", "prompt": "Complete: This is my ____.", "prompt_telugu": "వాక్యాన్ని పూర్తి చేయండి: ‘దిస్ ఇజ్ మై ____.’", "audio": "This is my book.", "pronunciation_telugu": "దిస్ ఇజ్ మై బుక్.", "choices": ["open", "book", "show"], "correct_index": 1, "feedback": "‘Book’ completes the object sentence.", "feedback_telugu": "‘బుక్’ అనే పదంతో వాక్యం పూర్తవుతుంది."},
+        {"id": "w2l2q2", "skill_tag": "this_is_my", "prompt": "Choose the complete object sentence.", "prompt_telugu": "పూర్తిగా ఉన్న వస్తువు వాక్యాన్ని ఎంచుకోండి.", "audio": "This is my pencil.", "pronunciation_telugu": "దిస్ ఇజ్ మై పెన్సిల్.", "choices": ["This pencil my.", "This is my pencil.", "My is pencil."], "correct_index": 1, "feedback": "‘This is my pencil’ has the correct word order.", "feedback_telugu": "‘దిస్ ఇజ్ మై పెన్సిల్’ సరైన పదక్రమంలో ఉంది."},
+        {"id": "w2l2q3", "skill_tag": "this_is_my", "prompt": "Tara shows her bag. What should she say?", "prompt_telugu": "తారా తన బ్యాగ్‌ను చూపిస్తోంది. ఆమె ఏమని చెప్పాలి?", "audio": "This is my bag.", "pronunciation_telugu": "దిస్ ఇజ్ మై బ్యాగ్.", "choices": ["This is my bag.", "Please open the chair.", "This bag is pencil."], "correct_index": 0, "feedback": "She identifies her own bag with ‘This is my bag.’", "feedback_telugu": "తన బ్యాగ్‌ను చూపిస్తూ ‘దిస్ ఇజ్ మై బ్యాగ్’ అని చెప్పాలి."}
+      ]
+    },
+    {
+      "id": "class3-unit2-lesson3",
+      "day": "WED",
+      "title": "Please open your book",
+      "telugu_title": "దయచేసి నీ పుస్తకాన్ని తెరువు",
+      "objective": "Understand a polite classroom instruction and perform the matching action.",
+      "objective_telugu": "మర్యాదపూర్వక సూచనను అర్థం చేసుకుని సరైన చర్య చేయడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "Please open your book.", "pronunciation_telugu": "ప్లీజ్ ఓపెన్ యోర్ బుక్.", "meaning_telugu": "దయచేసి నీ పుస్తకాన్ని తెరువు."},
+        {"english": "Okay, teacher.", "pronunciation_telugu": "ఓకే, టీచర్.", "meaning_telugu": "సరే, టీచర్."},
+        {"english": "My book is open.", "pronunciation_telugu": "మై బుక్ ఇజ్ ఓపెన్.", "meaning_telugu": "నా పుస్తకం తెరిచి ఉంది."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Show an open book and a closed book. Children copy the action before they hear the English words.",
+        "model": "Say ‘Please open your book,’ pause, and perform the action. Model ‘Okay, teacher’ as the learner’s polite reply.",
+        "guided_practice": "Give the instruction to the whole class, then to small groups. Check the action instead of asking children to translate.",
+        "pair_practice": "Student A gives the instruction. Student B says ‘Okay’ and opens the book. Swap roles.",
+        "common_errors": "If learners act before the instruction finishes, ask them to keep hands still, listen to the full sentence, and then act.",
+        "home_practice": "Ask a family member to say ‘Please open your book’ and perform the action."
+      },
+      "questions": [
+        {"id": "w2l3q1", "skill_tag": "listen_action", "prompt": "Teacher says, ‘Please open your book.’ What should you do?", "prompt_telugu": "టీచర్ ‘ప్లీజ్ ఓపెన్ యోర్ బుక్’ అన్నారు. నువ్వు ఏమి చేయాలి?", "audio": "Please open your book.", "pronunciation_telugu": "ప్లీజ్ ఓపెన్ యోర్ బుక్.", "choices": ["Close the bag.", "Open the book.", "Show the chair."], "correct_index": 1, "feedback": "Open the book after listening to the full instruction.", "feedback_telugu": "పూర్తి సూచన విన్న తర్వాత పుస్తకాన్ని తెరవాలి."},
+        {"id": "w2l3q2", "skill_tag": "polite_response", "prompt": "Choose a polite response to the teacher.", "prompt_telugu": "టీచర్‌కు చెప్పే మర్యాదపూర్వక సమాధానాన్ని ఎంచుకోండి.", "audio": "Okay, teacher.", "pronunciation_telugu": "ఓకే, టీచర్.", "choices": ["Okay, teacher.", "Book chair now.", "No morning pencil."], "correct_index": 0, "feedback": "‘Okay, teacher’ shows that you listened and understood.", "feedback_telugu": "‘ఓకే, టీచర్’ అంటే నువ్వు విని అర్థం చేసుకున్నావని తెలియజేస్తుంది."},
+        {"id": "w2l3q3", "skill_tag": "instruction_order", "prompt": "Choose the polite instruction.", "prompt_telugu": "మర్యాదపూర్వక సూచనను ఎంచుకోండి.", "audio": "Please open your book.", "pronunciation_telugu": "ప్లీజ్ ఓపెన్ యోర్ బుక్.", "choices": ["Book open now.", "Please open your book.", "Your book please is."], "correct_index": 1, "feedback": "The sentence begins politely with ‘Please’ and has the correct word order.", "feedback_telugu": "వాక్యం ‘ప్లీజ్’తో మర్యాదగా మొదలై సరైన పదక్రమంలో ఉంది."}
+      ]
+    },
+    {
+      "id": "class3-unit2-lesson4",
+      "day": "THU",
+      "title": "Open, close and show",
+      "telugu_title": "తెరువు, మూయి, చూపించు",
+      "objective": "Distinguish three classroom actions and follow the correct instruction.",
+      "objective_telugu": "మూడు తరగతి గది చర్యలను గుర్తించి సరైన సూచనను పాటించడం.",
+      "duration_minutes": 12,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "Please close your book.", "pronunciation_telugu": "ప్లీజ్ క్లోజ్ యోర్ బుక్.", "meaning_telugu": "దయచేసి నీ పుస్తకాన్ని మూయి."},
+        {"english": "Please show me your pencil.", "pronunciation_telugu": "ప్లీజ్ షో మీ యోర్ పెన్సిల్.", "meaning_telugu": "దయచేసి నీ పెన్సిల్ నాకు చూపించు."},
+        {"english": "Here is my pencil.", "pronunciation_telugu": "హియర్ ఇజ్ మై పెన్సిల్.", "meaning_telugu": "ఇదిగో నా పెన్సిల్."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Use silent actions for open, close, and show. Let learners copy before adding the English words.",
+        "model": "Give one instruction at a time with real objects. Keep the actions clearly different.",
+        "guided_practice": "Mix the three instructions. Learners wait, listen fully, say ‘Okay,’ and perform the matching action.",
+        "pair_practice": "Partners give and follow three instructions. They award one point only when the object and action are both correct.",
+        "common_errors": "If open and close are confused, repeat only those two actions slowly with a closed book as the starting position.",
+        "home_practice": "Use open, close, and show with a book or pencil at home."
+      },
+      "questions": [
+        {"id": "w2l4q1", "skill_tag": "open_close", "prompt": "Teacher says, ‘Please close your book.’ Choose the correct action.", "prompt_telugu": "టీచర్ ‘ప్లీజ్ క్లోజ్ యోర్ బుక్’ అన్నారు. సరైన చర్య ఏది?", "audio": "Please close your book.", "pronunciation_telugu": "ప్లీజ్ క్లోజ్ యోర్ బుక్.", "choices": ["Open the bag.", "Close the book.", "Show the pencil."], "correct_index": 1, "feedback": "‘Close’ means to shut the book.", "feedback_telugu": "‘క్లోజ్’ అంటే పుస్తకాన్ని మూయడం."},
+        {"id": "w2l4q2", "skill_tag": "listen_action", "prompt": "Teacher says, ‘Please show me your pencil.’ What should you show?", "prompt_telugu": "టీచర్ ‘ప్లీజ్ షో మీ యోర్ పెన్సిల్’ అన్నారు. నువ్వు ఏమి చూపించాలి?", "audio": "Please show me your pencil.", "pronunciation_telugu": "ప్లీజ్ షో మీ యోర్ పెన్సిల్.", "choices": ["A pencil", "A desk", "A chair"], "correct_index": 0, "feedback": "Show the pencil named in the instruction.", "feedback_telugu": "సూచనలో చెప్పిన పెన్సిల్‌ను చూపించాలి."},
+        {"id": "w2l4q3", "skill_tag": "polite_response", "prompt": "Choose the best reply while showing your pencil.", "prompt_telugu": "నీ పెన్సిల్‌ను చూపిస్తూ చెప్పే సరైన సమాధానం ఏది?", "audio": "Here is my pencil.", "pronunciation_telugu": "హియర్ ఇజ్ మై పెన్సిల్.", "choices": ["Here is my pencil.", "Open is chair.", "Good night book."], "correct_index": 0, "feedback": "‘Here is my pencil’ matches the action.", "feedback_telugu": "‘హియర్ ఇజ్ మై పెన్సిల్’ అనే వాక్యం చేసే చర్యకు సరిపోతుంది."}
+      ]
+    },
+    {
+      "id": "class3-unit2-lesson5",
+      "day": "FRI",
+      "title": "Getting ready for class",
+      "telugu_title": "తరగతికి సిద్ధమవడం",
+      "objective": "Use the week’s object sentences and instructions in a complete classroom role play.",
+      "objective_telugu": "ఈ వారం నేర్చుకున్న వస్తువు వాక్యాలు, సూచనలను పూర్తి పాత్రాభినయంలో ఉపయోగించడం.",
+      "duration_minutes": 15,
+      "xp": 20,
+      "key_phrases": [
+        {"english": "Please show me your book.", "pronunciation_telugu": "ప్లీజ్ షో మీ యోర్ బుక్.", "meaning_telugu": "దయచేసి నీ పుస్తకం నాకు చూపించు."},
+        {"english": "This is my book.", "pronunciation_telugu": "దిస్ ఇజ్ మై బుక్.", "meaning_telugu": "ఇది నా పుస్తకం."},
+        {"english": "I am ready.", "pronunciation_telugu": "ఐ యామ్ రెడీ.", "meaning_telugu": "నేను సిద్ధంగా ఉన్నాను."}
+      ],
+      "teacher_guidance": {
+        "warm_up": "Arrange a bag, book, pencil, desk, and chair in a small acting area. Review each object with one quick point-and-say round.",
+        "model": "Perform all eight role-play turns with one learner. Match every instruction with a visible action.",
+        "guided_practice": "Use an echo round: teacher says one line, class repeats, and a learner performs the action.",
+        "pair_practice": "Pairs complete the eight turns, swap roles, and repeat without reading when ready.",
+        "common_errors": "Do not interrupt the role play for every error. Note the object, action, or phrase that needs practice and reteach it after the scene.",
+        "home_practice": "Use a bag, book, and pencil to perform the full classroom scene for a family member."
+      },
+      "questions": [
+        {"id": "w2l5q1", "skill_tag": "role_play_sequence", "prompt": "Which line begins the getting-ready conversation?", "prompt_telugu": "తరగతికి సిద్ధమయ్యే సంభాషణను ఏ వాక్యంతో ప్రారంభించాలి?", "audio": "Good morning, Tara.", "pronunciation_telugu": "గుడ్ మార్నింగ్, తారా.", "choices": ["Good morning, Tara.", "Close pencil night.", "My chair is morning."], "correct_index": 0, "feedback": "Begin the classroom conversation with a greeting.", "feedback_telugu": "తరగతి గది సంభాషణను పలకరింపుతో ప్రారంభించాలి."},
+        {"id": "w2l5q2", "skill_tag": "role_play_sequence", "prompt": "Teacher says, ‘Please show me your book.’ Choose Tara’s reply.", "prompt_telugu": "టీచర్ ‘ప్లీజ్ షో మీ యోర్ బుక్’ అన్నారు. తారా ఏమని చెప్పాలి?", "audio": "This is my book.", "pronunciation_telugu": "దిస్ ఇజ్ మై బుక్.", "choices": ["This is my book.", "Please open the chair.", "My pencil is night."], "correct_index": 0, "feedback": "Tara shows the book and identifies it.", "feedback_telugu": "తారా పుస్తకాన్ని చూపిస్తూ అది తన పుస్తకమని చెబుతుంది."},
+        {"id": "w2l5q3", "skill_tag": "role_play_sequence", "prompt": "Choose the best ending after Tara shows her pencil.", "prompt_telugu": "తారా తన పెన్సిల్‌ను చూపించిన తర్వాత చెప్పే సరైన ముగింపు ఏది?", "audio": "Here is my pencil. I am ready.", "pronunciation_telugu": "హియర్ ఇజ్ మై పెన్సిల్. ఐ యామ్ రెడీ.", "choices": ["Here is my pencil. I am ready.", "Book open yesterday.", "Please is my chair."], "correct_index": 0, "feedback": "The ending names the object and says Tara is ready.", "feedback_telugu": "ఈ ముగింపులో తారా వస్తువును చూపించి తాను సిద్ధంగా ఉన్నానని చెబుతుంది."}
+      ]
+    }
+  ],
+  "role_play": {
+    "id": "class3-unit2-week2-roleplay",
+    "title": "Getting ready for class",
+    "telugu_title": "తరగతికి సిద్ధమవడం",
+    "instructions": "Listen to every line, perform the matching action, swap roles, and complete all eight turns.",
+    "instructions_telugu": "ప్రతి వాక్యాన్ని విని, సరైన చర్య చేసి, పాత్రలను మార్చుకుని మొత్తం ఎనిమిది సంభాషణలను పూర్తి చేయండి.",
+    "image": "/assets/week2-roleplay.jpg",
+    "image_alt": "Parrot Teacher and Tara getting ready for class",
+    "required_for_test": true,
+    "xp": 20,
+    "turns": [
+      {"speaker": "Parrot Teacher", "english": "Good morning, Tara. Please put your bag beside the desk.", "action": "Point beside the desk."},
+      {"speaker": "Tara", "english": "Okay, teacher. This is my bag.", "action": "Place the bag carefully."},
+      {"speaker": "Parrot Teacher", "english": "Please show me your book.", "action": "Look at Tara’s hands."},
+      {"speaker": "Tara", "english": "This is my book.", "action": "Show the book."},
+      {"speaker": "Parrot Teacher", "english": "Please open your book.", "action": "Demonstrate opening."},
+      {"speaker": "Tara", "english": "Okay, teacher. My book is open.", "action": "Open the book."},
+      {"speaker": "Parrot Teacher", "english": "Please show me your pencil.", "action": "Wait for the correct object."},
+      {"speaker": "Tara", "english": "Here is my pencil. I am ready.", "action": "Show the pencil and smile."}
+    ]
+  },
+  "weekend_test": {
+    "id": "class3-unit2-week2-test",
+    "title": "Week 2 Challenge",
+    "telugu_title": "రెండో వారం పరీక్ష",
+    "instructions": "Listen to the question and all three options. Choose one answer. Results appear only after final submission.",
+    "instructions_telugu": "ప్రశ్నను, మూడు ఎంపికలను పూర్తిగా విని ఒక సమాధానాన్ని ఎంచుకోండి. చివరగా సమర్పించిన తర్వాత మాత్రమే ఫలితం కనిపిస్తుంది.",
+    "xp": 50,
+    "pass_score": 70,
+    "questions": [
+      {"id": "w2tq1", "skill_tag": "object_name", "prompt": "Which object do you read?", "prompt_telugu": "నువ్వు ఏ వస్తువును చదువుతావు?", "audio": "Which object do you read?", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["A chair", "A book", "A bag"], "correct_index": 1},
+      {"id": "w2tq2", "skill_tag": "object_name", "prompt": "Which object do you write with?", "prompt_telugu": "నువ్వు ఏ వస్తువుతో వ్రాస్తావు?", "audio": "Which object do you write with?", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["A desk", "A book", "A pencil"], "correct_index": 2},
+      {"id": "w2tq3", "skill_tag": "listen_action", "prompt": "Teacher says, ‘Please open your book.’ What should you do?", "prompt_telugu": "టీచర్ ‘ప్లీజ్ ఓపెన్ యోర్ బుక్’ అన్నారు. నువ్వు ఏమి చేయాలి?", "audio": "Teacher says, please open your book. What should you do?", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["Open the book", "Close the bag", "Show the chair"], "correct_index": 0},
+      {"id": "w2tq4", "skill_tag": "this_is_my", "prompt": "Complete: This is my ____.", "prompt_telugu": "వాక్యాన్ని పూర్తి చేయండి: ‘దిస్ ఇజ్ మై ____.’", "audio": "Complete: This is my blank.", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["open", "bag", "show"], "correct_index": 1},
+      {"id": "w2tq5", "skill_tag": "this_is_my", "prompt": "Which sentence identifies an object?", "prompt_telugu": "వస్తువును పరిచయం చేసే వాక్యం ఏది?", "audio": "Which sentence identifies an object?", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["Please sit down.", "Open your book.", "This is my book."], "correct_index": 2},
+      {"id": "w2tq6", "skill_tag": "instruction_order", "prompt": "Choose the correct word order.", "prompt_telugu": "సరైన పదక్రమంలో ఉన్న వాక్యాన్ని ఎంచుకోండి.", "audio": "Choose the correct word order.", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["Please open your book.", "Your book please open.", "Open please book your."], "correct_index": 0},
+      {"id": "w2tq7", "skill_tag": "polite_response", "prompt": "Teacher says, ‘Please close your book.’ Choose the best response.", "prompt_telugu": "టీచర్ ‘ప్లీజ్ క్లోజ్ యోర్ బుక్’ అన్నారు. సరైన సమాధానాన్ని ఎంచుకోండి.", "audio": "Teacher says, please close your book. Choose the best response.", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["This is chair.", "Okay, teacher.", "Open pencil."], "correct_index": 1},
+      {"id": "w2tq8", "skill_tag": "object_name", "prompt": "Which classroom object do you sit on?", "prompt_telugu": "తరగతి గదిలో నువ్వు ఏ వస్తువుపై కూర్చుంటావు?", "audio": "Which classroom object do you sit on?", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["A bag", "A pencil", "A chair"], "correct_index": 2},
+      {"id": "w2tq9", "skill_tag": "listen_action", "prompt": "Teacher says, ‘Put your book on the desk.’ Which object receives the book?", "prompt_telugu": "టీచర్ ‘పుట్ యోర్ బుక్ ఆన్ ద డెస్క్’ అన్నారు. పుస్తకాన్ని ఏ వస్తువుపై పెట్టాలి?", "audio": "Teacher says, put your book on the desk. Which object receives the book?", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["The desk", "The pencil", "The bag"], "correct_index": 0},
+      {"id": "w2tq10", "skill_tag": "role_play_sequence", "prompt": "Choose the best classroom exchange.", "prompt_telugu": "సరైన తరగతి గది సంభాషణను ఎంచుకోండి.", "audio": "Choose the best classroom exchange.", "pronunciation_telugu": "ప్రశ్నను వినండి.", "choices": ["Teacher: Open. Student: Pencil chair.", "Teacher: This is my book. Student: Please.", "Teacher: Please show your book. Student: Okay, teacher. This is my book."], "correct_index": 2}
+    ]
+  }
+}

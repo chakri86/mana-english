@@ -1,0 +1,22 @@
+[Unit]
+Description=Mana English PostgreSQL 16
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/library/postgres:16-alpine
+ContainerName=mana-english-db
+Network=mana-english.network
+Volume=mana-english-db.volume:/var/lib/postgresql/data:Z
+EnvironmentFile=/etc/mana-english/db.env
+HealthCmd=pg_isready -U mana_app -d mana_english
+HealthInterval=10s
+HealthTimeout=5s
+HealthRetries=10
+
+[Service]
+Restart=always
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

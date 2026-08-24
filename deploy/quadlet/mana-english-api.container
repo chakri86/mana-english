@@ -1,0 +1,22 @@
+[Unit]
+Description=Mana English FastAPI service
+Requires=mana-english-db.service
+After=mana-english-db.service
+
+[Container]
+Image=localhost/mana-english-api:0.8.0
+ContainerName=mana-english-api
+Network=mana-english.network
+PublishPort=127.0.0.1:8000:8000
+EnvironmentFile=/etc/mana-english/api.env
+HealthCmd=python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"
+HealthInterval=20s
+HealthTimeout=5s
+HealthRetries=5
+
+[Service]
+Restart=always
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

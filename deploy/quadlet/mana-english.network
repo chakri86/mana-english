@@ -1,0 +1,5 @@
+[Unit]
+Description=Mana English application network
+
+[Network]
+NetworkName=mana-english
