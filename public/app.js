@@ -352,6 +352,10 @@
     document.getElementById("role-play-title").textContent = rolePlay.title;
     document.getElementById("role-play-telugu").textContent = rolePlay.telugu_title;
     document.getElementById("role-play-instructions").textContent = `${rolePlay.instructions} ${rolePlay.instructions_telugu}`;
+    const scene = document.getElementById("role-play-scene");
+    scene.src = rolePlay.image || "";
+    scene.alt = rolePlay.image_alt || rolePlay.title;
+    scene.hidden = !rolePlay.image;
     const turns = rolePlay.turns.map((turn, index) => {
       const row = document.createElement("article");
       row.className = "role-play-turn";
@@ -451,10 +455,10 @@
     const rolePlayReady = rolePlayCompleted(progress);
     const weekReady = completed >= moduleData.lessons.length && rolePlayReady;
     testsButton.disabled = !weekReady;
-    testsButton.textContent = testRecord && testRecord.status === "completed"
-      ? `Retake Week ${activeWeek} test · ${testRecord.score}%`
-      : !rolePlayReady
-        ? "Complete the role play"
+    testsButton.textContent = !rolePlayReady
+      ? "Complete the role play"
+      : testRecord && testRecord.status === "completed"
+        ? `Retake Week ${activeWeek} test · ${testRecord.score}%`
         : weekReady
           ? `Start Week ${activeWeek} test`
           : `Complete ${moduleData.lessons.length - completed} more lesson${moduleData.lessons.length - completed === 1 ? "" : "s"}`;
@@ -571,10 +575,10 @@
     const testRecord = records.get(moduleData.weekend_test.id);
     const weekReady = completed >= moduleData.lessons.length && rolePlayCompleted(progress);
     testButton.disabled = !weekReady;
-    testButton.textContent = testRecord && testRecord.status === "completed"
-      ? `Retake · ${testRecord.score}%`
-      : !rolePlayCompleted(progress)
-        ? "Complete role play"
+    testButton.textContent = !rolePlayCompleted(progress)
+      ? "Complete role play"
+      : testRecord && testRecord.status === "completed"
+        ? `Retake · ${testRecord.score}%`
         : weekReady ? "Start test" : "Complete all lessons";
     improvementData = improvements;
     renderStudentSecondary(user, progress, assignments, improvements);

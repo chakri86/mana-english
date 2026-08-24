@@ -94,6 +94,15 @@ class ClassThreeWeekOneTests(unittest.TestCase):
             self.assertNotEqual(question["pronunciation_telugu"], source["pronunciation_telugu"])
             self.assertEqual(question["audio"], question["prompt"])
 
+    def test_week_one_role_play_matches_the_approved_eight_turn_script(self):
+        role_play = self.module["role_play"]
+        self.assertTrue(role_play["required_for_test"])
+        self.assertEqual(role_play["image"], "/assets/week1-roleplay.jpg")
+        self.assertEqual(len(role_play["turns"]), 8)
+        self.assertEqual(role_play["turns"][0]["english"], "Good morning, teacher.")
+        self.assertIn("What is your name?", role_play["turns"][2]["english"])
+        self.assertEqual(role_play["turns"][-1]["english"], "Thank you, teacher.")
+
 
 class ClassThreeWeekTwoTests(unittest.TestCase):
     @classmethod
@@ -121,6 +130,7 @@ class ClassThreeWeekTwoTests(unittest.TestCase):
     def test_week_two_role_play_has_eight_exact_turns_and_is_required(self):
         role_play = self.module["role_play"]
         self.assertTrue(role_play["required_for_test"])
+        self.assertEqual(role_play["image"], "/assets/week2-roleplay.jpg")
         self.assertEqual(len(role_play["turns"]), 8)
         self.assertEqual(role_play["turns"][0]["speaker"], "Parrot Teacher")
         self.assertEqual(role_play["turns"][1]["speaker"], "Tara")

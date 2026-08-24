@@ -1,4 +1,4 @@
-# Mana English Phase 6 v0.6.1
+# Mana English Phase 6 v0.6.2
 
 Secure pilot web application for spoken-English learning in Classes 3–5 in Andhra Pradesh and Telangana. The interface combines English, Telugu pronunciation support, Telugu meaning, practice lessons, and a teacher progress view.
 
@@ -12,8 +12,8 @@ Secure pilot web application for spoken-English learning in Classes 3–5 in And
 - Week selector for students and teachers with progress kept separate by week
 - Ten complete daily lessons with 30 guided practice questions across both weeks
 - Week 2 classroom-object and instruction module based on the approved student workbook and teacher guide
-- Eight-turn “Getting ready for class” role play with female English audio on every line
-- Week 2 test unlock requires all five lessons plus the role play
+- Eight-turn role plays for both weeks with female English audio on every line
+- Each weekend test unlock requires all five lessons plus that week’s role play
 - One clear Telugu pronunciation guide and one child-friendly Telugu meaning for every key phrase
 - Teacher warm-up, modelling, guided-practice, pair-practice, error-correction, and home-practice notes
 - A 10-question weekend test scored securely by the API
@@ -83,7 +83,7 @@ podman ps
 Expected health response:
 
 ```json
-{"status":"ok","service":"mana-english-api","version":"0.6.1"}
+{"status":"ok","service":"mana-english-api","version":"0.6.2"}
 ```
 
 ## Architecture

@@ -15,12 +15,13 @@ CONF_DIR="/etc/mana-english"
 QUADLET_DIR="/etc/containers/systemd"
 BACKUP_ROOT="/var/backups/mana-english"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-IMAGE_NAME="localhost/mana-english-api:0.6.1"
+IMAGE_NAME="localhost/mana-english-api:0.6.2"
 
 for file in \
   "${SOURCE_DIR}/index.html" \
   "${SOURCE_DIR}/styles.css" \
   "${SOURCE_DIR}/app.js" \
+  "${SOURCE_DIR}/assets/week1-roleplay.jpg" \
   "${SOURCE_DIR}/assets/week2-roleplay.jpg" \
   "${BACKEND_DIR}/Containerfile" \
   "${BACKEND_DIR}/requirements.txt" \
@@ -46,7 +47,9 @@ for file in index.html styles.css app.js; do
   install -m 0644 "${SOURCE_DIR}/${file}" "${WEB_ROOT}/${file}"
 done
 
-install -m 0644 "${SOURCE_DIR}/assets/week2-roleplay.jpg" "${WEB_ROOT}/assets/week2-roleplay.jpg"
+for asset in week1-roleplay.jpg week2-roleplay.jpg; do
+  install -m 0644 "${SOURCE_DIR}/assets/${asset}" "${WEB_ROOT}/assets/${asset}"
+done
 
 if [[ -f /etc/nginx/default.d/mana-english-api.conf ]]; then
   cp -a /etc/nginx/default.d/mana-english-api.conf "${BACKUP_ROOT}/${STAMP}/"
@@ -130,7 +133,7 @@ curl -fsS http://localhost/api/health
 curl -fsS http://localhost/ | grep -q "Mana English"
 
 echo
-echo "Mana English Phase 6 v0.6.1 deployed successfully."
+echo "Mana English Phase 6 v0.6.2 deployed successfully."
 echo "Open: http://192.168.247.200"
 echo
 echo "Student login"

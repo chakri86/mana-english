@@ -298,6 +298,27 @@
       ]
     }
   ],
+  "role_play": {
+    "id": "class3-unit1-week1-roleplay",
+    "title": "At the classroom door",
+    "telugu_title": "తరగతి గది తలుపు దగ్గర",
+    "instructions": "Listen to every line, use the matching action, swap roles, and complete all eight turns.",
+    "instructions_telugu": "ప్రతి వాక్యాన్ని విని, సరైన హావభావంతో చెప్పి, పాత్రలను మార్చుకుని మొత్తం ఎనిమిది సంభాషణలను పూర్తి చేయండి.",
+    "image": "/assets/week1-roleplay.jpg",
+    "image_alt": "Parrot Teacher welcomes Tara at the classroom door",
+    "required_for_test": true,
+    "xp": 20,
+    "turns": [
+      {"speaker": "Tara", "english": "Good morning, teacher.", "action": "Walk to the door and smile."},
+      {"speaker": "Parrot Teacher", "english": "Good morning. Please come in.", "action": "Smile and welcome Tara."},
+      {"speaker": "Parrot Teacher", "english": "Hello. My name is Mrs Parrot. What is your name?", "action": "Point gently to yourself, then to Tara."},
+      {"speaker": "Tara", "english": "Hello. My name is Tara.", "action": "Point to yourself."},
+      {"speaker": "Parrot Teacher", "english": "Nice to meet you, Tara.", "action": "Nod warmly."},
+      {"speaker": "Tara", "english": "Nice to meet you too, teacher.", "action": "Reply clearly."},
+      {"speaker": "Parrot Teacher", "english": "Welcome to our class.", "action": "Gesture towards the classroom."},
+      {"speaker": "Tara", "english": "Thank you, teacher.", "action": "Walk inside happily."}
+    ]
+  },
   "weekend_test": {
     "id": "class3-unit1-week1-test",
     "title": "Week 1 Challenge",
