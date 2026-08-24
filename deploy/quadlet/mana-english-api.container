@@ -4,7 +4,7 @@ Requires=mana-english-db.service
 After=mana-english-db.service
 
 [Container]
-Image=localhost/mana-english-api:0.6.0
+Image=localhost/mana-english-api:0.6.1
 ContainerName=mana-english-api
 Network=mana-english.network
 PublishPort=127.0.0.1:8000:8000

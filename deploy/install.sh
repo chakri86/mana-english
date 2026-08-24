@@ -15,12 +15,13 @@ CONF_DIR="/etc/mana-english"
 QUADLET_DIR="/etc/containers/systemd"
 BACKUP_ROOT="/var/backups/mana-english"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-IMAGE_NAME="localhost/mana-english-api:0.6.0"
+IMAGE_NAME="localhost/mana-english-api:0.6.1"
 
 for file in \
   "${SOURCE_DIR}/index.html" \
   "${SOURCE_DIR}/styles.css" \
   "${SOURCE_DIR}/app.js" \
+  "${SOURCE_DIR}/assets/week2-roleplay.jpg" \
   "${BACKEND_DIR}/Containerfile" \
   "${BACKEND_DIR}/requirements.txt" \
   "${BACKEND_DIR}/app/content/class3_week1.json" \
@@ -35,7 +36,7 @@ firewall-cmd --permanent --add-service=http >/dev/null
 firewall-cmd --permanent --add-service=https >/dev/null
 firewall-cmd --reload >/dev/null
 
-install -d -m 0755 "${WEB_ROOT}" "${BACKUP_ROOT}/${STAMP}" "${QUADLET_DIR}"
+install -d -m 0755 "${WEB_ROOT}" "${WEB_ROOT}/assets" "${BACKUP_ROOT}/${STAMP}" "${QUADLET_DIR}"
 install -d -m 0700 "${CONF_DIR}"
 
 for file in index.html styles.css app.js; do
@@ -44,6 +45,8 @@ for file in index.html styles.css app.js; do
   fi
   install -m 0644 "${SOURCE_DIR}/${file}" "${WEB_ROOT}/${file}"
 done
+
+install -m 0644 "${SOURCE_DIR}/assets/week2-roleplay.jpg" "${WEB_ROOT}/assets/week2-roleplay.jpg"
 
 if [[ -f /etc/nginx/default.d/mana-english-api.conf ]]; then
   cp -a /etc/nginx/default.d/mana-english-api.conf "${BACKUP_ROOT}/${STAMP}/"
@@ -127,7 +130,7 @@ curl -fsS http://localhost/api/health
 curl -fsS http://localhost/ | grep -q "Mana English"
 
 echo
-echo "Mana English Phase 5 deployed successfully."
+echo "Mana English Phase 6 v0.6.1 deployed successfully."
 echo "Open: http://192.168.247.200"
 echo
 echo "Student login"

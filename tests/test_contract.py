@@ -18,6 +18,8 @@ class PhaseTwoContractTests(unittest.TestCase):
             "student-roster",
         ):
             self.assertIn(f'id="{element_id}"', html)
+        self.assertIn('/styles.css?v=0.6.1', html)
+        self.assertIn('/app.js?v=0.6.1', html)
 
     def test_browser_uses_authenticated_api(self):
         javascript = (ROOT / "public/app.js").read_text(encoding="utf-8")
@@ -53,6 +55,8 @@ class PhaseTwoContractTests(unittest.TestCase):
         installer = (ROOT / "deploy/install.sh").read_text(encoding="utf-8")
         self.assertIn("PublishPort=127.0.0.1:8000:8000", quadlet)
         self.assertIn('chmod 0600 "${CONF_DIR}"/*.env "${CREDENTIAL_FILE}"', installer)
+        self.assertIn('"${SOURCE_DIR}/assets/week2-roleplay.jpg"', installer)
+        self.assertIn('"${WEB_ROOT}/assets/week2-roleplay.jpg"', installer)
         self.assertNotIn("change-me", installer.lower())
 
     def test_demo_credentials_can_be_rotated_without_resetting_progress(self):
